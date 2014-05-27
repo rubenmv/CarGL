@@ -19,3 +19,18 @@
 *.exe
 *.out
 *.app
+
+# Exceptions
+!libsfml-graphics.a
+!libsfml-graphics-d.a
+!libsfml-system.a
+!libsfml-system-d.a
+!libsfml-window.a
+!libsfml-window-d.a
+
+!sfml-graphics-2.dll
+!sfml-graphics-d-2.dll
+!sfml-system-2.dll
+!sfml-system-d-2.dll
+!sfml-window-2.dll
+!sfml-window-d-2.dll
