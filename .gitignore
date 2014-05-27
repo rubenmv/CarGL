@@ -20,6 +20,9 @@
 *.out
 *.app
 
+# CodeBlocks
+*.layout
+
 # Exceptions
 !libsfml-graphics.a
 !libsfml-graphics-d.a
