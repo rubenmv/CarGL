@@ -44,9 +44,22 @@
 		<Linker>
 			<Add directory="lib" />
 		</Linker>
+		<Unit filename="src/EventManager.cpp" />
+		<Unit filename="src/EventManager.h" />
+		<Unit filename="src/GuiManager.cpp" />
+		<Unit filename="src/GuiManager.h" />
+		<Unit filename="src/Material.cpp" />
+		<Unit filename="src/Material.h" />
+		<Unit filename="src/Object.cpp" />
+		<Unit filename="src/Object.h" />
+		<Unit filename="src/Scene.cpp" />
+		<Unit filename="src/Scene.h" />
+		<Unit filename="src/Texture.cpp" />
+		<Unit filename="src/Texture.h" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<debugger />
+			<code_completion />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
