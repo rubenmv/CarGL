@@ -336,9 +336,9 @@
 	<string>
 	<vector>
 
-1401265314 source:c:\users\ruben\documents\github\cargl\src\main.cpp
+1401312311 source:c:\users\ruben\documents\github\cargl\src\main.cpp
 	<iostream>
-	<SFML/Graphics.hpp>
+	<GL/glui.h>
 
 1367997278 c:\users\ruben\documents\github\cargl\include\sfml\graphics.hpp
 	<SFML/Window.hpp>
@@ -674,7 +674,7 @@
 	<string>
 	<vector>
 
-1401234974 source:c:\users\ruben\documents\github\cargl\src\object.cpp
+1401294189 source:c:\users\ruben\documents\github\cargl\src\object.cpp
 	"Object.h"
 
 1401293222 c:\users\ruben\documents\github\cargl\src\object.h
@@ -688,4 +688,36 @@
 	"GuiManager.h"
 
 1401292818 c:\users\ruben\documents\github\cargl\src\guimanager.h
+
+1401293609 source:c:\users\ruben\documents\github\cargl\src\material.cpp
+	"Material.h"
+
+1401293213 c:\users\ruben\documents\github\cargl\src\material.h
+
+1401293161 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
+	"Scene.h"
+
+1401293073 c:\users\ruben\documents\github\cargl\src\scene.h
+
+1401293147 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
+	"Texture.h"
+
+1401293019 c:\users\ruben\documents\github\cargl\src\texture.h
+
+1351941160 c:\users\ruben\documents\github\cargl\include\gl\glui.h
+	<windows.h>
+	<cstdlib>
+	<GL/freeglut.h>
+	<GL/openglut.h>
+	<GLUT/glut.h>
+	<GL/glut.h>
+	<cstdio>
+	<cstring>
+	<string>
+	<vector>
+
+976659772 c:\users\ruben\documents\github\cargl\include\gl\glut.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
 
