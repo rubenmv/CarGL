@@ -336,9 +336,11 @@
 	<string>
 	<vector>
 
-1401312311 source:c:\users\ruben\documents\github\cargl\src\main.cpp
+1401476515 source:c:\users\ruben\documents\github\cargl\src\main.cpp
 	<iostream>
 	<GL/glui.h>
+	"GuiManager.h"
+	"Scene.h"
 
 1367997278 c:\users\ruben\documents\github\cargl\include\sfml\graphics.hpp
 	<SFML/Window.hpp>
@@ -674,10 +676,18 @@
 	<string>
 	<vector>
 
-1401294189 source:c:\users\ruben\documents\github\cargl\src\object.cpp
+1401478615 source:c:\users\ruben\documents\github\cargl\src\object.cpp
 	"Object.h"
+	"tiny_obj_loader.h"
+	"Material.h"
+	"GL/gl.h"
+	<iostream>
+	<fstream>
 
-1401293222 c:\users\ruben\documents\github\cargl\src\object.h
+1401472976 c:\users\ruben\documents\github\cargl\src\object.h
+	<vector>
+	<string>
+	<map>
 
 1401271392 source:c:\users\ruben\documents\github\cargl\src\eventmanager.cpp
 	"EventManager.h"
@@ -687,22 +697,34 @@
 1401292828 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
 	"GuiManager.h"
 
-1401292818 c:\users\ruben\documents\github\cargl\src\guimanager.h
+1401450180 c:\users\ruben\documents\github\cargl\src\guimanager.h
+	<GL/glui.h>
 
-1401293609 source:c:\users\ruben\documents\github\cargl\src\material.cpp
+1401478568 source:c:\users\ruben\documents\github\cargl\src\material.cpp
 	"Material.h"
-
-1401293213 c:\users\ruben\documents\github\cargl\src\material.h
-
-1401293161 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
-	"Scene.h"
-
-1401293073 c:\users\ruben\documents\github\cargl\src\scene.h
-
-1401293147 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
 	"Texture.h"
+	<GL/gl.h>
 
-1401293019 c:\users\ruben\documents\github\cargl\src\texture.h
+1401478536 c:\users\ruben\documents\github\cargl\src\material.h
+	"Object.h"
+
+1401477133 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
+	"Scene.h"
+	<GL/glu.h>
+	<GL/glui.h>
+	"Object.h"
+
+1401471718 c:\users\ruben\documents\github\cargl\src\scene.h
+	<vector>
+
+1401480278 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
+	"Texture.h"
+	<GL/glu.h>
+	"SOIL.h"
+	<iostream>
+
+1401398290 c:\users\ruben\documents\github\cargl\src\texture.h
+	<string>
 
 1351941160 c:\users\ruben\documents\github\cargl\include\gl\glui.h
 	<windows.h>
@@ -720,4 +742,36 @@
 	<windows.h>
 	<GL/gl.h>
 	<GL/glu.h>
+
+1401379292 source:c:\users\ruben\documents\github\cargl\src\graphicsengine.cpp
+	"GraphicsEngine.h"
+	<GL/gl.h>
+	<string.h>
+
+1401379109 c:\users\ruben\documents\github\cargl\src\graphicsengine.h
+
+1230217116 source:c:\users\ruben\documents\github\cargl\src\loadjpeg.c
+	<stdio.h>
+	<malloc.h>
+
+1019229756 c:\users\ruben\documents\github\cargl\src\loadjpeg.h
+
+1215447208 c:\users\ruben\documents\github\cargl\src\soil.h
+
+1401396854 source:c:\users\ruben\documents\github\cargl\src\tiny_obj_loader.cc
+	<cstdlib>
+	<cstring>
+	<cassert>
+	<string>
+	<vector>
+	<map>
+	<fstream>
+	<sstream>
+	"tiny_obj_loader.h"
+
+1401396367 c:\users\ruben\documents\github\cargl\src\tiny_obj_loader.h
+	<string>
+	<vector>
+	<map>
+	"Object.h"
 

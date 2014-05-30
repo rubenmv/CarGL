@@ -1,7 +1,13 @@
 #include <iostream>
 #include <GL/glui.h>
 
-void Keyboard(unsigned char Key, int x, int y)
+#include "GuiManager.h"
+#include "Scene.h"
+
+GuiManager* guiManager;
+Scene* scene;
+
+void keyboard(unsigned char Key, int x, int y)
 {
     switch(Key)
     {
@@ -15,32 +21,34 @@ void Keyboard(unsigned char Key, int x, int y)
     glutPostRedisplay();
 }
 
-static void SpecialKey(int key, int x, int y)
+static void specialKey(int key, int x, int y)
 {
     glutPostRedisplay();
 }
 
-void Mouse(int button, int button_state, int x, int y )
+void mouse(int button, int button_state, int x, int y )
 {
     //gui.Mouse(button, button_state, x, y);
 }
 
-void Idle()
+void idle()
 {
    //gui.Idle();
 }
 
-void Reshape(int x, int y){
-   //gui.Reshape(x, y);
+void reshape(int x, int y)
+{
+   scene->reshape(x, y);
 }
 
-void Motion(int x, int y){
+void motion(int x, int y)
+{
     //gui.Motion(x, y);
 }
 
-void Render()
+void render()
 {
-    //escena.Render();
+    scene->render();
 }
 
 int main(int argc, char* argv[])
@@ -51,26 +59,37 @@ int main(int argc, char* argv[])
     glutInitWindowPosition( 50, 50 );
     glutInitWindowSize( 1000, 600 );
 
-    int main_window = glutCreateWindow( "CarGL V1.1 (2012)" );
+    int main_window = glutCreateWindow( "CarGL (2013-14)" );
 
     // Inicializa los valores de OpenGL para esta Aplicación
     //escena.InitGL();
     //gui.Init(main_window);
 
-    //Digo las funcioones q voy a hacer en el render
-    glutDisplayFunc( Render );
-    GLUI_Master.set_glutReshapeFunc( Reshape ); //Redimensionar
-    GLUI_Master.set_glutKeyboardFunc( Keyboard );
-    GLUI_Master.set_glutSpecialFunc( SpecialKey );
-    GLUI_Master.set_glutMouseFunc( Mouse );
-    glutMotionFunc( Motion );
+    // Crear la escena, antes de pasarle la funcion al displayFunc
+    scene = new Scene();
+    // Rellena la escena con los objetos y los coloca en la posicion inicial
+    scene->initObjects();
+    scene->addCamera( 0, 10, -20, 0, 0, 0, true); // Agrega una camara y es la activa
+
+    // GUI
+    guiManager = new GuiManager();
+
+    // Funciones para el render
+    glutDisplayFunc( render );
+    GLUI_Master.set_glutReshapeFunc( reshape ); //Redimensionar
+    GLUI_Master.set_glutKeyboardFunc( keyboard );
+    GLUI_Master.set_glutSpecialFunc( specialKey );
+    GLUI_Master.set_glutMouseFunc( mouse );
+    glutMotionFunc( motion );
 
     /**** We register the idle callback with GLUI, *not* with GLUT ****/
-    GLUI_Master.set_glutIdleFunc( Idle );
-
+    GLUI_Master.set_glutIdleFunc( idle );
 
    /**** Regular GLUT main loop ****/
     glutMainLoop();
+
+    delete guiManager;
+    delete scene;
 
     std::cout << "Finalizando..." << std::endl;
     return EXIT_SUCCESS;
