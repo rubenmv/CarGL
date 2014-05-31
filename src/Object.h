@@ -60,9 +60,9 @@ public:
     void draw();
 
 private:
-    Material* material; // Este contiene la textura
-    // ID de la display list
-    int id;
+    std::vector<Material*> materials; // Este contiene la textura
+    // IDs de la display list de las mallas que contiene el modelo/objeto
+    int displayLists; // ID de la primera lista, el resto son contiguas
     // Genera la display list para este objecto
     void createDisplayList();
 

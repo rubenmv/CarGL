@@ -29,11 +29,11 @@ void Scene::initOpenGL()
 
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
-    glEnable(GL_COLOR_MATERIAL);
+    //glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
 
     const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-	const GLfloat light_diffuse[]  = { 0.5f, 0.5f, 0.5f, 1.0f };
+	const GLfloat light_diffuse[]  = { 0.8f, 0.8f, 0.8f, 1.0f };
 	const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
 
@@ -68,9 +68,28 @@ Scene::~Scene()
 
 void Scene::initObjects()
 {
+	// Carretera
 	float position[3] = { 0.0, 0.0, 0.0 };
-	Object* object = new Object("assets/senal_trafico/senal_trafico.obj", position);
-	object->setConstantRotation(0, 1, 0, 0.05);
+	Object* object = new Object("assets/carretera/carretera.obj", position);
+	objects.push_back( object );
+
+	// Rotonda, esta la pongo por separado para agregarle la rotacion a la bola
+	object = new Object("assets/rotonda/rotonda_base.obj", position);
+	objects.push_back( object );
+	object = new Object("assets/rotonda/rotonda_bola.obj", position);
+	object->setConstantRotation(0, 1, 0, 0.03);
+	objects.push_back( object );
+
+	// Farolas
+	object = new Object("assets/farola/farola.obj", position);
+	objects.push_back( object );
+
+	// Bancos
+	object = new Object("assets/banco/banco.obj", position);
+	objects.push_back( object );
+
+	// Senales de trafico
+	object = new Object("assets/senal_trafico/senal_trafico.obj", position);
 	objects.push_back( object );
 }
 

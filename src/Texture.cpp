@@ -19,7 +19,7 @@ Texture::Texture(std::string filePath, bool linear, bool repeat)
 
     // Generamos la textura en OpenGL
     glGenTextures(1, &textureID);
-    this->bind();
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -28,10 +28,10 @@ Texture::Texture(std::string filePath, bool linear, bool repeat)
 
     gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
-    this->unbind();
-
-    ///delete image;
+	// La info de pixeles de la imagen ya no es necesaria
+    delete image;
 }
 
 Texture::~Texture()
@@ -42,6 +42,7 @@ Texture::~Texture()
 void Texture::bind()
 {
     glEnable( GL_TEXTURE_2D );
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 

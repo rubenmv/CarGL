@@ -32,14 +32,12 @@ void Material::bind()
 	{
 		texture->bind();
 	}
-/*
-	glColor3f(material.ambient[0], material.ambient[1], material.ambient[2]);
-	//glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, material.ambient );
-	//glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, material.diffuse );
-	glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, material.specular );
-	glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, material.emission );
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material.shininess );
-*/
+
+	//glColor3f(material.ambient[0], material.ambient[1], material.ambient[2]);
+	glMaterialfv(GL_FRONT, GL_AMBIENT,   material.ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,   material.diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,  material.specular);
+    glMaterialf(GL_FRONT, GL_SHININESS,	 material.shininess);
 }
 
 void Material::unbind()

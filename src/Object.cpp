@@ -10,8 +10,6 @@
 
 Object::Object(const char* fileName, float position[3])
 {
-    material = 0;
-
     this->position[0] = position[0];
     this->position[1] = position[1];
     this->position[2] = position[2];
@@ -53,7 +51,10 @@ Object::Object(const char* fileName, float position[3])
 		// Generamos la display list
 		createDisplayList();
 
-		material = new Material(this->model[0].material, false); // No transparente
+		for (size_t i = 0; i < model.size(); ++i)
+		{
+			materials.push_back(new Material(this->model[0].material, false)); // No transparente
+		}
 	}
 
 	timer.start();
@@ -61,27 +62,32 @@ Object::Object(const char* fileName, float position[3])
 
 Object::~Object()
 {
-	if(material != 0)
+	if(!materials.empty())
 	{
-		delete material;
+		for (size_t i = 0; i < model.size(); ++i)
+		{
+			delete materials.back(); // No transparente
+			materials.pop_back();
+		}
 	}
-    material = 0;
 }
 
 void Object::createDisplayList()
 {
-	// Create the id for the list
-	id = glGenLists(1);
+	// Creamos las listas necesarias para todos los objetos del modelo
+	displayLists = glGenLists(model.size());
 
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_NORMAL_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-	// start list
-	glNewList(id, GL_COMPILE);
-
-	for (int i = 0; i < model.size(); ++i)
+	// Rellenamos cada display list creada
+	for (size_t i = 0; i < model.size(); ++i)
 	{
+		// start list
+		glNewList(displayLists+i, GL_COMPILE);
+
+
 		if ( !model[i].mesh.positions.empty() )
 		{
 			glVertexPointer( 3, GL_FLOAT, 0, &model[i].mesh.positions[0] );	// Posiciones
@@ -98,10 +104,16 @@ void Object::createDisplayList()
 
 			glDrawElements( GL_TRIANGLES, model[i].mesh.indices.size(), GL_UNSIGNED_INT, &model[i].mesh.indices[0] );
 		}
-	}
 
-	// endList
-	glEndList();
+		// endList
+		glEndList();
+
+		// Una vez creada la lista podemos limpiar la informacion de vertices
+		model[i].mesh.positions.clear();
+		model[i].mesh.normals.clear();
+		model[i].mesh.texcoords.clear();
+		model[i].mesh.indices.clear();
+	}
 
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_NORMAL_ARRAY );
@@ -110,25 +122,25 @@ void Object::createDisplayList()
 
 void Object::draw()
 {
-	glPushMatrix();
-		material->bind();
+	for (size_t i = 0; i < model.size(); ++i)
+	{
+		glPushMatrix();
+			materials[i]->bind();
 
-		glTranslated(position[0], position[1], position[2]);
-		if (constantRotation)
-		{
-			glRotatef(rotation[0] * timer.getTicks(), 1.0, 0.0, 0.0);
-			glRotatef(rotation[1] * timer.getTicks(), 0.0, 1.0, 0.0);
-			glRotatef(rotation[2] * timer.getTicks(), 0.0, 0.0, 1.0);
-		}
-		//glRotated(ry,0,1,0);//Actualizamos la rotacion
-		//PushMatrix(); // ooo guardo la matriz q tengo en ese momento
-		//glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-		//glColor4fv( colores[0] );
-		glLoadName(0);  // No seleccionable
-		glCallList(id);
+			glTranslated(position[0], position[1], position[2]);
+			if (constantRotation)
+			{
+				glRotatef(rotation[0] * timer.getTicks(), 1.0, 0.0, 0.0);
+				glRotatef(rotation[1] * timer.getTicks(), 0.0, 1.0, 0.0);
+				glRotatef(rotation[2] * timer.getTicks(), 0.0, 0.0, 1.0);
+			}
 
-		material->unbind();
-	glPopMatrix();
+			glLoadName(0);
+			glCallList(displayLists+i);
+
+			materials[i]->unbind();
+		glPopMatrix();
+	}
 }
 
 void Object::setConstantRotation(short int x, short int y, short int z, float rotation /* = 0.0 */ )
