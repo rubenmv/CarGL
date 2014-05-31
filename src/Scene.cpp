@@ -15,7 +15,7 @@ Scene::Scene()
 
     initOpenGL();
 
-    timerClock = std::clock();
+    timerClock.start();
 }
 
 void Scene::initOpenGL()
@@ -33,7 +33,7 @@ void Scene::initOpenGL()
     glEnable(GL_LIGHTING);
 
     const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-	const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+	const GLfloat light_diffuse[]  = { 0.5f, 0.5f, 0.5f, 1.0f };
 	const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
 
@@ -69,7 +69,9 @@ Scene::~Scene()
 void Scene::initObjects()
 {
 	float position[3] = { 0.0, 0.0, 0.0 };
-	objects.push_back( new Object("assets/battleship.obj", position) );
+	Object* object = new Object("assets/senal_trafico/senal_trafico.obj", position);
+	object->setConstantRotation(0, 1, 0, 0.05);
+	objects.push_back( object );
 }
 
 void Scene::addCamera(float px, float py, float pz, float lx, float ly, float lz, bool active /* = false */)
@@ -147,17 +149,10 @@ void Scene::render()
                     0.0, 1.0, 0.0 );
     }
 
-    double duration = ( std::clock() - timerClock ) / (double) CLOCKS_PER_SEC;
-
 	for(size_t i = 0; i < objects.size(); i++)
 	{
-		glRotated(duration * 45, 0, 1, 0);
 		objects[i]->draw();
 	}
-
-
-
-    std::cout<<"tiempo: "<< duration <<'\n';
 
     glutSwapBuffers();
 }

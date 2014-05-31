@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 
+#include "Clock.h"
+
 class Material;
 
 class Object {
@@ -48,9 +50,12 @@ public:
     Object(const char* fileName, float position[3]);
     virtual ~Object();
 
-    shape_t	model;
+    std::vector<shape_t> model;
 
     float position[3];
+    float rotation[3];
+    // Establece una rotacion constante en los ejes indicados (valores 0,1)
+    void setConstantRotation(short int x, short int y, short int z, float rotation = 0.0);
 
     void draw();
 
@@ -60,6 +65,10 @@ private:
     int id;
     // Genera la display list para este objecto
     void createDisplayList();
+
+    bool constantRotation;
+
+    Clock timer;
 };
 
 #endif // OBJECT_H
