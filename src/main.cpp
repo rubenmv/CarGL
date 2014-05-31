@@ -49,6 +49,7 @@ void motion(int x, int y)
 void render()
 {
     scene->render();
+    glutPostRedisplay();
 }
 
 int main(int argc, char* argv[])

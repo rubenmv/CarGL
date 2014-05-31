@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include <vector>
+#include <ctime>
 
 class Object;
 
@@ -52,6 +53,8 @@ private:
 
 	bool perspective; // indica si se usa perspectiva o paralela
 	float aspectRatio;
+
+	std::clock_t timerClock;
 };
 
 #endif // SCENE_H

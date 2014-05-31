@@ -1,8 +1,11 @@
 #include "Scene.h"
+#include "Object.h"
 
 #include <GL/glu.h>
 #include <GL/glui.h>
-#include "Object.h"
+
+#include <iostream>
+
 
 Scene::Scene()
 {
@@ -11,6 +14,8 @@ Scene::Scene()
     aspectRatio = 1.0;
 
     initOpenGL();
+
+    timerClock = std::clock();
 }
 
 void Scene::initOpenGL()
@@ -142,10 +147,17 @@ void Scene::render()
                     0.0, 1.0, 0.0 );
     }
 
+    double duration = ( std::clock() - timerClock ) / (double) CLOCKS_PER_SEC;
+
 	for(size_t i = 0; i < objects.size(); i++)
 	{
+		glRotated(duration * 45, 0, 1, 0);
 		objects[i]->draw();
 	}
+
+
+
+    std::cout<<"tiempo: "<< duration <<'\n';
 
     glutSwapBuffers();
 }
