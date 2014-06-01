@@ -1,7 +1,7 @@
-# Blender MTL File: 'carretera.blend'
+# Blender MTL File: 'escena.blend'
 # Material Count: 1
 
-newmtl Material
+newmtl Material.002
 Ns 100
 Ka 1 1 1
 Kd 1 1 1
@@ -9,4 +9,4 @@ Ks 0 0 0
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd carretera.jpg
+map_Kd acera.jpg

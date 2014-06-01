@@ -8,12 +8,15 @@
 #include <iostream>
 #include <fstream>
 
-Object::Object(const char* fileName, float position[3])
+Object::Object(const char* fileName, bool transparent /* = false */)
 {
-    this->position[0] = position[0];
-    this->position[1] = position[1];
-    this->position[2] = position[2];
+	this->fileName = std::string(fileName);
 
+	this->transparent = transparent;
+
+    this->position[0] = 0;
+    this->position[1] = 0;
+    this->position[2] = 0;
     this->rotation[0] = 0;
     this->rotation[1] = 0;
     this->rotation[2] = 0;
@@ -53,7 +56,7 @@ Object::Object(const char* fileName, float position[3])
 
 		for (size_t i = 0; i < model.size(); ++i)
 		{
-			materials.push_back(new Material(this->model[0].material, false)); // No transparente
+			materials.push_back(new Material(this->model[0].material, transparent)); // No transparente
 		}
 	}
 

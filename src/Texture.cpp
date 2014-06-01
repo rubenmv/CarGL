@@ -1,9 +1,8 @@
 #include "Texture.h"
 
 #include <GL/glu.h>
-#include "SOIL.h"
-
 #include <iostream>
+#include "SOIL.h" // Para cargar imagenes, no solo jpeg
 
 Texture::Texture(std::string filePath, bool linear, bool repeat)
 {
@@ -17,6 +16,7 @@ Texture::Texture(std::string filePath, bool linear, bool repeat)
 		std::cout << "Error cargando imagen: " << filePath << std::endl << std::endl;
 	}
 
+	glEnable( GL_TEXTURE_2D );
     // Generamos la textura en OpenGL
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -28,7 +28,9 @@ Texture::Texture(std::string filePath, bool linear, bool repeat)
 
     gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDisable( GL_TEXTURE_2D );
 
 	// La info de pixeles de la imagen ya no es necesaria
     delete image;
@@ -42,7 +44,7 @@ Texture::~Texture()
 void Texture::bind()
 {
     glEnable( GL_TEXTURE_2D );
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+   // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 

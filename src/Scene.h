@@ -55,6 +55,9 @@ private:
 	float aspectRatio;
 
 	Clock timerClock;
+
+	// Devuelve un objeto a partir de un fichero
+	Object* getObject(const char* fileName);
 };
 
 #endif // SCENE_H

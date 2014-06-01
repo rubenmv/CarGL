@@ -2,7 +2,7 @@
 # Material Count: 1
 
 newmtl BatchBakeMaterial
-Ns 96.078431
+Ns 100
 Ka 1 1 1
 Kd 1 1 1
 Ks 0 0 0

@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     scene = new Scene();
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
-    scene->addCamera( 0, 8, -10, 0, 0, 0, true); // Agrega una camara y es la activa
+    scene->addCamera( 0, 1, -2, 0, 2, 0, true); // Agrega una camara y es la activa
 
     // GUI
     guiManager = new GuiManager();

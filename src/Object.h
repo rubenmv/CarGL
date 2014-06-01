@@ -47,8 +47,10 @@ public:
 		mesh_t       mesh;
 	} shape_t;
 
-    Object(const char* fileName, float position[3]);
+    Object(const char* fileName, bool transparent = false);
     virtual ~Object();
+
+    std::string fileName;
 
     std::vector<shape_t> model;
 
@@ -69,6 +71,8 @@ private:
     bool constantRotation;
 
     Clock timer;
+
+    bool transparent;
 };
 
 #endif // OBJECT_H

@@ -27,10 +27,16 @@ void Scene::initOpenGL()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+	//glClearDepth(1.f);
+
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
-    //glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
+
+    // Esto activa el blending, que es necesario para renderizar texturas con canal alpha (transparencia)
+	//glEnable (GL_BLEND);
+	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
 	const GLfloat light_diffuse[]  = { 0.8f, 0.8f, 0.8f, 1.0f };
@@ -66,31 +72,53 @@ Scene::~Scene()
     activeCamera = NULL;
 }
 
+
+Object* Scene::getObject(const char* fileName)
+{
+	/*
+	Object* object = 0;
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		object = objects[i];
+		if ( strcmp(object->fileName.c_str(), fileName) == 0 )
+		{
+			object = new Object(fileName);
+
+		}
+	}
+	*/
+}
+
 void Scene::initObjects()
 {
 	// Carretera
-	float position[3] = { 0.0, 0.0, 0.0 };
-	Object* object = new Object("assets/carretera/carretera.obj", position);
+	Object* object = new Object("assets/carretera/carretera.obj");
+	objects.push_back( object );
+
+	// Aceras
+	object = new Object("assets/acera/acera.obj");
 	objects.push_back( object );
 
 	// Rotonda, esta la pongo por separado para agregarle la rotacion a la bola
-	object = new Object("assets/rotonda/rotonda_base.obj", position);
+	object = new Object("assets/rotonda/rotonda_base.obj");
 	objects.push_back( object );
-	object = new Object("assets/rotonda/rotonda_bola.obj", position);
-	object->setConstantRotation(0, 1, 0, 0.03);
+	object = new Object("assets/rotonda/rotonda_bola.obj", true); // Es transparente
+	object->setConstantRotation(0, 1, 0, 0.02);
 	objects.push_back( object );
 
+/*
 	// Farolas
-	object = new Object("assets/farola/farola.obj", position);
+	object = new Object("assets/farola/farola.obj");
 	objects.push_back( object );
 
 	// Bancos
-	object = new Object("assets/banco/banco.obj", position);
+	object = new Object("assets/banco/banco.obj");
 	objects.push_back( object );
 
 	// Senales de trafico
-	object = new Object("assets/senal_trafico/senal_trafico.obj", position);
+	object = new Object("assets/senal_trafico/senal_trafico.obj");
 	objects.push_back( object );
+	*/
 }
 
 void Scene::addCamera(float px, float py, float pz, float lx, float ly, float lz, bool active /* = false */)
@@ -171,6 +199,15 @@ void Scene::render()
 	for(size_t i = 0; i < objects.size(); i++)
 	{
 		objects[i]->draw();
+	}
+
+	// Comprueba si ha habido algun error de OpenGL
+	GLenum errCode;
+	const GLubyte *errString;
+
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+		errString = gluErrorString(errCode);
+	   fprintf (stderr, "OpenGL Error: %s\n", errString);
 	}
 
     glutSwapBuffers();
