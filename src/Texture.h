@@ -5,7 +5,7 @@
 
 class Texture {
 public:
-    Texture(std::string filePath, bool linear, bool repeat);
+    Texture(std::string filePath, bool linear);
     virtual ~Texture();
 
     void bind();

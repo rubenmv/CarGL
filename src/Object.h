@@ -7,10 +7,27 @@
 
 #include "Clock.h"
 
+enum ID
+{
+	CARRETERA = 10,
+	ACERA,
+	ROTONDA,
+	COCHE,
+	FAROLA,
+	EDIFICIO,
+	CUBO_BASURA,
+	PAPELERA,
+	SENAL,
+	BANCO
+};
+
 class Material;
 
-class Object {
+class Object
+{
 public:
+	ID id;
+
 	// Tipos de datos para el modelo
 	typedef struct
 	{
@@ -47,7 +64,7 @@ public:
 		mesh_t       mesh;
 	} shape_t;
 
-    Object(const char* fileName, bool transparent = false);
+    Object(const char* fileName, ID id, bool transparent = false);
     virtual ~Object();
 
     std::string fileName;

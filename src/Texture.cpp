@@ -4,7 +4,7 @@
 #include <iostream>
 #include "SOIL.h" // Para cargar imagenes, no solo jpeg
 
-Texture::Texture(std::string filePath, bool linear, bool repeat)
+Texture::Texture(std::string filePath, bool linear)
 {
     fileName = filePath;
 
@@ -43,13 +43,13 @@ Texture::~Texture()
 
 void Texture::bind()
 {
-    glEnable( GL_TEXTURE_2D );
-   // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    //glEnable( GL_TEXTURE_2D );
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
 void Texture::unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable( GL_TEXTURE_2D );
+	//glDisable( GL_TEXTURE_2D );
 }

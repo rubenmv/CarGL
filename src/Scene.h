@@ -25,6 +25,20 @@ public:
     Scene();
     virtual ~Scene();
 
+    // Flags para activar/desactivar caracteristicas
+	int wireframeEnabled;
+	int texturesEnabled;
+	int show_car;
+    int show_ruedas;
+    int show_carretera;
+    int show_acera;
+    int show_rotonda;
+    int show_farolas;
+    int show_edificios;
+    int show_cubos;
+    int show_bancos;
+    int show_senales;
+
 	void reshape(int x, int y);
 
     void initOpenGL();

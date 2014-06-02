@@ -9,13 +9,28 @@
 
 Scene::Scene()
 {
-    activeCamera = NULL;
+    activeCamera = 0;
 
     aspectRatio = 1.0;
 
     initOpenGL();
 
     timerClock.start();
+
+	// FLAGS
+    texturesEnabled = 1;
+    wireframeEnabled = 0;
+
+    show_car = 1;
+    show_ruedas = 1;
+    show_carretera = 1;
+    show_acera = 1;
+    show_rotonda = 1;
+    show_farolas = 1;
+    show_edificios = 1;
+    show_cubos = 1;
+    show_bancos = 1;
+    show_senales = 1;
 }
 
 void Scene::initOpenGL()
@@ -31,7 +46,7 @@ void Scene::initOpenGL()
 
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
-    glEnable(GL_COLOR_MATERIAL);
+    //glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
 
     // Esto activa el blending, que es necesario para renderizar texturas con canal alpha (transparencia)
@@ -60,6 +75,11 @@ void Scene::initOpenGL()
 
     // Por defecto proyeccion perspectiva
     setPerspective();
+
+    // Info sobre OpenGL
+    std::cout << "OpenGL\nVersion: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 }
 
 Scene::~Scene()
@@ -69,7 +89,7 @@ Scene::~Scene()
         delete cameras.back();
         cameras.pop_back();
     }
-    activeCamera = NULL;
+    activeCamera = 0;
 }
 
 
@@ -87,37 +107,106 @@ Object* Scene::getObject(const char* fileName)
 		}
 	}
 	*/
+
+	return 0;
 }
 
 void Scene::initObjects()
 {
-	// Carretera
-	Object* object = new Object("assets/carretera/carretera.obj");
+	// CARRETERA
+	Object* object = new Object("assets/carretera/carretera.obj", CARRETERA);
 	objects.push_back( object );
 
-	// Aceras
-	object = new Object("assets/acera/acera.obj");
+	// ACERAS
+	object = new Object("assets/acera/acera.obj", ACERA);
 	objects.push_back( object );
 
-	// Rotonda, esta la pongo por separado para agregarle la rotacion a la bola
-	object = new Object("assets/rotonda/rotonda_base.obj");
+	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
+	object = new Object("assets/rotonda/rotonda_base.obj", ROTONDA);
 	objects.push_back( object );
-	object = new Object("assets/rotonda/rotonda_bola.obj", true); // Es transparente
+	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, true); // Es transparente
 	object->setConstantRotation(0, 1, 0, 0.02);
 	objects.push_back( object );
 
-/*
-	// Farolas
-	object = new Object("assets/farola/farola.obj");
+	// COCHE
+	object = new Object("assets/cart/cart_low.obj", COCHE);
+	object->rotation[1] = 90; // rotacion y
+	object->position[0] = -5; // x
+	object->position[2] = 0.5; // z
 	objects.push_back( object );
 
+	// FAROLAS
+    float despX = 10;
+    float despZ = 3;
+    float despY = 0;
+    int sign = -1;
+    float rotation = 0;
+
+    // En el eje x
+    for(int j = 1; j < 3; j++)
+	{
+		for(int i = 1; i < 3; i++)
+		{
+			object = new Object("assets/farola/farola.obj", FAROLA);
+			object->rotation[1] = rotation;		// rotacion y
+			object->position[0] = despX * j;	// x
+			object->position[1] = despY;		// y
+			object->position[2] = despZ * sign; // z
+			objects.push_back( object );
+
+			object = new Object("assets/farola/farola.obj", FAROLA);
+			object->rotation[1] = rotation;		// rotacion y
+			object->position[0] = despX * -j;	// x
+			object->position[1] = despY;		// y
+			object->position[2] = despZ * sign; // z
+			objects.push_back( object );
+
+			sign *= -1;
+			rotation = 180;
+		}
+		rotation = 0;
+	}
+
+	// En el eje z
+	rotation = 90;
+	for(int j = 1; j < 3; j++)
+	{
+		for(int i = 1; i < 3; i++)
+		{
+			object = new Object("assets/farola/farola.obj", FAROLA);
+			object->rotation[1] = rotation;		// rotacion y
+			object->position[0] = despZ * sign;	// x
+			object->position[1] = despY;		// y
+			object->position[2] = despX * j;	// z
+			objects.push_back( object );
+
+			object = new Object("assets/farola/farola.obj", FAROLA);
+			object->rotation[1] = rotation;		// rotacion y
+			object->position[0] = despZ * sign;	// x
+			object->position[1] = despY;		// y
+			object->position[2] = despX * -j;	// z
+			objects.push_back( object );
+
+			sign *= -1;
+			rotation = -90;
+		}
+		rotation = 90;
+	}
+
+	// SENALES DE TRAFICO
+	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL);
+	object->rotation[1] = -90;
+	object->position[0] = -6;
+	//object->position[1] = 2;
+	object->position[2] = 2;
+	objects.push_back( object );
+
+/*
 	// Bancos
 	object = new Object("assets/banco/banco.obj");
 	objects.push_back( object );
 
-	// Senales de trafico
-	object = new Object("assets/senal_trafico/senal_trafico.obj");
-	objects.push_back( object );
+
 	*/
 }
 
@@ -189,17 +278,68 @@ void Scene::render()
 
     // AQUI VA TODO
     // Camara
-    if ( activeCamera != NULL )
+    if ( activeCamera != 0 )
     {
         gluLookAt(  activeCamera->position[0], activeCamera->position[1], activeCamera->position[2],
                     activeCamera->lookAt[0], activeCamera->lookAt[1], activeCamera->lookAt[2],
                     0.0, 1.0, 0.0 );
     }
 
+	if ( wireframeEnabled == 1 )
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	}
+	else
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		// Solo usamos texturas si el wireframe esta desactivado
+		if ( texturesEnabled == 1 )
+		{
+			glEnable( GL_TEXTURE_2D );
+		}
+	}
+
 	for(size_t i = 0; i < objects.size(); i++)
 	{
-		objects[i]->draw();
+		if ( objects[i]->id == CARRETERA && show_carretera == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == COCHE && show_car == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == ACERA && show_acera == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == ROTONDA && show_rotonda == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == FAROLA && show_farolas == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == EDIFICIO && show_edificios == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == CUBO_BASURA && show_cubos == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == BANCO && show_bancos == 1 )
+		{
+			objects[i]->draw();
+		}
+		else if ( objects[i]->id == SENAL && show_senales == 1 )
+		{
+			objects[i]->draw();
+		}
 	}
+
+	glDisable( GL_TEXTURE_2D );
 
 	// Comprueba si ha habido algun error de OpenGL
 	GLenum errCode;

@@ -336,7 +336,7 @@
 	<string>
 	<vector>
 
-1401621466 source:c:\users\ruben\documents\github\cargl\src\main.cpp
+1401750014 source:c:\users\ruben\documents\github\cargl\src\main.cpp
 	<iostream>
 	<GL/glui.h>
 	"GuiManager.h"
@@ -676,7 +676,7 @@
 	<string>
 	<vector>
 
-1401621616 source:c:\users\ruben\documents\github\cargl\src\object.cpp
+1401749248 source:c:\users\ruben\documents\github\cargl\src\object.cpp
 	"Object.h"
 	"tiny_obj_loader.h"
 	"Material.h"
@@ -684,7 +684,7 @@
 	<iostream>
 	<fstream>
 
-1401621595 c:\users\ruben\documents\github\cargl\src\object.h
+1401735764 c:\users\ruben\documents\github\cargl\src\object.h
 	<vector>
 	<string>
 	<map>
@@ -695,13 +695,15 @@
 
 1401271395 c:\users\ruben\documents\github\cargl\src\eventmanager.h
 
-1401292828 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
+1401716141 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
 	"GuiManager.h"
-
-1401450180 c:\users\ruben\documents\github\cargl\src\guimanager.h
+	"Scene.h"
 	<GL/glui.h>
 
-1401621975 source:c:\users\ruben\documents\github\cargl\src\material.cpp
+1401667199 c:\users\ruben\documents\github\cargl\src\guimanager.h
+	<GL/glui.h>
+
+1401641081 source:c:\users\ruben\documents\github\cargl\src\material.cpp
 	"Material.h"
 	"Texture.h"
 	<GL/gl.h>
@@ -709,24 +711,24 @@
 1401478536 c:\users\ruben\documents\github\cargl\src\material.h
 	"Object.h"
 
-1401621979 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
+1401750001 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
 	"Scene.h"
 	"Object.h"
 	<GL/glu.h>
 	<GL/glui.h>
 	<iostream>
 
-1401615899 c:\users\ruben\documents\github\cargl\src\scene.h
+1401715949 c:\users\ruben\documents\github\cargl\src\scene.h
 	"Clock.h"
 	<vector>
 
-1401621757 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
+1401641066 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
 	"Texture.h"
 	<GL/glu.h>
 	<iostream>
 	"SOIL.h"
 
-1401398290 c:\users\ruben\documents\github\cargl\src\texture.h
+1401641075 c:\users\ruben\documents\github\cargl\src\texture.h
 	<string>
 
 1351941160 c:\users\ruben\documents\github\cargl\include\gl\glui.h

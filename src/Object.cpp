@@ -8,10 +8,10 @@
 #include <iostream>
 #include <fstream>
 
-Object::Object(const char* fileName, bool transparent /* = false */)
+Object::Object(const char* fileName, ID id, bool transparent /* = false */)
 {
 	this->fileName = std::string(fileName);
-
+	this->id = id;
 	this->transparent = transparent;
 
     this->position[0] = 0;
@@ -130,12 +130,20 @@ void Object::draw()
 		glPushMatrix();
 			materials[i]->bind();
 
-			glTranslated(position[0], position[1], position[2]);
+			// Las transformaciones se aplican localmente y no son conmutativas, primero trasladamos, luego rotamos
+			glTranslatef(position[0], position[1], position[2]);
+
 			if (constantRotation)
 			{
 				glRotatef(rotation[0] * timer.getTicks(), 1.0, 0.0, 0.0);
 				glRotatef(rotation[1] * timer.getTicks(), 0.0, 1.0, 0.0);
 				glRotatef(rotation[2] * timer.getTicks(), 0.0, 0.0, 1.0);
+			}
+			else
+			{
+				glRotatef(rotation[0], 1, 0, 0);
+				glRotatef(rotation[1], 0, 1, 0);
+				glRotatef(rotation[2], 0, 0, 1);
 			}
 
 			glLoadName(0);
