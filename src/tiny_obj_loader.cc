@@ -204,12 +204,12 @@ updateVertex(
 
 static bool
 exportFaceGroupToShape(
-  Object::shape_t& shape,
+  shape_t& shape,
   const std::vector<float> &in_positions,
   const std::vector<float> &in_normals,
   const std::vector<float> &in_texcoords,
   const std::vector<std::vector<vertex_index> >& faceGroup,
-  const Object::material_t &material,
+  const material_t &material,
   const std::string &name)
 {
   if (faceGroup.empty()) {
@@ -265,7 +265,7 @@ exportFaceGroupToShape(
 }
 
 
-void InitMaterial(Object::material_t& material) {
+void InitMaterial(material_t& material) {
   material.name = "";
   material.ambient_texname = "";
   material.diffuse_texname = "";
@@ -284,7 +284,7 @@ void InitMaterial(Object::material_t& material) {
 }
 
 std::string LoadMtl (
-  std::map<std::string, Object::material_t>& material_map,
+  std::map<std::string, material_t>& material_map,
   const char* filename,
   const char* mtl_basepath)
 {
@@ -305,7 +305,7 @@ std::string LoadMtl (
 	return err.str();
   }
 
-  Object::material_t material;
+  material_t material;
 
   int maxchars = 8192;  // Alloc enough size.
   std::vector<char> buf(maxchars);  // Alloc enough size.
@@ -339,7 +339,7 @@ std::string LoadMtl (
 	// new mtl
 	if ((0 == strncmp(token, "newmtl", 6)) && isSpace((token[6]))) {
 	  // flush previous material.
-	  material_map.insert(std::pair<std::string, Object::material_t>(material.name, material));
+	  material_map.insert(std::pair<std::string, material_t>(material.name, material));
 
 	  // initial temporary material
 	  InitMaterial(material);
@@ -469,14 +469,14 @@ std::string LoadMtl (
 	}
   }
   // flush last material.
-  material_map.insert(std::pair<std::string, Object::material_t>(material.name, material));
+  material_map.insert(std::pair<std::string, material_t>(material.name, material));
 
   return err.str();
 }
 
 std::string
 LoadObj(
-  std::vector<Object::shape_t>& shapes,
+  std::vector<shape_t>& shapes,
   const char* filename,
   const char* mtl_basepath)
 {
@@ -498,8 +498,8 @@ LoadObj(
   std::string name;
 
   // material
-  std::map<std::string, Object::material_t> material_map;
-  Object::material_t material;
+  std::map<std::string, material_t> material_map;
+  material_t material;
   InitMaterial(material);
 
   int maxchars = 8192;  // Alloc enough size.
@@ -615,7 +615,7 @@ LoadObj(
 	if (token[0] == 'g' && isSpace((token[1]))) {
 
 	  // flush previous face group.
-	  Object::shape_t shape;
+	  shape_t shape;
 	  bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name);
 	  if (ret) {
 		shapes.push_back(shape);
@@ -646,7 +646,7 @@ LoadObj(
 	if (token[0] == 'o' && isSpace((token[1]))) {
 
 	  // flush previous face group.
-	  Object::shape_t shape;
+	  shape_t shape;
 	  bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name);
 	  if (ret) {
 		shapes.push_back(shape);
@@ -660,14 +660,13 @@ LoadObj(
 	  sscanf(token, "%s", namebuf);
 	  name = std::string(namebuf);
 
-
 	  continue;
 	}
 
 	// Ignore unknown command.
   }
 
-  Object::shape_t shape;
+  shape_t shape;
   bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name);
   if (ret) {
 	shapes.push_back(shape);

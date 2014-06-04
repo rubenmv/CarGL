@@ -1,14 +1,16 @@
 #include "Scene.h"
 #include "Object.h"
 
-#include <GL/glu.h>
-#include <GL/glui.h>
-
+#include "GuiManager.h"
 #include <iostream>
 
+float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
 Scene::Scene()
 {
+	guiManager = 0;
+
     activeCamera = 0;
 
     aspectRatio = 1.0;
@@ -18,8 +20,13 @@ Scene::Scene()
     timerClock.start();
 
 	// FLAGS
-    texturesEnabled = 1;
-    wireframeEnabled = 0;
+    textures = 1;
+    wireframe = 0;
+    culling = 1;
+    zbuffer = 1;
+	smooth_shading = 0;
+	perspective = 1;
+	clockwise = 0;
 
     show_car = 1;
     show_ruedas = 1;
@@ -31,47 +38,29 @@ Scene::Scene()
     show_cubos = 1;
     show_bancos = 1;
     show_senales = 1;
+
+    memcpy(view_rotate, view_rotate_c, 16*sizeof(float));
+    memcpy(view_position, view_position_c, 3*sizeof(float));
+    scale = 1.0f;
+
+    seleccion = 0;
 }
 
 void Scene::initOpenGL()
 {
-    // Inicializacion de parametros de OpenGL
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+	// Algunas de estas propiedades se cambiaran en el renderObjects()
+	glEnable( GL_CULL_FACE );
+	glCullFace( GL_BACK );
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    glEnable( GL_DEPTH_TEST );
+    glDepthFunc( GL_LESS );
 
-	//glClearDepth(1.f);
+	glClearDepth(1.f);
 
-    glEnable(GL_LIGHT0);
-    glEnable(GL_NORMALIZE);
     //glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
-
-    // Esto activa el blending, que es necesario para renderizar texturas con canal alpha (transparencia)
-	//glEnable (GL_BLEND);
-	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
-	const GLfloat light_diffuse[]  = { 0.8f, 0.8f, 0.8f, 1.0f };
-	const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
-
-	const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
-	const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
-	const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
-	const GLfloat high_shininess[] = { 100.0f };
-
-    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-
-    glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+    // Las luces se agregan desde addLight
+	glEnable(GL_NORMALIZE);
 
     // Por defecto proyeccion perspectiva
     setPerspective();
@@ -90,6 +79,8 @@ Scene::~Scene()
         cameras.pop_back();
     }
     activeCamera = 0;
+
+    guiManager = 0;
 }
 
 
@@ -113,26 +104,19 @@ Object* Scene::getObject(const char* fileName)
 
 void Scene::initObjects()
 {
+	Object* object = 0;
+
 	// CARRETERA
-	Object* object = new Object("assets/carretera/carretera.obj", CARRETERA);
+	object = new Object("assets/carretera/carretera.obj", CARRETERA);
 	objects.push_back( object );
 
 	// ACERAS
 	object = new Object("assets/acera/acera.obj", ACERA);
 	objects.push_back( object );
 
-	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
-	object = new Object("assets/rotonda/rotonda_base.obj", ROTONDA);
-	objects.push_back( object );
-	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, true); // Es transparente
-	object->setConstantRotation(0, 1, 0, 0.02);
-	objects.push_back( object );
-
 	// COCHE
-	object = new Object("assets/cart/cart_low.obj", COCHE);
-	object->rotation[1] = 90; // rotacion y
-	object->position[0] = -5; // x
-	object->position[2] = 0.5; // z
+	object = new Object( "assets/cart/cart_low.obj", COCHE,
+						Vector3(-5.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), true ); // Seleccionable
 	objects.push_back( object );
 
 	// FAROLAS
@@ -147,18 +131,12 @@ void Scene::initObjects()
 	{
 		for(int i = 1; i < 3; i++)
 		{
-			object = new Object("assets/farola/farola.obj", FAROLA);
-			object->rotation[1] = rotation;		// rotacion y
-			object->position[0] = despX * j;	// x
-			object->position[1] = despY;		// y
-			object->position[2] = despZ * sign; // z
+			object = new Object("assets/farola/farola.obj", FAROLA,
+								Vector3(despX * j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
-			object = new Object("assets/farola/farola.obj", FAROLA);
-			object->rotation[1] = rotation;		// rotacion y
-			object->position[0] = despX * -j;	// x
-			object->position[1] = despY;		// y
-			object->position[2] = despZ * sign; // z
+			object = new Object("assets/farola/farola.obj", FAROLA,
+								Vector3(despX * -j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
 			sign *= -1;
@@ -173,18 +151,12 @@ void Scene::initObjects()
 	{
 		for(int i = 1; i < 3; i++)
 		{
-			object = new Object("assets/farola/farola.obj", FAROLA);
-			object->rotation[1] = rotation;		// rotacion y
-			object->position[0] = despZ * sign;	// x
-			object->position[1] = despY;		// y
-			object->position[2] = despX * j;	// z
+			object = new Object("assets/farola/farola.obj", FAROLA,
+								Vector3(despZ * sign, despY, despX * j), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
-			object = new Object("assets/farola/farola.obj", FAROLA);
-			object->rotation[1] = rotation;		// rotacion y
-			object->position[0] = despZ * sign;	// x
-			object->position[1] = despY;		// y
-			object->position[2] = despX * -j;	// z
+			object = new Object("assets/farola/farola.obj", FAROLA,
+								Vector3(despZ * sign, despY, despX * -j), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
 			sign *= -1;
@@ -193,32 +165,50 @@ void Scene::initObjects()
 		rotation = 90;
 	}
 
+	// EDIFICIOS
+
+	// Bloque 1
+	object = new Object("assets/edificios/edificio1.obj", EDIFICIO,
+						Vector3(-20.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/edificios/edificio1.obj", EDIFICIO,
+						Vector3(-15.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/edificios/edificio2.obj", EDIFICIO,
+						Vector3(-10.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/edificios/edificio2.obj", EDIFICIO,
+						Vector3(-6.0, 0.0, -10.0), Vector3(0.0, 90.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/edificios/edificio2.obj", EDIFICIO,
+						Vector3(-6.0, 0.0, -15.0), Vector3(0.0, 90.0, 0.0) );
+	objects.push_back( object );
+
 	// SENALES DE TRAFICO
-	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL);
-	object->rotation[1] = -90;
-	object->position[0] = -6;
-	//object->position[1] = 2;
-	object->position[2] = 2;
+	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+						Vector3(-6.0, 0.0, 2.0), Vector3(0.0, -90.0, 0.0) );
 	objects.push_back( object );
 
-/*
-	// Bancos
-	object = new Object("assets/banco/banco.obj");
+	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
+	object = new Object("assets/rotonda/rotonda_base.obj", ROTONDA);
 	objects.push_back( object );
-
-
-	*/
+	// Objetos transparentes al final para preservar la profuncdidad					  No seleccionable, transparente
+	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, Vector3(), Vector3(), false, true);
+	object->setConstantRotation(0.0, 1.0, 0.0, 0.02);
+	objects.push_back( object );
 }
 
-void Scene::addCamera(float px, float py, float pz, float lx, float ly, float lz, bool active /* = false */)
+void Scene::addCamera(const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic /* = true */, bool active /* = false */)
 {
     Camera* camera = new Camera();
-    camera->position[0] = px;
-    camera->position[1] = py;
-    camera->position[2] = pz;
-    camera->lookAt[0] = lx;
-    camera->lookAt[1] = ly;
-    camera->lookAt[2] = lz;
+    camera->name = name;
+    camera->position.x = px;
+    camera->position.y = py;
+    camera->position.z = pz;
+    camera->lookAt.x = lx;
+    camera->lookAt.y = ly;
+    camera->lookAt.z = lz;
+    camera->isStatic = isStatic;
 
     cameras.push_back(camera);
 
@@ -226,6 +216,32 @@ void Scene::addCamera(float px, float py, float pz, float lx, float ly, float lz
     {
         activeCamera = camera;
     }
+
+    guiManager->addCameraItem(name, active);
+}
+
+void Scene::addLight( const char* name, GLenum numLight, int enabled, float position[3], float ambient[4], float diffuse[4], float specular[4] )
+{
+    Light* light = new Light();
+
+	light->name = name;
+    light->numLight = numLight;
+    light->enabled = enabled;
+
+	memcpy(light->position, position, 3*sizeof(float));
+	memcpy(light->ambient, ambient, 4*sizeof(float));
+    memcpy(light->diffuse, diffuse, 4*sizeof(float));
+    memcpy(light->specular, specular, 4*sizeof(float));
+
+    glEnable(numLight);
+    glLightfv(numLight, GL_AMBIENT,  light->ambient);
+    glLightfv(numLight, GL_DIFFUSE,  light->diffuse);
+    glLightfv(numLight, GL_SPECULAR, light->specular);
+    glLightfv(numLight, GL_POSITION, light->position);
+
+    lights.push_back(light);
+
+    guiManager->addLightItem(light);
 }
 
 void Scene::setPerspective()
@@ -255,7 +271,7 @@ void Scene::reshape(int x, int y)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    if( perspective )
+    if( perspective == 1 )
 	{
         setPerspective();
     }
@@ -276,16 +292,50 @@ void Scene::render()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    // AQUI VA TODO
+    // Prepara las caracteristicas de la escena
+    initRender();
+
     // Camara
     if ( activeCamera != 0 )
     {
-        gluLookAt(  activeCamera->position[0], activeCamera->position[1], activeCamera->position[2],
-                    activeCamera->lookAt[0], activeCamera->lookAt[1], activeCamera->lookAt[2],
+    	// Camara estatica
+    	if ( activeCamera->isStatic )
+		{
+			glTranslatef( view_position[0], view_position[1], view_position[2] );
+			glMultMatrixf(view_rotate);
+			glScalef(scale, scale, scale);
+		}
+		// Camara no estatica, sigue a un objeto
+		else
+		{
+			gluLookAt(  activeCamera->position.x, activeCamera->position.y, activeCamera->position.z,
+                    activeCamera->lookAt.x, activeCamera->lookAt.y, activeCamera->lookAt.z,
                     0.0, 1.0, 0.0 );
+		}
     }
 
-	if ( wireframeEnabled == 1 )
+    renderLights();
+
+	// Objetos
+	renderObjects();
+
+	// Comprueba si ha habido algun error de OpenGL
+	GLenum errCode;
+	const GLubyte *errString;
+
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+		errString = gluErrorString(errCode);
+	   fprintf (stderr, "OpenGL Error: %s\n", errString);
+	}
+
+    glutSwapBuffers();
+}
+
+void Scene::initRender()
+{
+	// FLAGS
+	// Wireframe
+	if ( wireframe == 1 )
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	}
@@ -293,12 +343,71 @@ void Scene::render()
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		// Solo usamos texturas si el wireframe esta desactivado
-		if ( texturesEnabled == 1 )
+		if ( textures == 1 )
 		{
 			glEnable( GL_TEXTURE_2D );
 		}
 	}
+	// Culling
+	if ( culling == 1 )
+	{
+		glEnable( GL_CULL_FACE );
+		glCullFace( GL_BACK );
+	}
+	else
+	{
+		glDisable( GL_CULL_FACE );
+	}
+	// Z-Buffer
+	if ( zbuffer == 1 )
+	{
+		glEnable( GL_DEPTH_TEST );
+		glDepthFunc( GL_LESS );
+	}
+	else
+	{
+		glDisable( GL_DEPTH_TEST );
+	}
+	// Sombreado
+	if ( smooth_shading == 1 )
+	{
+		glShadeModel( GL_SMOOTH );
+	}
+	else
+	{
+		glShadeModel( GL_FLAT );
+	}
+	// Sentido de las caras
+	if( clockwise == 1 )
+	{
+        glFrontFace( GL_CW ); // Horario
+    }
+    else
+	{
+        glFrontFace( GL_CCW ); // Antihorario
+    }
+}
 
+void Scene::renderLights()
+{
+	for ( size_t i = 0; i < lights.size(); i++ )
+	{
+		if( lights[i]->enabled == 1 )
+		{
+			glEnable(lights[i]->numLight);
+			// Supongo que tambien habra que actualizar le resto
+			// de propiedades por si han cambiado??
+			glLightfv(lights[i]->numLight, GL_POSITION, lights[i]->position);
+		}
+		else
+		{
+			glDisable(lights[i]->numLight);
+		}
+	}
+}
+
+void Scene::renderObjects()
+{
 	for(size_t i = 0; i < objects.size(); i++)
 	{
 		if ( objects[i]->id == CARRETERA && show_carretera == 1 )
@@ -340,15 +449,74 @@ void Scene::render()
 	}
 
 	glDisable( GL_TEXTURE_2D );
+}
 
-	// Comprueba si ha habido algun error de OpenGL
-	GLenum errCode;
-	const GLubyte *errString;
 
-	if ((errCode = glGetError()) != GL_NO_ERROR) {
-		errString = gluErrorString(errCode);
-	   fprintf (stderr, "OpenGL Error: %s\n", errString);
+// Selecciona un objeto a través del ratón
+void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
+	// formato de buffer, cada cuatro posiciones almacena:
+	//      buffer[i]   = número de objetos
+    //      buffer[i+1] = profundidad mínima
+    //      buffer[i+2] = profuncidad máxima
+    //      buffer[i+3] = nombre de la pila
+
+    // Tamaño de la ventana (Viewport) [0] es <x>, [1] es <y>, [2] es <ancho>, [3] es <alto>
+    GLint	viewport[4];
+    GLuint	buffer[2048];
+    GLint   hits;
+    int     profundidad;
+    char    cad[80];
+    int     tx, ty, tw, th;
+
+    seleccion = 0;
+    GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
+    glViewport( tx, ty, tw, th );
+
+    // Establece el vector <viewport> al tamaño y posición relativa a la ventana de visualización
+    glGetIntegerv(GL_VIEWPORT, viewport);
+	glSelectBuffer(2048, buffer);  // usa <buffer> como nuestro vector para seleccionar
+
+    (void) glRenderMode(GL_SELECT); // Modo Render en SELECCION
+
+	glInitNames();				  // Inicializa la pila de nombres
+    glPushName(0);				  // Apila 0 (al menos una entrada) en la pila
+    glMatrixMode(GL_PROJECTION);  // Selecciona el modo proyección
+    glPushMatrix();				  // Apila la matriz de proyección
+    glLoadIdentity();			  // Resetea la matriz (matriz identidad)
+    // Crea una matriz que agranda la pequeña porción de pantalla donde se ecuentra el ratón
+    gluPickMatrix((GLdouble) mouse_x, (GLdouble) (viewport[3]+viewport[1]-mouse_y), 1.0f, 1.0f, viewport);
+
+    // Aplica la Matriz de Perspectiva
+    //gluPerspective(45.0f, (GLfloat) (viewport[2]-viewport[0])/(GLfloat) (viewport[3]-viewport[1]), 1.0, 1000.0);
+    // Para cambiar la perspectiva desde aqui pondriamos un if para seleccionarla
+    gluPerspective(45, aspectRatio, 1.0, 1000.0);
+	glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView
+    renderObjects();	 			// Renderiza los objetos a seleccionar
+    glMatrixMode(GL_PROJECTION);   	// Selecciona la matriz de Proyección
+    glPopMatrix();				   	// Recupera la matriz de Proyección
+    glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView
+    hits=glRenderMode(GL_RENDER);  	// Cambia a modo RENDERIZAR
+
+    if (hits > 0)				   	// Si hay más de un objeto
+                                   	// (Hits=número de objetos que se hallan en la posición del ratón)
+    {
+        seleccion = buffer[3];		// Coge como selección el primer objeto de la lista
+        profundidad = buffer[1];    // Calcula su profundidad
+
+        for (int i = 1; i < hits; i++)  // Recorre todos los objetos
+        {
+			// Si el objeto está más cerca que el seleccionado ahora
+            if (buffer[i*4+1] < GLuint(profundidad))
+			{
+            	seleccion = buffer[i*4+3];	    // Selecciona dicho objeto
+                profundidad = buffer[i*4+1];	// Calcula su profundidad
+            }
+		}
+    }
+
+    if ( guiManager != 0 )
+	{
+		sprintf(cad, "%03d [%03d, %03d]", seleccion, mouse_x, mouse_y);
+		guiManager->sel_tex->set_text(cad);
 	}
-
-    glutSwapBuffers();
 }

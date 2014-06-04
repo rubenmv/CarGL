@@ -4,30 +4,52 @@
 #include "Clock.h"
 #include <vector>
 
+#include "Global.h"
+
+#include <GL/glu.h>
+#include <GL/glui.h>
+
 class Object;
+class GuiManager;
 
 class Scene {
 public:
-    struct Camera
+
+	struct Camera
     {
-        float position[3];
-        float lookAt[3];
+    	const char* name;
+    	bool isStatic;
+        Vector3 position;
+        Vector3 lookAt;
     };
 
     struct Light
     {
-    	bool active;
+    	const char* name;
+    	GLenum numLight; // GL_LIGHT0, GL_LIGHT1...
+    	int enabled;
+        float ambient[4];
+        float diffuse[4];
+        float specular[4];
         float position[3];
-        float color[3];
         float intensity;
     };
 
     Scene();
     virtual ~Scene();
 
+    // Camara activa
+    Camera* activeCamera;
+
     // Flags para activar/desactivar caracteristicas
-	int wireframeEnabled;
-	int texturesEnabled;
+	int wireframe;
+	int textures;
+	int culling;
+	int zbuffer;
+	int smooth_shading;
+	int perspective; // indica si se usa perspectiva o paralela
+	int clockwise; // Sentido de dibujado de las caras de los poligonos
+
 	int show_car;
     int show_ruedas;
     int show_carretera;
@@ -39,24 +61,30 @@ public:
     int show_bancos;
     int show_senales;
 
+    float view_rotate[16];
+    float view_position[3];
+    float scale;
+
 	void reshape(int x, int y);
+	void __fastcall pick3D(int mouse_x, int mouse_y);
 
     void initOpenGL();
 
     // Agrega una camara e indica si es la activa
-    void addCamera( float px, float py, float pz, float lx, float ly, float lz, bool active = false );
+    void addCamera( const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic = true, bool active = false );
+    void addLight( const char* name, GLenum numLight, int enabled, float position[3], float ambient[4], float diffuse[4], float specular[4] );
     // Agrega objetos a la escena e inicializa otras cosas
     void initObjects();
     // Bucle de dibujado de la escena
     void render();
+
+    GuiManager* guiManager;
 private:
 	// Objetos de la escena
 	std::vector<Object*> objects;
 
     // Camaras en la escena
     std::vector<Camera*> cameras;
-    // Camara activa
-    Camera* activeCamera;
 
      // Luces en la escena
     std::vector<Light*> lights;
@@ -65,10 +93,15 @@ private:
     void setPerspective();
 	void setParallel();
 
-	bool perspective; // indica si se usa perspectiva o paralela
 	float aspectRatio;
 
 	Clock timerClock;
+
+	void initRender();
+	void renderLights();
+	void renderObjects();
+
+	int seleccion;
 
 	// Devuelve un objeto a partir de un fichero
 	Object* getObject(const char* fileName);

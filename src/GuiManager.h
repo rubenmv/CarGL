@@ -1,6 +1,8 @@
 #ifndef GUIMANAGER_H
 #define GUIMANAGER_H
 
+#include "Scene.h"
+#include <vector>
 #include <GL/glui.h>
 
 class Scene;
@@ -20,42 +22,27 @@ public:
 
 	void __fastcall output(int x, int y, float r, float g, float b, int font, char *string); //Mostrar algo por pantalla
 
-
-private:
-    int             window_id;
-
 	// live variables usadas por GLUI
+	GLUI_StaticText *sel_tex;
+
 	int             enable_panel2;
-	int             light0_enabled;
-	int             light1_enabled;
-	int             light2_enabled;
-	float           light0_intensity;
-	float           light1_intensity;
-	float           light2_intensity;
 
 	// ooo punteros a los paneles
 	GLUI            *glui, *glui2;
-	GLUI_Spinner    *light0_spinner;
-	GLUI_Spinner    *light1_spinner;
-	GLUI_Spinner    *light2_spinner;
-	GLUI_RadioGroup *radio;
 	GLUI_Panel      *obj_panel;
 	GLUI_Rotation   *view_rot;
-	GLUI_StaticText *sel_tex;
 
+	GLUI_Rollout* rolloutLuces;
+	std::vector<GLUI_Rollout*> listaLuces;
+	GLUI_Listbox *listboxCamaras;
+	unsigned int listboxCamarasCount;
 
-	//Si no lo declaro aqui, luego no puedo acceder desde otra funcion
-	GLUI_Listbox *ListBoxCamaras;
-	GLUI_Listbox *ListBoxCamaras2;
+	// Para agregra elementos a las listbox dinamicamente
+	void addLightItem(Scene::Light* light);
+	void addCameraItem(const char* name, bool active);
 
-
-	//Colores coches
-	float coche1R;
-	float coche1G;
-	float coche1B;
-	float coche2R;
-	float coche2G;
-	float coche2B;
+private:
+    int             window_id;
 
 	Scene* scene;
 };

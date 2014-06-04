@@ -12,6 +12,8 @@
 
 #include "Object.h"
 
+#include "Global.h"
+
 namespace tinyobj {
 
 /// Loads .obj from a file.
@@ -20,7 +22,7 @@ namespace tinyobj {
 /// Returns empty string when loading .obj success.
 /// 'mtl_basepath' is optional, and used for base path for .mtl file.
 std::string LoadObj(
-    std::vector<Object::shape_t>& shapes,   // [output]
+    std::vector<shape_t>& shapes,   // [output]
     const char* filename,
     const char* mtl_basepath = NULL);
 

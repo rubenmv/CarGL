@@ -43,6 +43,7 @@
 		</Linker>
 		<Unit filename="src/Clock.cpp" />
 		<Unit filename="src/Clock.h" />
+		<Unit filename="src/Global.h" />
 		<Unit filename="src/GuiManager.cpp" />
 		<Unit filename="src/GuiManager.h" />
 		<Unit filename="src/Material.cpp" />

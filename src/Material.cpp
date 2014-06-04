@@ -3,7 +3,7 @@
 
 #include <GL/gl.h>
 
-Material::Material(Object::material_t material, bool transparent)
+Material::Material(material_t material, bool transparent)
 {
     texture = 0;
 

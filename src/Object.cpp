@@ -8,18 +8,16 @@
 #include <iostream>
 #include <fstream>
 
-Object::Object(const char* fileName, ID id, bool transparent /* = false */)
+Object::Object(const char* fileName, ID id, Vector3 position, Vector3 rotation, bool selectable /* = false */, bool transparent /*= false*/)
 {
 	this->fileName = std::string(fileName);
 	this->id = id;
 	this->transparent = transparent;
 
-    this->position[0] = 0;
-    this->position[1] = 0;
-    this->position[2] = 0;
-    this->rotation[0] = 0;
-    this->rotation[1] = 0;
-    this->rotation[2] = 0;
+	this->position = position;
+	this->rotation = rotation;
+
+	this->selectable = selectable;
 
     constantRotation = false;
 
@@ -90,7 +88,6 @@ void Object::createDisplayList()
 		// start list
 		glNewList(displayLists+i, GL_COMPILE);
 
-
 		if ( !model[i].mesh.positions.empty() )
 		{
 			glVertexPointer( 3, GL_FLOAT, 0, &model[i].mesh.positions[0] );	// Posiciones
@@ -131,22 +128,30 @@ void Object::draw()
 			materials[i]->bind();
 
 			// Las transformaciones se aplican localmente y no son conmutativas, primero trasladamos, luego rotamos
-			glTranslatef(position[0], position[1], position[2]);
+			glTranslatef(position.x, position.y, position.z);
 
 			if (constantRotation)
 			{
-				glRotatef(rotation[0] * timer.getTicks(), 1.0, 0.0, 0.0);
-				glRotatef(rotation[1] * timer.getTicks(), 0.0, 1.0, 0.0);
-				glRotatef(rotation[2] * timer.getTicks(), 0.0, 0.0, 1.0);
+				glRotatef(rotation.x * timer.getTicks(), 1.0, 0.0, 0.0);
+				glRotatef(rotation.y * timer.getTicks(), 0.0, 1.0, 0.0);
+				glRotatef(rotation.z * timer.getTicks(), 0.0, 0.0, 1.0);
 			}
 			else
 			{
-				glRotatef(rotation[0], 1, 0, 0);
-				glRotatef(rotation[1], 0, 1, 0);
-				glRotatef(rotation[2], 0, 0, 1);
+				glRotatef(rotation.x, 1, 0, 0);
+				glRotatef(rotation.y, 0, 1, 0);
+				glRotatef(rotation.z, 0, 0, 1);
 			}
 
-			glLoadName(0);
+			if ( selectable )
+			{
+				glLoadName(displayLists+i);
+			}
+			else
+			{
+				glLoadName(0);
+			}
+
 			glCallList(displayLists+i);
 
 			materials[i]->unbind();
@@ -159,25 +164,25 @@ void Object::setConstantRotation(short int x, short int y, short int z, float ro
 	if (rotation == 0.0)
 	{
 		constantRotation = false;
-		this->rotation[0] = rotation;
-		this->rotation[1] = rotation;
-		this->rotation[2] = rotation;
+		this->rotation.x = rotation;
+		this->rotation.y = rotation;
+		this->rotation.z = rotation;
 	}
 	else
 	{
 		if ( x == 1 )
 		{
-			this->rotation[0] = rotation;
+			this->rotation.x = rotation;
 			constantRotation = true;
 		}
 		if ( y == 1 )
 		{
-			this->rotation[1] = rotation;
+			this->rotation.y = rotation;
 			constantRotation = true;
 		}
 		if ( z == 1 )
 		{
-			this->rotation[2] = rotation;
+			this->rotation.z = rotation;
 			constantRotation = true;
 		}
 	}

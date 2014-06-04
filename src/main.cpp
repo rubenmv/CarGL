@@ -62,22 +62,22 @@ void keyboard(unsigned char Key, int x, int y)
 
     }
 
-    glutPostRedisplay();
+    //glutPostRedisplay();
 }
 
 static void specialKey(int key, int x, int y)
 {
-    glutPostRedisplay();
+    //glutPostRedisplay();
 }
 
 void mouse(int button, int button_state, int x, int y )
 {
-    //gui.Mouse(button, button_state, x, y);
+    guiManager->Mouse(button, button_state, x, y);
 }
 
 void idle()
 {
-   //gui.Idle();
+   guiManager->Idle();
 }
 
 void reshape(int x, int y)
@@ -108,13 +108,26 @@ int main(int argc, char* argv[])
 
     // Crear la escena, antes de pasarle la funcion al displayFunc
     scene = new Scene();
-    // Rellena la escena con los objetos y los coloca en la posicion inicial
-    scene->initObjects();
-    scene->addCamera( 0.0, 30.0, 30.0, 0.0, 0.0, 0.0, true); // Agrega una camara y es la activa
-
     // GUI
     guiManager = new GuiManager(scene);
     guiManager->init(main_window);
+
+    // Rellena la escena con los objetos y los coloca en la posicion inicial
+    scene->initObjects();
+    // Camaras
+    scene->addCamera( "Camara 1", 0.0, 30.0, 30.0, 0.0, 0.0, 0.0, true, true); // Agrega una camara estatica y es la activa
+    // Luces
+    GLfloat light0_ambient_c[4]  = {   0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat light0_diffuse_c[4]  = {   1.0f, 0.8f, 0.8f, 1.0f };
+	GLfloat light0_specular_c[4] = {   1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat light0_position_c[4] = { -50.0f, 5.0f, 0.0f, 1.0f };
+	scene->addLight( "Luz 0", GL_LIGHT0, 1, light0_position_c, light0_ambient_c, light0_diffuse_c, light0_specular_c);
+
+	GLfloat light1_ambient_c[4]  = { 0.2f,   0.2f,  0.2f, 1.0f };
+	GLfloat light1_diffuse_c[4]  = { 0.8f,   0.8f,  0.8f, 1.0f };
+	GLfloat light1_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light1_position_c[4] = { 0.0f, 100.0f, 10.0f, 1.0f };
+    scene->addLight("Luz 1", GL_LIGHT1, 0, light1_position_c, light1_ambient_c, light1_diffuse_c, light1_specular_c);
 
     // Funciones para el render
     glutDisplayFunc( render );
