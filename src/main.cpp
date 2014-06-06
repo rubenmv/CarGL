@@ -47,6 +47,7 @@
 
 #include "GuiManager.h"
 #include "Scene.h"
+#include "Object.h"
 
 GuiManager* guiManager;
 Scene* scene;
@@ -67,7 +68,20 @@ void keyboard(unsigned char Key, int x, int y)
 
 static void specialKey(int key, int x, int y)
 {
-    //glutPostRedisplay();
+	Object* car = scene->objSeleccion;
+	Object* icon = scene->iconSelection;
+
+    switch (key)
+    {
+        case GLUT_KEY_UP:   // El coche avanza
+            car->position.x += 0.05;
+            icon->position.x += 0.05;
+            break;
+        case GLUT_KEY_DOWN:   // El coche retrocede
+            car->position.x -= 0.05;
+            icon->position.x -= 0.05;
+            break;
+    }
 }
 
 void mouse(int button, int button_state, int x, int y )
@@ -115,19 +129,31 @@ int main(int argc, char* argv[])
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
     // Camaras
-    scene->addCamera( "Camara 1", 0.0, 30.0, 30.0, 0.0, 0.0, 0.0, true, true); // Agrega una camara estatica y es la activa
+    scene->addCamera( "Camara", 18.0, -0.4, 6.0, -10.0, 130.0, 0.0, true, true); // Agrega una camara estatica y es la activa
+    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true, false); // Agrega una camara estatica y es la activa
+    scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false, false); // Agrega una camara estatica y es la activa
+
     // Luces
-    GLfloat light0_ambient_c[4]  = {   0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat light0_ambient_c[4]  = {   1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat light0_diffuse_c[4]  = {   1.0f, 0.8f, 0.8f, 1.0f };
 	GLfloat light0_specular_c[4] = {   1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat light0_position_c[4] = { -50.0f, 5.0f, 0.0f, 1.0f };
-	scene->addLight( "Luz 0", GL_LIGHT0, 1, light0_position_c, light0_ambient_c, light0_diffuse_c, light0_specular_c);
+	GLfloat light0_position_c[4] = { -30.0f, 1.0f, 0.0f, 1.0f };
+	float intensity = 0.6f;
+	scene->addLight( "Luz 0", GL_LIGHT0, 1, light0_position_c, intensity, light0_ambient_c, light0_diffuse_c, light0_specular_c);
 
-	GLfloat light1_ambient_c[4]  = { 0.2f,   0.2f,  0.2f, 1.0f };
-	GLfloat light1_diffuse_c[4]  = { 0.8f,   0.8f,  0.8f, 1.0f };
+	GLfloat light1_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light1_diffuse_c[4]  = { 0.5f,   0.5f,  0.5f, 1.0f };
 	GLfloat light1_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
-	GLfloat light1_position_c[4] = { 0.0f, 100.0f, 10.0f, 1.0f };
-    scene->addLight("Luz 1", GL_LIGHT1, 0, light1_position_c, light1_ambient_c, light1_diffuse_c, light1_specular_c);
+	GLfloat light1_position_c[4] = { 30.0f, 10.0f, 10.0f, 1.0f };
+	intensity = 0.2f;
+    scene->addLight("Luz 1", GL_LIGHT1, 0, light1_position_c, intensity, light1_ambient_c, light1_diffuse_c, light1_specular_c);
+
+    GLfloat light2_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light2_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
+	GLfloat light2_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light2_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
+	intensity = 0.4f;
+    scene->addLight("Luz 2", GL_LIGHT2, 0, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
 
     // Funciones para el render
     glutDisplayFunc( render );

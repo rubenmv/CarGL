@@ -41,6 +41,9 @@ public:
     // Camara activa
     Camera* activeCamera;
 
+	Object* objSeleccion; // Object al que pertenece la seleccion, este es el que transformamos
+	Object* iconSelection; // Object del icono de seleccion encima que se ve encima del objeto
+
     // Flags para activar/desactivar caracteristicas
 	int wireframe;
 	int textures;
@@ -72,13 +75,16 @@ public:
 
     // Agrega una camara e indica si es la activa
     void addCamera( const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic = true, bool active = false );
-    void addLight( const char* name, GLenum numLight, int enabled, float position[3], float ambient[4], float diffuse[4], float specular[4] );
+    void addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] );
     // Agrega objetos a la escena e inicializa otras cosas
     void initObjects();
     // Bucle de dibujado de la escena
     void render();
 
     GuiManager* guiManager;
+
+    // Activar la camara indicada
+    void setCamera(int id);
 private:
 	// Objetos de la escena
 	std::vector<Object*> objects;
@@ -101,10 +107,7 @@ private:
 	void renderLights();
 	void renderObjects();
 
-	int seleccion;
-
-	// Devuelve un objeto a partir de un fichero
-	Object* getObject(const char* fileName);
+	int seleccion; // Parte del objeto seleccionado
 };
 
 #endif // SCENE_H

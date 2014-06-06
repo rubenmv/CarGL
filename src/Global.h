@@ -30,7 +30,8 @@ enum ID
 	CUBO_BASURA,
 	PAPELERA,
 	SENAL,
-	BANCO
+	BANCO,
+	SELECCION
 };
 
 // Tipos de datos para el modelo

@@ -17,8 +17,11 @@ public:
     virtual ~Object();
 
     std::string fileName;
+    std::string name;
 
-    std::vector<shape_t> model;
+    std::vector<shape_t> shapes;
+
+    float color[3]; // Nos sirve para acceder desde GLUI
 
 	Vector3 position;
     Vector3 rotation;
@@ -29,11 +32,13 @@ public:
 
     bool selectable;
 
+    // Si el objeto se compone de distintas mallas separadas, guardamos la primera display list
+    // y el total de listas que contiene, una por malla cada una con su material separado
+    unsigned int firstDList;
+    unsigned int dListCount;
+
 private:
     std::vector<Material*> materials; // Este contiene la textura
-    // IDs de la display list de las mallas que contiene el modelo/objeto
-    // En realidad guarda la primera lista y luego se mueve en las consecutivas, si las hay
-    unsigned int displayLists;
     // Genera la display list para este objecto
     void createDisplayList();
 

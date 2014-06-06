@@ -24,7 +24,7 @@ Scene::Scene()
     wireframe = 0;
     culling = 1;
     zbuffer = 1;
-	smooth_shading = 0;
+	smooth_shading = 1;
 	perspective = 1;
 	clockwise = 0;
 
@@ -57,7 +57,7 @@ void Scene::initOpenGL()
 
 	glClearDepth(1.f);
 
-    //glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     // Las luces se agregan desde addLight
 	glEnable(GL_NORMALIZE);
@@ -83,25 +83,6 @@ Scene::~Scene()
     guiManager = 0;
 }
 
-
-Object* Scene::getObject(const char* fileName)
-{
-	/*
-	Object* object = 0;
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		object = objects[i];
-		if ( strcmp(object->fileName.c_str(), fileName) == 0 )
-		{
-			object = new Object(fileName);
-
-		}
-	}
-	*/
-
-	return 0;
-}
-
 void Scene::initObjects()
 {
 	Object* object = 0;
@@ -111,13 +92,30 @@ void Scene::initObjects()
 	objects.push_back( object );
 
 	// ACERAS
-	object = new Object("assets/acera/acera.obj", ACERA);
+	object = new Object("assets/acera/acera.obj", ACERA, Vector3(-13.0, 0.0, -13.0));
+	objects.push_back( object );
+	object = new Object("assets/acera/acera.obj", ACERA, Vector3(13.0, 0.0, 13.0), Vector3(0.0, 180.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/acera/acera.obj", ACERA, Vector3(13.0, 0.0, -13.0), Vector3(0.0, -90.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/acera/acera.obj", ACERA, Vector3(-13.0, 0.0, 13.0), Vector3(0.0, 90.0, 0.0) );
 	objects.push_back( object );
 
-	// COCHE
+
+	// COCHE 1
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
 						Vector3(-5.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), true ); // Seleccionable
+	object->name = "Coche 1";
 	objects.push_back( object );
+	guiManager->addCarItem(object);
+
+	objSeleccion = object; // Seleccionamos este coche por defecto
+
+	object = new Object( "assets/cart/cart_low.obj", COCHE,
+						Vector3(-10.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), true ); // Seleccionable
+	object->name = "Coche 2";
+	objects.push_back( object );
+	guiManager->addCarItem(object);
 
 	// FAROLAS
     float despX = 10;
@@ -196,6 +194,14 @@ void Scene::initObjects()
 	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, Vector3(), Vector3(), false, true);
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.02);
 	objects.push_back( object );
+	// Icono de seleccion encima del objeto
+	Vector3 position = Vector3(objSeleccion->position.x, objSeleccion->position.y + 2, objSeleccion->position.z);
+	object = new Object( "assets/seleccion/seleccion.obj", SELECCION,
+						position, Vector3(0.0, 0.0, 0.0), false, true );
+	object->setConstantRotation(0.0, 1.0, 0.0, 0.08);
+	objects.push_back( object );
+
+	iconSelection = object; // Icono de objeto seleccionado
 }
 
 void Scene::addCamera(const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic /* = true */, bool active /* = false */)
@@ -220,13 +226,24 @@ void Scene::addCamera(const char* name, float px, float py, float pz, float lx, 
     guiManager->addCameraItem(name, active);
 }
 
-void Scene::addLight( const char* name, GLenum numLight, int enabled, float position[3], float ambient[4], float diffuse[4], float specular[4] )
+void Scene::setCamera(int id)
+{
+	activeCamera = cameras[id];
+	// Al final es view_position lo que actualizamos
+	view_position[0] = activeCamera->position.x;
+	view_position[1] = activeCamera->position.y;
+	view_position[2] = activeCamera->position.z;
+}
+
+
+void Scene::addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] )
 {
     Light* light = new Light();
 
 	light->name = name;
     light->numLight = numLight;
     light->enabled = enabled;
+    light->intensity = intensity; // La intensidad se aplicara durante el render
 
 	memcpy(light->position, position, 3*sizeof(float));
 	memcpy(light->ambient, ambient, 4*sizeof(float));
@@ -301,15 +318,19 @@ void Scene::render()
     	// Camara estatica
     	if ( activeCamera->isStatic )
 		{
-			glTranslatef( view_position[0], view_position[1], view_position[2] );
+			glRotatef(activeCamera->lookAt.x, 1.0, 0.0, 0.0);
+			glRotatef(activeCamera->lookAt.y, 0.0, 1.0, 0.0);
+			glRotatef(activeCamera->lookAt.z, 0.0, 0.0, 1.0);
+			//glTranslatef( activeCamera->position.x, activeCamera->position.y, activeCamera->position.z );
 			glMultMatrixf(view_rotate);
+			glTranslatef( view_position[0], view_position[1], view_position[2] );
 			glScalef(scale, scale, scale);
 		}
 		// Camara no estatica, sigue a un objeto
 		else
 		{
-			gluLookAt(  activeCamera->position.x, activeCamera->position.y, activeCamera->position.z,
-                    activeCamera->lookAt.x, activeCamera->lookAt.y, activeCamera->lookAt.z,
+			gluLookAt(  objSeleccion->position.x - 5, objSeleccion->position.y+3, objSeleccion->position.z,
+                    objSeleccion->position.x, objSeleccion->position.y+1, objSeleccion->position.z,
                     0.0, 1.0, 0.0 );
 		}
     }
@@ -395,8 +416,12 @@ void Scene::renderLights()
 		if( lights[i]->enabled == 1 )
 		{
 			glEnable(lights[i]->numLight);
-			// Supongo que tambien habra que actualizar le resto
-			// de propiedades por si han cambiado??
+			// Calcula el color segun la intensidad
+			float intensity = lights[i]->intensity;
+			float ambient[4] = { lights[i]->ambient[0]*intensity, lights[i]->ambient[1]*intensity, lights[i]->ambient[2]*intensity, 1.0f };
+			glLightfv(lights[i]->numLight, GL_AMBIENT,  ambient);
+			float diffuse[4] = { lights[i]->diffuse[0]*intensity, lights[i]->diffuse[1]*intensity, lights[i]->diffuse[2]*intensity, 1.0f };
+			glLightfv(lights[i]->numLight, GL_DIFFUSE,  diffuse);
 			glLightfv(lights[i]->numLight, GL_POSITION, lights[i]->position);
 		}
 		else
@@ -410,41 +435,38 @@ void Scene::renderObjects()
 {
 	for(size_t i = 0; i < objects.size(); i++)
 	{
-		if ( objects[i]->id == CARRETERA && show_carretera == 1 )
+		switch ( objects[i]->id )
 		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == COCHE && show_car == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == ACERA && show_acera == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == ROTONDA && show_rotonda == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == FAROLA && show_farolas == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == EDIFICIO && show_edificios == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == CUBO_BASURA && show_cubos == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == BANCO && show_bancos == 1 )
-		{
-			objects[i]->draw();
-		}
-		else if ( objects[i]->id == SENAL && show_senales == 1 )
-		{
-			objects[i]->draw();
+			case CARRETERA:
+				if ( show_carretera == 1 ) objects[i]->draw();
+			break;
+			case COCHE:
+				if ( show_car == 1 ) objects[i]->draw();
+			break;
+			case ACERA:
+				if ( show_acera == 1 ) objects[i]->draw();
+			break;
+			case ROTONDA:
+				if ( show_rotonda == 1 ) objects[i]->draw();
+			break;
+			case FAROLA:
+				if ( show_farolas == 1 ) objects[i]->draw();
+			break;
+			case EDIFICIO:
+				if ( show_edificios == 1 ) objects[i]->draw();
+			break;
+			case CUBO_BASURA:
+				if ( show_cubos == 1 ) objects[i]->draw();
+			break;
+			case BANCO:
+				if ( show_bancos == 1 ) objects[i]->draw();
+			break;
+			case SENAL:
+				if ( show_senales == 1 ) objects[i]->draw();
+			break;
+			default:
+				objects[i]->draw();
+			break;
 		}
 	}
 
@@ -513,6 +535,26 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
             }
 		}
     }
+
+    // Si se ha seleccionado algo, miramos entre los objetos
+    // y cogemos el Object padre de este objeto seleccionado
+    if ( seleccion != 0 )
+	{
+		for ( size_t i = 0; i < objects.size(); i++ )
+		{
+			if ( objects[i]->selectable )
+			{
+				int maximo = objects[i]->firstDList + objects[i]->dListCount - 1;
+				if ( (seleccion >= objects[i]->firstDList && seleccion <= maximo) )
+				{
+					objSeleccion = objects[i];
+					iconSelection->position = objSeleccion->position;
+					iconSelection->position.y += 2;
+					continue;
+				}
+			}
+		}
+	}
 
     if ( guiManager != 0 )
 	{

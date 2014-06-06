@@ -1,0 +1,11 @@
+# Blender MTL File: 'seleccion.blend'
+# Material Count: 1
+
+newmtl Material
+Ns 96.078431
+Ka 1 1 1
+Kd 0.282234 0.042774 0.535327
+Ks 0.294393 0.294393 0.294393
+Ni 1.000000
+d 1.000000
+illum 2

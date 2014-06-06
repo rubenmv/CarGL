@@ -13,6 +13,8 @@ public:
 
     void bind();
     void unbind();
+
+    void setColor(float color[3]);
 private:
 	material_t material; // Este ya tiene toda la info del material
     Texture* texture;

@@ -33,13 +33,15 @@ public:
 	GLUI_Rotation   *view_rot;
 
 	GLUI_Rollout* rolloutLuces;
-	std::vector<GLUI_Rollout*> listaLuces;
+	GLUI_Rollout* rolloutCoches;
 	GLUI_Listbox *listboxCamaras;
 	unsigned int listboxCamarasCount;
 
-	// Para agregra elementos a las listbox dinamicamente
+	// Para agregar elementos a las listbox/rollouts dinamicamente segun se crean
 	void addLightItem(Scene::Light* light);
+	void addCarItem(Object* car);
 	void addCameraItem(const char* name, bool active);
+
 
 private:
     int             window_id;
