@@ -20,6 +20,7 @@ Scene::Scene()
     timerClock.start();
 
 	// FLAGS
+	ambientLighting = 1;
     textures = 1;
     wireframe = 0;
     culling = 1;
@@ -103,16 +104,33 @@ void Scene::initObjects()
 
 
 	// COCHE 1
+	Vector3 posCoche = Vector3(-5.0, 0.04, 0.5); // Para poner las ruedas con respecto a esto
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-5.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), true ); // Seleccionable
+						posCoche, Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
 	object->name = "Coche 1";
+	// Le damos un color inicial diferente para que se distingan los coches
+	object->color[0] = 0.4; object->color[0] = 0.4; object->color[0] = 0.4;
 	objects.push_back( object );
 	guiManager->addCarItem(object);
 
-	objSeleccion = object; // Seleccionamos este coche por defecto
+	objSeleccion = object; // Uso esto para pasarlo como parent a las ruedas y ya dejo uno seleccionado
+
+	// Ruedas del coche 1, ponemos el coche como parent y las posiciones seran relativas a este
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(0.85, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(-0.4, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(0.85, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(-0.4, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+	objects.push_back( object );
 
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-10.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), true ); // Seleccionable
+						Vector3(-10.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	objects.push_back( object );
 	guiManager->addCarItem(object);
@@ -191,13 +209,12 @@ void Scene::initObjects()
 	object = new Object("assets/rotonda/rotonda_base.obj", ROTONDA);
 	objects.push_back( object );
 	// Objetos transparentes al final para preservar la profuncdidad					  No seleccionable, transparente
-	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, Vector3(), Vector3(), false, true);
+	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, Vector3(), Vector3(), 0, false, true);
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.02);
 	objects.push_back( object );
 	// Icono de seleccion encima del objeto
-	Vector3 position = Vector3(objSeleccion->position.x, objSeleccion->position.y + 2, objSeleccion->position.z);
 	object = new Object( "assets/seleccion/seleccion.obj", SELECCION,
-						position, Vector3(0.0, 0.0, 0.0), false, true );
+						Vector3(0.0, 2.0, 0.0), Vector3(0.0, 0.0, 0.0), objSeleccion, false, true );// Su parent es el coche seleccionado actualmente
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.08);
 	objects.push_back( object );
 
@@ -288,7 +305,7 @@ void Scene::reshape(int x, int y)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    if( perspective == 1 )
+    if( perspective )
 	{
         setPerspective();
     }
@@ -355,8 +372,17 @@ void Scene::render()
 void Scene::initRender()
 {
 	// FLAGS
+	if ( ambientLighting )
+	{
+		glEnable(GL_LIGHTING);
+	}
+	else
+	{
+		glDisable(GL_LIGHTING);
+	}
+
 	// Wireframe
-	if ( wireframe == 1 )
+	if ( wireframe )
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	}
@@ -364,13 +390,13 @@ void Scene::initRender()
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		// Solo usamos texturas si el wireframe esta desactivado
-		if ( textures == 1 )
+		if ( textures )
 		{
 			glEnable( GL_TEXTURE_2D );
 		}
 	}
 	// Culling
-	if ( culling == 1 )
+	if ( culling )
 	{
 		glEnable( GL_CULL_FACE );
 		glCullFace( GL_BACK );
@@ -380,7 +406,7 @@ void Scene::initRender()
 		glDisable( GL_CULL_FACE );
 	}
 	// Z-Buffer
-	if ( zbuffer == 1 )
+	if ( zbuffer )
 	{
 		glEnable( GL_DEPTH_TEST );
 		glDepthFunc( GL_LESS );
@@ -390,7 +416,7 @@ void Scene::initRender()
 		glDisable( GL_DEPTH_TEST );
 	}
 	// Sombreado
-	if ( smooth_shading == 1 )
+	if ( smooth_shading )
 	{
 		glShadeModel( GL_SMOOTH );
 	}
@@ -399,7 +425,7 @@ void Scene::initRender()
 		glShadeModel( GL_FLAT );
 	}
 	// Sentido de las caras
-	if( clockwise == 1 )
+	if( clockwise )
 	{
         glFrontFace( GL_CW ); // Horario
     }
@@ -413,7 +439,7 @@ void Scene::renderLights()
 {
 	for ( size_t i = 0; i < lights.size(); i++ )
 	{
-		if( lights[i]->enabled == 1 )
+		if( lights[i]->enabled )
 		{
 			glEnable(lights[i]->numLight);
 			// Calcula el color segun la intensidad
@@ -438,31 +464,31 @@ void Scene::renderObjects()
 		switch ( objects[i]->id )
 		{
 			case CARRETERA:
-				if ( show_carretera == 1 ) objects[i]->draw();
+				if ( show_carretera ) objects[i]->draw();
 			break;
 			case COCHE:
-				if ( show_car == 1 ) objects[i]->draw();
+				if ( show_car ) objects[i]->draw();
 			break;
 			case ACERA:
-				if ( show_acera == 1 ) objects[i]->draw();
+				if ( show_acera ) objects[i]->draw();
 			break;
 			case ROTONDA:
-				if ( show_rotonda == 1 ) objects[i]->draw();
+				if ( show_rotonda ) objects[i]->draw();
 			break;
 			case FAROLA:
-				if ( show_farolas == 1 ) objects[i]->draw();
+				if ( show_farolas ) objects[i]->draw();
 			break;
 			case EDIFICIO:
-				if ( show_edificios == 1 ) objects[i]->draw();
+				if ( show_edificios ) objects[i]->draw();
 			break;
 			case CUBO_BASURA:
-				if ( show_cubos == 1 ) objects[i]->draw();
+				if ( show_cubos ) objects[i]->draw();
 			break;
 			case BANCO:
-				if ( show_bancos == 1 ) objects[i]->draw();
+				if ( show_bancos ) objects[i]->draw();
 			break;
 			case SENAL:
-				if ( show_senales == 1 ) objects[i]->draw();
+				if ( show_senales ) objects[i]->draw();
 			break;
 			default:
 				objects[i]->draw();
@@ -548,8 +574,7 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
 				if ( (seleccion >= objects[i]->firstDList && seleccion <= maximo) )
 				{
 					objSeleccion = objects[i];
-					iconSelection->position = objSeleccion->position;
-					iconSelection->position.y += 2;
+					iconSelection->parent = objSeleccion;
 					continue;
 				}
 			}

@@ -45,6 +45,7 @@ public:
 	Object* iconSelection; // Object del icono de seleccion encima que se ve encima del objeto
 
     // Flags para activar/desactivar caracteristicas
+    int ambientLighting;
 	int wireframe;
 	int textures;
 	int culling;

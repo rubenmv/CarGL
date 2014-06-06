@@ -13,7 +13,7 @@ class Object
 public:
 	ID id;
 
-    Object(const char* fileName, ID id, Vector3 position = Vector3(), Vector3 rotation = Vector3(), bool selectable = false, bool transparent = false);
+    Object(const char* fileName, ID id, Vector3 position = Vector3(), Vector3 rotation = Vector3(), Object* parent = 0, bool selectable = false, bool transparent = false);
     virtual ~Object();
 
     std::string fileName;
@@ -37,6 +37,9 @@ public:
     unsigned int firstDList;
     unsigned int dListCount;
 
+    // Si tiene parent la posicion se convierte en relativa con respecto a este
+    Object* parent;
+
 private:
     std::vector<Material*> materials; // Este contiene la textura
     // Genera la display list para este objecto
@@ -47,6 +50,8 @@ private:
     Clock timer;
 
     bool transparent;
+
+    Vector3 relativePosition;
 };
 
 #endif // OBJECT_H

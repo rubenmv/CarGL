@@ -1,0 +1,29 @@
+# Blender MTL File: 'rueda.blend'
+# Material Count: 3
+
+newmtl METAL_alumin
+Ns 96.078431
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl RUBBER
+Ns 96.078431
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl RUBBER_tread
+Ns 96.078431
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+Ni 1.000000
+d 1.000000
+illum 2

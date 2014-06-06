@@ -9,13 +9,23 @@
 #include <fstream>
 #include <string.h>
 
-Object::Object(const char* fileName, ID id, Vector3 position, Vector3 rotation, bool selectable /* = false */, bool transparent /*= false*/)
+Object::Object(const char* fileName, ID id, Vector3 position, Vector3 rotation, Object* parent /*= 0*/, bool selectable /* = false */, bool transparent /*= false*/)
 {
 	this->fileName = std::string(fileName);
 	this->id = id;
+	this->parent = parent;
 	this->transparent = transparent;
 
-	this->position = position;
+	// Si tiene parent para posicion es relativa a este
+	if ( parent != 0 )
+	{
+		relativePosition = position;
+	}
+	else
+	{
+		this->position = position;
+	}
+
 	this->rotation = rotation;
 
 	this->selectable = selectable;
@@ -86,6 +96,8 @@ Object::~Object()
 	}
 
 	glDeleteLists(firstDList, dListCount);
+
+	parent = 0;
 }
 
 void Object::createDisplayList()
@@ -147,6 +159,14 @@ void Object::draw()
 			}
 
 			materials[i]->bind();
+
+			// Si tiene parent la posicion siempre es relativa a este
+			if ( parent != 0 )
+			{
+				this->position.x = parent->position.x + relativePosition.x;
+				this->position.y = parent->position.y + relativePosition.y;
+				this->position.z = parent->position.z + relativePosition.z;
+			}
 
 			// Las transformaciones se aplican localmente y no son conmutativas, primero trasladamos, luego rotamos
 			glTranslatef(position.x, position.y, position.z);

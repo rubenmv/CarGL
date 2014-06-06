@@ -109,10 +109,11 @@ void __fastcall GuiManager::init(int main_window) {
     obj_panel = new GLUI_Rollout(glui, "Propiedades", false );
 
     /***** Control para las propiedades de scene *****/
-    new GLUI_Checkbox( obj_panel, "Modo alambrico", &(scene->wireframe), 1, controlCallback );
-    new GLUI_Checkbox( obj_panel, "Z Buffer", &scene->zbuffer, 1, controlCallback );
-    new GLUI_Checkbox( obj_panel, "Culling", &scene->culling, 1, controlCallback );
-    new GLUI_Checkbox( obj_panel, "Texturas", &scene->textures, 1, controlCallback );
+    new GLUI_Checkbox( obj_panel, "Luz ambiente", &(scene->ambientLighting) );
+    new GLUI_Checkbox( obj_panel, "Modo alambrico", &(scene->wireframe) );
+    new GLUI_Checkbox( obj_panel, "Z Buffer", &scene->zbuffer);
+    new GLUI_Checkbox( obj_panel, "Culling", &scene->culling );
+    new GLUI_Checkbox( obj_panel, "Texturas", &scene->textures );
     new GLUI_StaticText( obj_panel, "Modelo de sombreado" );
     new GLUI_Button( obj_panel, "Flat", SHADING_FLAT, controlCallback );
     new GLUI_Button( obj_panel, "Smooth", SHADING_SMOOTH, controlCallback );
