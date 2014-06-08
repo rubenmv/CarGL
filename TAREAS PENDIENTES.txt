@@ -1,6 +1,5 @@
 COSAS DEL ENUNCIADO
 
-- Arreglar el problema del color de material cuando hay texturas, que mire en el scene para aplicar textura o color de material
 - Resetear posicion no funciona
 - Bloquear posicion funciona al reves
 
