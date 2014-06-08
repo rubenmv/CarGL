@@ -5,13 +5,14 @@
 
 class Texture {
 public:
-    Texture(std::string filePath, bool linear);
+    Texture(std::string filePath);
     virtual ~Texture();
+
+    std::string fileName;
 
     void bind();
     void unbind();
 private:
-    std::string fileName;
     unsigned int textureID;
 
     int width;

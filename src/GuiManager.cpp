@@ -22,6 +22,7 @@
 
 GuiManager* guiMan;
 
+// By-pass para el controllCallback de tipo ANSI C
 void controlCallback( int control )
 {
     guiMan->ControlCallback(control);
@@ -30,7 +31,7 @@ void controlCallback( int control )
 GuiManager::GuiManager(Scene* scene)
 {
 	guiMan = this;
-	this->scene = scene;
+	this->scene = Scene::instance();
 	scene->guiManager = this;
 
 	listboxCamarasCount = 0;
@@ -126,6 +127,7 @@ void __fastcall GuiManager::init(int main_window) {
 
     /***  Rollout de Opciones ***/
     GLUI_Rollout *options = new GLUI_Rollout(glui, "Objetos", false );
+    new GLUI_Checkbox( options, "Dibujar reflejos", &scene->show_reflections );
     new GLUI_Checkbox( options, "Dibujar Coche", &scene->show_car );
     new GLUI_Checkbox( options, "Dibujar Ruedas", &scene->show_ruedas );
     new GLUI_Checkbox( options, "Dibujar Carretera", &scene->show_carretera );

@@ -4,12 +4,15 @@
 #include "Object.h"
 
 class Texture;
+class Scene;
 
 class Material
 {
 public:
     Material(material_t material, bool transparent);
     virtual ~Material();
+
+    bool transparent;
 
     void bind();
     void unbind();
@@ -18,7 +21,8 @@ public:
 private:
 	material_t material; // Este ya tiene toda la info del material
     Texture* texture;
-    bool transparent;
+
+    Scene* scene; // Para comprobar el estado de show_textures
 };
 
 #endif // MATERIAL_H

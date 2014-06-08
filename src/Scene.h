@@ -11,6 +11,7 @@
 
 class Object;
 class GuiManager;
+class Texture;
 
 class Scene {
 public:
@@ -35,7 +36,7 @@ public:
         float intensity;
     };
 
-    Scene();
+	static Scene* instance();
     virtual ~Scene();
 
     // Camara activa
@@ -54,6 +55,7 @@ public:
 	int perspective; // indica si se usa perspectiva o paralela
 	int clockwise; // Sentido de dibujado de las caras de los poligonos
 
+	int show_reflections;
 	int show_car;
     int show_ruedas;
     int show_carretera;
@@ -81,14 +83,28 @@ public:
     void initObjects();
     // Bucle de dibujado de la escena
     void render();
+    // Rotacion que aplicamos a las ruedas del coche seleccionado
+    // Indica el sentido en el que gira el eje, 0.0 si no hay giro
+    Vector3 rotationRueda;
 
     GuiManager* guiManager;
 
     // Activar la camara indicada
     void setCamera(int id);
+
+	// Busca si un objeto existe con su filename y devuelve su primera ID de displaylist
+    unsigned int getObjectList(std::string fileName);
+
+    // Devuelve una textura ya cargada (la crea si es necesario)
+	Texture* getTexture(std::string fileName);
+
 private:
+	Scene();
+	static Scene* pInstance;
+
 	// Objetos de la escena
 	std::vector<Object*> objects;
+	Object* road; // La carretera se renderiza por separado para aplicar reflejo
 
     // Camaras en la escena
     std::vector<Camera*> cameras;
@@ -105,8 +121,12 @@ private:
 	Clock timerClock;
 
 	void initRender();
+	void renderReflection();
 	void renderLights();
 	void renderObjects();
+
+	// Guarda las texturas ya cargadas para que los materiales las compartan
+	std::vector<Texture*> loadedTextures;
 
 	int seleccion; // Parte del objeto seleccionado
 };

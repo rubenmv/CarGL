@@ -4,19 +4,23 @@
 #include "Material.h"
 
 #include "GL/gl.h"
+#include "Scene.h"
 
 #include <iostream>
 #include <fstream>
 #include <string.h>
 
-Object::Object(const char* fileName, ID id, Vector3 position, Vector3 rotation, Object* parent /*= 0*/, bool selectable /* = false */, bool transparent /*= false*/)
+Object::Object(	const char* fileName, ID id, Vector3 position, Vector3 rotation,
+				Object* parent, bool selectable, bool transparent)
 {
 	this->fileName = std::string(fileName);
 	this->id = id;
 	this->parent = parent;
 	this->transparent = transparent;
 
-	// Si tiene parent para posicion es relativa a este
+	firstDList = 0;
+
+	// Si tiene parent la posicion es la relativa a este
 	if ( parent != 0 )
 	{
 		relativePosition = position;
@@ -62,7 +66,7 @@ Object::Object(const char* fileName, ID id, Vector3 position, Vector3 rotation, 
 	{
 		// Se va a crear una lista por modelo/malla
 		dListCount = shapes.size();
-		// Generamos la display list
+		// Generamos las display lists para cada shape
 		createDisplayList();
 
 		for (size_t i = 0; i < shapes.size(); ++i)
@@ -102,49 +106,66 @@ Object::~Object()
 
 void Object::createDisplayList()
 {
-	// Creamos las listas necesarias para todos los objetos del modelo
-	firstDList = glGenLists(dListCount);
-
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_NORMAL_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-
-	// Rellenamos cada display list creada
-	for (size_t i = 0; i < dListCount; ++i)
+	// Queremos que los seleccionables tengan listas unicas
+	if ( !this->selectable )
 	{
-		// start list
-		glNewList(firstDList+i, GL_COMPILE);
+		// Antes de generar nuevas listas, preguntamos a la escena si ya
+		// existe un objeto igual y recogemos su primer id de display list
+		firstDList = Scene::instance()->getObjectList( this->fileName );
+	}
 
-		if ( !shapes[i].mesh.positions.empty() )
+	// Si no se ha encontrado el objeto, generamos nuevas display lists
+	if ( firstDList == 0 )
+	{
+		// Creamos las listas necesarias para todos los objetos del modelo
+		// Esto se debe a que el modelo se exporta dividido en distintas partes
+		// cada una con sus materiales y texturas
+		firstDList = glGenLists(dListCount);
+
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_NORMAL_ARRAY );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
+		// Rellenamos cada display list creada
+		for (size_t i = 0; i < dListCount; ++i)
 		{
-			glVertexPointer( 3, GL_FLOAT, 0, &shapes[i].mesh.positions[0] );	// Posiciones
+			// start list
+			glNewList(firstDList+i, GL_COMPILE);
 
-			if ( !shapes[i].mesh.normals.empty() )
+			if ( !shapes[i].mesh.positions.empty() )
 			{
-				glNormalPointer( GL_FLOAT, 0, &shapes[i].mesh.normals[0] );		// Normales
+				glVertexPointer( 3, GL_FLOAT, 0, &shapes[i].mesh.positions[0] );	// Posiciones
+
+				if ( !shapes[i].mesh.normals.empty() )
+				{
+					glNormalPointer( GL_FLOAT, 0, &shapes[i].mesh.normals[0] );		// Normales
+				}
+
+				if ( !shapes[i].mesh.texcoords.empty() )
+				{
+					glTexCoordPointer( 2, GL_FLOAT, 0, &shapes[i].mesh.texcoords[0] );	// uv
+				}
+
+				glDrawElements( GL_TRIANGLES, shapes[i].mesh.indices.size(), GL_UNSIGNED_INT, &shapes[i].mesh.indices[0] );
 			}
 
-			if ( !shapes[i].mesh.texcoords.empty() )
-			{
-				glTexCoordPointer( 2, GL_FLOAT, 0, &shapes[i].mesh.texcoords[0] );	// uv
-			}
-
-			glDrawElements( GL_TRIANGLES, shapes[i].mesh.indices.size(), GL_UNSIGNED_INT, &shapes[i].mesh.indices[0] );
+			// endList
+			glEndList();
 		}
 
-		// endList
-		glEndList();
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_NORMAL_ARRAY );
+		glDisableClientState( GL_VERTEX_ARRAY );
+	}
 
-		// Una vez creada la lista podemos limpiar la informacion de vertices
+	// Una vez creada/obtenida la lista podemos limpiar la informacion de vertices de cada shape
+	for (size_t i = 0; i < shapes.size(); ++i)
+	{
 		shapes[i].mesh.positions.clear();
 		shapes[i].mesh.normals.clear();
 		shapes[i].mesh.texcoords.clear();
 		shapes[i].mesh.indices.clear();
 	}
-
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState( GL_NORMAL_ARRAY );
-	glDisableClientState( GL_VERTEX_ARRAY );
 }
 
 void Object::draw()
@@ -168,19 +189,19 @@ void Object::draw()
 				this->position.z = parent->position.z + relativePosition.z;
 			}
 
-			// Las transformaciones se aplican localmente y no son conmutativas, primero trasladamos, luego rotamos
+			// Las transformaciones se aplican en orden inverso
 			glTranslatef(position.x, position.y, position.z);
 
 			if (constantRotation)
 			{
-				glRotatef(rotation.x * timer.getTicks(), 1.0, 0.0, 0.0);
 				glRotatef(rotation.y * timer.getTicks(), 0.0, 1.0, 0.0);
+				glRotatef(rotation.x * timer.getTicks(), 1.0, 0.0, 0.0);
 				glRotatef(rotation.z * timer.getTicks(), 0.0, 0.0, 1.0);
 			}
 			else
 			{
-				glRotatef(rotation.x, 1, 0, 0);
 				glRotatef(rotation.y, 0, 1, 0);
+				glRotatef(rotation.x, 1, 0, 0);
 				glRotatef(rotation.z, 0, 0, 1);
 			}
 
@@ -226,5 +247,13 @@ void Object::setConstantRotation(short int x, short int y, short int z, float ro
 			this->rotation.z = rotation;
 			constantRotation = true;
 		}
+	}
+}
+
+void Object::setTransparent(bool transparent)
+{
+	for (size_t i = 0; i < materials.size(); ++i)
+	{
+		materials[i]->transparent = transparent;
 	}
 }

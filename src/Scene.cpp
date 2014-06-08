@@ -1,11 +1,22 @@
 #include "Scene.h"
 #include "Object.h"
+#include "Texture.h"
 
 #include "GuiManager.h"
 #include <iostream>
 
+Scene* Scene::pInstance = 0;
+
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
+
+// Inicializacion del singleton
+Scene* Scene::instance() {
+   if (pInstance == 0) {
+      pInstance = new Scene;
+   }
+   return pInstance;
+}
 
 Scene::Scene()
 {
@@ -29,6 +40,7 @@ Scene::Scene()
 	perspective = 1;
 	clockwise = 0;
 
+	show_reflections = 1;
     show_car = 1;
     show_ruedas = 1;
     show_carretera = 1;
@@ -79,8 +91,16 @@ Scene::~Scene()
         delete cameras.back();
         cameras.pop_back();
     }
-    activeCamera = 0;
 
+    while (!objects.empty())
+    {
+        delete objects.back();
+        objects.pop_back();
+    }
+    delete road;
+	road = 0;
+
+    activeCamera = 0;
     guiManager = 0;
 }
 
@@ -88,12 +108,11 @@ void Scene::initObjects()
 {
 	Object* object = 0;
 
-	// CARRETERA
-	object = new Object("assets/carretera/carretera.obj", CARRETERA);
-	objects.push_back( object );
+	// CARRETERA, se guarda por separado para aplicar reflejos
+	road = new Object("assets/carretera/carretera.obj", CARRETERA, Vector3(), Vector3(), 0, false, true);
 
 	// ACERAS
-	object = new Object("assets/acera/acera.obj", ACERA, Vector3(-13.0, 0.0, -13.0));
+	object = new Object("assets/acera/acera.obj", ACERA, Vector3(-13.0, -0.0, -13.0));
 	objects.push_back( object );
 	object = new Object("assets/acera/acera.obj", ACERA, Vector3(13.0, 0.0, 13.0), Vector3(0.0, 180.0, 0.0) );
 	objects.push_back( object );
@@ -104,16 +123,16 @@ void Scene::initObjects()
 
 
 	// COCHE 1
-	Vector3 posCoche = Vector3(-5.0, 0.04, 0.5); // Para poner las ruedas con respecto a esto
+	Vector3 posCoche = Vector3(-10.0, 0.04, 0.9); // Para poner las ruedas con respecto a esto
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
 						posCoche, Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
-	object->color[0] = 0.4; object->color[0] = 0.4; object->color[0] = 0.4;
+	object->color[0] = 0.6; object->color[1] = 0.5; object->color[2] = 0.4;
 	objects.push_back( object );
-	guiManager->addCarItem(object);
+	guiManager->addCarItem( object );
 
-	objSeleccion = object; // Uso esto para pasarlo como parent a las ruedas y ya dejo uno seleccionado
+	objSeleccion = object; // Uso esto para pasarlo como parent a las ruedas y ya dejo uno seleccionado al final
 
 	// Ruedas del coche 1, ponemos el coche como parent y las posiciones seran relativas a este
 	object = new Object( "assets/cart/rueda.obj", RUEDA,
@@ -130,10 +149,27 @@ void Scene::initObjects()
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-10.0, 0.0, 0.5), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
+						Vector3(-12.0, 0.0, -0.9), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
 	object->name = "Coche 2";
+	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
 	objects.push_back( object );
-	guiManager->addCarItem(object);
+	guiManager->addCarItem( object );
+
+	objSeleccion = object;
+
+	// Ruedas del coche 2
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(0.85, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(-0.4, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(0.85, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda.obj", RUEDA,
+						Vector3(-0.4, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+	objects.push_back( object );
 
 	// FAROLAS
     float despX = 10;
@@ -182,7 +218,6 @@ void Scene::initObjects()
 	}
 
 	// EDIFICIOS
-
 	// Bloque 1
 	object = new Object("assets/edificios/edificio1.obj", EDIFICIO,
 						Vector3(-20.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
@@ -202,12 +237,13 @@ void Scene::initObjects()
 
 	// SENALES DE TRAFICO
 	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
-						Vector3(-6.0, 0.0, 2.0), Vector3(0.0, -90.0, 0.0) );
+						Vector3(-9.0, 0.0, 2.5), Vector3(0.0, -90.0, 0.0) );
 	objects.push_back( object );
 
 	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
 	object = new Object("assets/rotonda/rotonda_base.obj", ROTONDA);
 	objects.push_back( object );
+
 	// Objetos transparentes al final para preservar la profuncdidad					  No seleccionable, transparente
 	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, Vector3(), Vector3(), 0, false, true);
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.02);
@@ -250,6 +286,8 @@ void Scene::setCamera(int id)
 	view_position[0] = activeCamera->position.x;
 	view_position[1] = activeCamera->position.y;
 	view_position[2] = activeCamera->position.z;
+	memcpy(view_rotate, view_rotate_c, 16*sizeof(float));
+	scale = 1.0f;
 }
 
 
@@ -326,8 +364,8 @@ void Scene::render()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    // Prepara las caracteristicas de la escena
-    initRender();
+	initRender();
+	renderLights();
 
     // Camara
     if ( activeCamera != 0 )
@@ -352,9 +390,24 @@ void Scene::render()
 		}
     }
 
-    renderLights();
+	if ( show_carretera )
+	{
+		if (show_reflections)
+		{
+			// Dibujamos la escena invertida en modo de reflejo
+			renderReflection();
+			// Volvemos a inicializar la escena antes de dibujar los objetos normalmente
+			initRender();
+			road->setTransparent(true);
+		}
+		else
+		{
+			road->setTransparent(false);
+		}
 
-	// Objetos
+		road->draw();
+	}
+
 	renderObjects();
 
 	// Comprueba si ha habido algun error de OpenGL
@@ -389,11 +442,13 @@ void Scene::initRender()
 	else
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		/*
 		// Solo usamos texturas si el wireframe esta desactivado
 		if ( textures )
 		{
 			glEnable( GL_TEXTURE_2D );
 		}
+		*/
 	}
 	// Culling
 	if ( culling )
@@ -435,6 +490,47 @@ void Scene::initRender()
     }
 }
 
+void Scene::renderReflection()
+{
+	//REFLEJOS
+	glColorMask(0,0,0,0);                           // Set Color Mask
+
+	glEnable(GL_STENCIL_TEST);                      // Enable Stencil Buffer For "marking" The Floor
+	glStencilFunc(GL_ALWAYS, 1, 1);                     // Always Passes, 1 Bit Plane, 1 As Mask
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);              // We Set The Stencil Buffer To 1 Where We Draw Any Polygon
+										// Keep If Test Fails, Keep If Test Passes But Buffer Test Fails
+										// Replace If Test Passes
+	glDisable(GL_DEPTH_TEST);                       // Disable Depth Testing
+	//glEnable(GL_CULL_FACE); //------
+
+	road->draw();
+
+	glEnable(GL_DEPTH_TEST);                        // Enable Depth Testing
+	glColorMask(1,1,1,1);                           // Set Color Mask to TRUE, TRUE, TRUE, TRUE
+	glStencilFunc(GL_EQUAL, 1, 1);                      // We Draw Only Where The Stencil Is 1
+										// (I.E. Where The Floor Was Drawn)
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);                 // Don't Change The Stencil Buffer
+
+	glEnable(GL_CLIP_PLANE0);                       // Enable Clip Plane For Removing Artifacts
+	double eqr[] = {0.0f,-1.0f, 0.0f, 0.0f};                // Plane Equation To Use For The Reflected
+	glClipPlane(GL_CLIP_PLANE0, eqr);                   // Equation For Reflected Objects
+
+	// Dibujamos los objetos rotados y girados
+	glPushMatrix();                             // Push The Matrix Onto The Stack
+		glFrontFace( GL_CW );
+		glScalef(1.0f, -1.0f, 1.0f);                    // Mirror Y Axis
+		glRotatef(0.0f, 1.0f, 0.0f, 0.0f);              // Rotate Local Coordinate System On X Axis------------
+		glRotatef(0.0f, 0.0f, 1.0f, 0.0f);              // Rotate Local Coordinate System On Y Axis------------
+		//DIBUJO LOS OBJETOS
+		renderObjects();
+		glFrontFace( GL_CCW );
+	glPopMatrix();                              // Pop The Matrix Off The Stack
+
+	glDisable(GL_CLIP_PLANE0);                      // Disable Clip Plane For Drawing The Floor
+	glDisable(GL_STENCIL_TEST);                     // We Don't Need The Stencil Buffer Any More (Disable)
+}
+
+
 void Scene::renderLights()
 {
 	for ( size_t i = 0; i < lights.size(); i++ )
@@ -465,36 +561,56 @@ void Scene::renderObjects()
 		{
 			case CARRETERA:
 				if ( show_carretera ) objects[i]->draw();
-			break;
+				break;
 			case COCHE:
 				if ( show_car ) objects[i]->draw();
-			break;
+				break;
+			case RUEDA: // Aplicamos la rotacion si pertenecen al seleccionado actual
+				if ( objects[i]->parent == objSeleccion )
+				{
+					// Rotacion en eje y
+					if ( rotationRueda.y != 0.0f )
+					{
+						objects[i]->rotation.y += (rotationRueda.y * 1.f);
+					}
+					// Rotacion en eje x
+					if ( rotationRueda.x != 0.0f )
+					{
+						objects[i]->rotation.x += (rotationRueda.x * 5.f);
+					}
+				}
+				if ( show_ruedas ) objects[i]->draw();
+				break;
 			case ACERA:
 				if ( show_acera ) objects[i]->draw();
-			break;
+				break;
 			case ROTONDA:
 				if ( show_rotonda ) objects[i]->draw();
-			break;
+				break;
 			case FAROLA:
 				if ( show_farolas ) objects[i]->draw();
-			break;
+				break;
 			case EDIFICIO:
 				if ( show_edificios ) objects[i]->draw();
-			break;
+				break;
 			case CUBO_BASURA:
 				if ( show_cubos ) objects[i]->draw();
-			break;
+				break;
 			case BANCO:
 				if ( show_bancos ) objects[i]->draw();
-			break;
+				break;
 			case SENAL:
 				if ( show_senales ) objects[i]->draw();
-			break;
+				break;
 			default:
 				objects[i]->draw();
-			break;
+				break;
 		}
 	}
+
+	// Resetea el estado de rotacion, el input lo volver a activar
+	// si fuera necesario
+	rotationRueda = Vector3(0.0, 0.0, 0.0);
 
 	glDisable( GL_TEXTURE_2D );
 }
@@ -586,4 +702,33 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
 		sprintf(cad, "%03d [%03d, %03d]", seleccion, mouse_x, mouse_y);
 		guiManager->sel_tex->set_text(cad);
 	}
+}
+
+unsigned int Scene::getObjectList(std::string fileName)
+{
+	for ( size_t i = 0; i < objects.size(); i++ )
+	{
+		if ( fileName.compare(objects[i]->fileName) == 0 )
+		{ // Ya existe un objeto igual, devolvemos la display list
+			return objects[i]->firstDList;
+		}
+	}
+
+	return 0;
+}
+
+Texture* Scene::getTexture(std::string fileName)
+{
+	for ( size_t i = 0; i < loadedTextures.size(); i++ )
+	{
+		if ( fileName.compare(loadedTextures[i]->fileName) == 0 )
+		{ // Ya existe un objeto igual, devolvemos la display list
+			return loadedTextures[i];
+		}
+	}
+
+	// No hay encontrado la textura, la creamos
+	Texture* newTexture = new Texture(fileName);
+	loadedTextures.push_back(newTexture);
+	return newTexture;
 }

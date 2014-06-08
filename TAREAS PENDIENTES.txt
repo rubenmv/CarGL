@@ -1,0 +1,24 @@
+COSAS DEL ENUNCIADO
+
+- Arreglar el problema del color de material cuando hay texturas, que mire en el scene para aplicar textura o color de material
+- Resetear posicion no funciona
+- Bloquear posicion funciona al reves
+
+Teclado
+	- El coche gira pero solo cuando se avanza.
+	- Camara
+		- Rotación: el movimiento del ratón y botón izquierdo (+CTRL para el eje z).
+		- Traslación: (SHIFT) + el movimiento del ratón y botón izquierdo (+CTRL para el eje z).
+		- Escalado: el movimiento del ratón y botón derecho (+CTRL para el eje z).
+
+- Documento de ususario
+- Documento de desarrollador
+
+COSAS MIAS
+- Skybox
+- Poner lineas de carretera directamente sobre el modelo
+- Colocar todos los objetos de la ciudad
+	- Senales que faltan
+	- Papeleras
+	- Edificios
+	- Cubos basura

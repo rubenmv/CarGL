@@ -1,10 +1,12 @@
 #include "Material.h"
 #include "Texture.h"
 
+#include "Scene.h"
 #include <GL/gl.h>
 
 Material::Material(material_t material, bool transparent)
 {
+	scene = Scene::instance();
     texture = 0;
 
     this->transparent = transparent;
@@ -12,46 +14,52 @@ Material::Material(material_t material, bool transparent)
 	// Textura
 	if(!material.diffuse_texname.empty())
 	{
-		texture = new Texture(material.diffuse_texname, false);
+		texture = Scene::instance()->getTexture(material.diffuse_texname);
 	}
 }
 
 Material::~Material()
 {
     texture = 0;
+    scene = 0;
 }
 
 void Material::bind()
 {
+	// Preparamos el color a aplicar
+	float color[4] = { 1.0, 1.0, 1.0, 1.0 }; // Por defecto para los que tienen texturas
 	if (transparent)
 	{
 		glEnable (GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-		// Con GL_COLOR_MATERIAL activado se podria utilizar glColor3f para aplicar ambient y diffuse
-		// al mismo tiempo, esto puede ser mas rapido pero no se pueden aplicar ambient y diffuse por separado
-		glColor4f(material.diffuse[0], material.diffuse[1], material.diffuse[2], 0.5);
+		color[3] = 0.8;
 	}
+
+	// Dibujamos texturas con color de material por defecto (no queremos que el color afecte a la textura)
+	if ( scene->textures && texture != 0)
+	{
+		texture->bind();
+	}
+	// Dibujamos materiales con su color
 	else
 	{
-		glColor3f(material.diffuse[0], material.diffuse[1], material.diffuse[2]);
+		color[0] = material.diffuse[0];
+		color[1] = material.diffuse[1];
+		color[2] = material.diffuse[2];
 	}
 
+	glColor4f(color[0], color[1], color[2], color[3]);
 	//glMaterialfv(GL_FRONT, GL_AMBIENT, material.ambient);
 	//glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR,  material.specular);
 	glMaterialf(GL_FRONT, GL_SHININESS,	 material.shininess);
 
-	if (texture != 0)
-	{
-		// Cuando aplicamos texturas no queremos que les afectem el color
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-		texture->bind();
-	}
 }
 
 void Material::unbind()
 {
+	// Reseteamos el color para que no afecte a lo que no debe
+	glColor4f(1.0, 1.0, 1.0, 1.0);
 	// Asi se evita que modelos sin textura apliquen la ultima textura
 	if (texture != 0)
 	{

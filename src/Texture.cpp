@@ -4,9 +4,9 @@
 #include <iostream>
 #include "SOIL.h" // Para cargar imagenes, no solo jpeg
 
-Texture::Texture(std::string filePath, bool linear)
+Texture::Texture(std::string filePath)
 {
-    fileName = filePath;
+    this->fileName = filePath;
 
     unsigned char* image = SOIL_load_image(filePath.c_str(), &width, &height, &channels, SOIL_LOAD_RGBA);
 
@@ -43,7 +43,7 @@ Texture::~Texture()
 
 void Texture::bind()
 {
-    //glEnable( GL_TEXTURE_2D );
+    glEnable( GL_TEXTURE_2D );
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
@@ -51,5 +51,5 @@ void Texture::bind()
 void Texture::unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
-	//glDisable( GL_TEXTURE_2D );
+	glDisable( GL_TEXTURE_2D );
 }

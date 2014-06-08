@@ -13,11 +13,12 @@ class Object
 public:
 	ID id;
 
-    Object(const char* fileName, ID id, Vector3 position = Vector3(), Vector3 rotation = Vector3(), Object* parent = 0, bool selectable = false, bool transparent = false);
+    Object(	const char* fileName, ID id, Vector3 position = Vector3(), Vector3 rotation = Vector3(),
+			Object* parent = 0, bool selectable = false, bool transparent = false);
     virtual ~Object();
 
     std::string fileName;
-    std::string name;
+    std::string name; // nombre a mostrar en el GLUI para coches, camaras, etc.
 
     std::vector<shape_t> shapes;
 
@@ -39,6 +40,9 @@ public:
 
     // Si tiene parent la posicion se convierte en relativa con respecto a este
     Object* parent;
+
+    // Publico para desactivar reflejos
+    void setTransparent(bool transparent);
 
 private:
     std::vector<Material*> materials; // Este contiene la textura
