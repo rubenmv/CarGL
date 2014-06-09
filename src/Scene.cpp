@@ -4,6 +4,7 @@
 
 #include "GuiManager.h"
 #include <iostream>
+#include <math.h>
 
 Scene* Scene::pInstance = 0;
 
@@ -123,9 +124,8 @@ void Scene::initObjects()
 
 
 	// COCHE 1
-	Vector3 posCoche = Vector3(-10.0, 0.04, 0.9); // Para poner las ruedas con respecto a esto
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						posCoche, Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
+						Vector3(-10.0, 0.04, 0.9), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
 	object->color[0] = 0.6; object->color[1] = 0.5; object->color[2] = 0.4;
@@ -149,7 +149,7 @@ void Scene::initObjects()
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-12.0, 0.0, -0.9), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
+						Vector3(-12.0, 0.04, -0.9), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
 	objects.push_back( object );
@@ -571,12 +571,14 @@ void Scene::renderObjects()
 					// Rotacion en eje y
 					if ( rotationRueda.y != 0.0f )
 					{
-						objects[i]->rotation.y += (rotationRueda.y * 1.f);
+						if ( abs(objects[i]->rotation.y) < 80) objects[i]->rotation.y = 80;
+						if ( abs(objects[i]->rotation.y) > 100) objects[i]->rotation.y = 100;
+						objects[i]->rotation.y += (rotationRueda.y * 1.f); // rotationRueda guarda el signo
 					}
 					// Rotacion en eje x
 					if ( rotationRueda.x != 0.0f )
 					{
-						objects[i]->rotation.x += (rotationRueda.x * 5.f);
+						objects[i]->rotation.x += (rotationRueda.x * 5.f); // rotationRueda guarda el signo
 					}
 				}
 				if ( show_ruedas ) objects[i]->draw();

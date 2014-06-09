@@ -41,8 +41,9 @@ public:
     // Si tiene parent la posicion se convierte en relativa con respecto a este
     Object* parent;
 
-    // Publico para desactivar reflejos
     void setTransparent(bool transparent);
+
+    float globalRotationY; // Para las ruedas
 
 private:
     std::vector<Material*> materials; // Este contiene la textura

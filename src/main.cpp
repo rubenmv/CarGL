@@ -80,9 +80,11 @@ static void specialKey(int key, int x, int y)
             break;
 		 case GLUT_KEY_LEFT:   // Izquierda
             scene->rotationRueda.y = 1.0;
+			//car->rotation.y += 0.5;
             break;
         case GLUT_KEY_RIGHT:   // Derecha
             scene->rotationRueda.y = -1.0;
+			//car->rotation.y -= 0.5;
             break;
     }
 }
