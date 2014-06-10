@@ -17,7 +17,6 @@ Object::Object(	const char* fileName, ID id, Vector3 position, Vector3 rotation,
 	this->id = id;
 	this->parent = parent;
 	this->transparent = transparent;
-	this->globalRotationY = 0.0;
 
 	firstDList = 0;
 
@@ -185,10 +184,10 @@ void Object::draw()
 			// Si tiene parent la posicion siempre es relativa a este
 			if ( parent != 0 )
 			{
-				// 4. Aplicamos la rotacion con respecto al padre
+				// Aplicamos la rotacion con respecto al padre
 				glTranslatef(parent->position.x, parent->position.y, parent->position.z);
 
-				glRotatef(parent->rotation.y-90, 0.0, 1.0, 0.0);
+				glRotatef(parent->rotation.y, 0.0, 1.0, 0.0);
 				glRotatef(parent->rotation.x, 1.0, 0.0, 0.0);
 				glRotatef(parent->rotation.z, 0.0, 0.0, 1.0);
 
@@ -197,9 +196,10 @@ void Object::draw()
 				this->position.y = relativePosition.y;
 				this->position.z = relativePosition.z;
 			}
-
+			// Movemos a la posicion relativa
 			glTranslatef(position.x, position.y, position.z);
 
+			// Rotacion local
 			if (constantRotation)
 			{
 				glRotatef(rotation.y * timer.getTicks(), 0.0, 1.0, 0.0);
@@ -212,10 +212,6 @@ void Object::draw()
 				glRotatef(rotation.x, 1, 0, 0);
 				glRotatef(rotation.z, 0, 0, 1);
 			}
-
-			// 1. Se mueve al origen de coordenadas
-
-
 
 			if ( selectable )
 			{

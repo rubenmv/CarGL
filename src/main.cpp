@@ -60,7 +60,6 @@ void keyboard(unsigned char Key, int x, int y)
         case 'q': //con q se cierra la aplicacion
             exit(0);
             break;
-
     }
 }
 
@@ -71,20 +70,20 @@ static void specialKey(int key, int x, int y)
     switch (key)
     {
         case GLUT_KEY_UP:   // El coche avanza
-            car->position.x += 0.1;
-            scene->rotationRueda.x = 1.5;
+        	scene->moving = 1;
+            //car->position.x += 0.1;
+            scene->rotationSign.z = 1.0;
             break;
         case GLUT_KEY_DOWN:   // El coche retrocede
-            car->position.x -= 0.1;
-            scene->rotationRueda.x= -1.5;
+        	scene->moving = -1;
+			//car->position.x -= 0.1;
+            scene->rotationSign.z = -1.0;
             break;
 		 case GLUT_KEY_LEFT:   // Izquierda
-            scene->rotationRueda.y = 1.0;
-			//car->rotation.y += 0.5;
+            scene->rotationSign.y = 1.0;
             break;
         case GLUT_KEY_RIGHT:   // Derecha
-            scene->rotationRueda.y = -1.0;
-			//car->rotation.y -= 0.5;
+            scene->rotationSign.y = -1.0;
             break;
     }
 }
@@ -106,7 +105,7 @@ void reshape(int x, int y)
 
 void motion(int x, int y)
 {
-    //gui.Motion(x, y);
+    guiManager->Motion(x, y);
 }
 
 void render()

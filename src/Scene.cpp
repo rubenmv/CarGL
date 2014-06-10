@@ -8,6 +8,10 @@
 
 Scene* Scene::pInstance = 0;
 
+#define MAX_WHEEL_ROTATION 20
+#define SPEED 0.3
+#define RADIANS 0.017
+
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
@@ -58,6 +62,9 @@ Scene::Scene()
     scale = 1.0f;
 
     seleccion = 0;
+
+    carRotation = 0.0;
+    moving = false;
 }
 
 void Scene::initOpenGL()
@@ -125,7 +132,7 @@ void Scene::initObjects()
 
 	// COCHE 1
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-10.0, 0.04, 0.9), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
+						Vector3(-10.0, 0.04, 0.9), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
 	object->color[0] = 0.6; object->color[1] = 0.5; object->color[2] = 0.4;
@@ -135,21 +142,23 @@ void Scene::initObjects()
 	objSeleccion = object; // Uso esto para pasarlo como parent a las ruedas y ya dejo uno seleccionado al final
 
 	// Ruedas del coche 1, ponemos el coche como parent y las posiciones seran relativas a este
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(0.85, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
+						Vector3(1.3, 0.14, 0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(-0.4, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
+						Vector3(0.0, 0.14, 0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(0.85, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+
+	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
+						Vector3(1.3, 0.14, -0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(-0.4, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
+						Vector3(0.0, 0.14, -0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-12.0, 0.04, -0.9), Vector3(0.0, 90.0, 0.0), 0, true ); // Seleccionable
+						Vector3(-12.0, 0.04, -0.9), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
 	objects.push_back( object );
@@ -157,18 +166,21 @@ void Scene::initObjects()
 
 	objSeleccion = object;
 
-	// Ruedas del coche 2
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(0.85, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+	carRotation = objSeleccion->rotation.y;
+
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
+						Vector3(1.3, 0.14, 0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(-0.4, 0.14, 0.4), Vector3(0.0, 90.0, 0.0), objSeleccion);
+
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
+						Vector3(0.0, 0.14, 0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(0.85, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+
+	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
+						Vector3(1.3, 0.14, -0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda.obj", RUEDA,
-						Vector3(-0.4, 0.14, -0.4), Vector3(0.0, -90.0, 0.0), objSeleccion);
+	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
+						Vector3(0.0, 0.14, -0.45), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	// FAROLAS
@@ -420,6 +432,9 @@ void Scene::render()
 	}
 
     glutSwapBuffers();
+
+    moving = 0;
+    rotationSign = Vector3(0.0, 0.0, 0.0);
 }
 
 void Scene::initRender()
@@ -442,13 +457,6 @@ void Scene::initRender()
 	else
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-		/*
-		// Solo usamos texturas si el wireframe esta desactivado
-		if ( textures )
-		{
-			glEnable( GL_TEXTURE_2D );
-		}
-		*/
 	}
 	// Culling
 	if ( culling )
@@ -563,22 +571,89 @@ void Scene::renderObjects()
 				if ( show_carretera ) objects[i]->draw();
 				break;
 			case COCHE:
+				// Si el coche es el escogido actualizamos la rotacion
+				if ( objects[i] == objSeleccion )
+				{
+					carRotation += (rotationSign.y * 2.f);
+					// Pero solo se la empezamos a aplicar cuando se mueva
+					if ( moving != 0 )
+					{
+						// Rotamos mientras esta sea distinta de la deseada
+						if ( objects[i]->rotation.y != carRotation  )
+						{
+							if ( carRotation < 0 )
+							{
+								objects[i]->rotation.y -= 0.5;
+							}
+							else if ( carRotation > 0 )
+							{
+								objects[i]->rotation.y += 0.5;
+							}
+						}
+						float dx = 0;
+						float dz = 0;
+						if ( moving == 1 )
+						{
+							dx = sin(objects[i]->rotation.y * RADIANS);
+							dz = cos(objects[i]->rotation.y * RADIANS);
+						}
+
+						else
+						{
+							dx = sin((objects[i]->rotation.y-180) * RADIANS);
+							dz = cos((objects[i]->rotation.y-180) * RADIANS);
+						}
+
+						direction = normalize(Vector3(dx, 0.0, dz));
+
+						objects[i]->position.z += -direction.x * SPEED;
+						objects[i]->position.x += direction.z * SPEED;
+
+					}
+				}
+
 				if ( show_car ) objects[i]->draw();
 				break;
-			case RUEDA: // Aplicamos la rotacion si pertenecen al seleccionado actual
+			case RUEDA_D: // Aplicamos la rotacion si pertenecen al seleccionado actual
 				if ( objects[i]->parent == objSeleccion )
 				{
 					// Rotacion en eje y
-					if ( rotationRueda.y != 0.0f )
+					if ( rotationSign.y != 0.0f )
 					{
-						if ( abs(objects[i]->rotation.y) < 80) objects[i]->rotation.y = 80;
-						if ( abs(objects[i]->rotation.y) > 100) objects[i]->rotation.y = 100;
-						objects[i]->rotation.y += (rotationRueda.y * 1.f); // rotationRueda guarda el signo
+						if ( objects[i]->rotation.y > MAX_WHEEL_ROTATION) objects[i]->rotation.y = MAX_WHEEL_ROTATION;
+						if ( objects[i]->rotation.y < -MAX_WHEEL_ROTATION) objects[i]->rotation.y = -MAX_WHEEL_ROTATION;
+						objects[i]->rotation.y += (rotationSign.y * 1.f); // rotationSign guarda el signo
+
+						// Actualizamos la targetRotation del coche padre, esto no lo rotara
+						// sino que lo dejara preparado para rotarlo cuando lo hagamos avanzar
+						if( objects[i]->parent != 0 )
+						{
+							objects[i]->parent->targetRotation.y = objects[i]->rotation.y;
+						}
+
+						// Direccion segun rotacion
+						//float dx = cos(objects[i]->rotation.y);
+						//float dz = sin(objects[i]->rotation.y);
+						//std::cout << "x: " << dx << ", z: " << dz << std::endl;
+
+						//direction = normalize(Vector3(dx, 0.0, dz));
+						//std::cout << "x: " << vNormal.x << ", z: " << vNormal.z << std::endl;
 					}
-					// Rotacion en eje x
-					if ( rotationRueda.x != 0.0f )
+					// Rotacion en eje z
+					if ( rotationSign.z != 0.0f )
 					{
-						objects[i]->rotation.x += (rotationRueda.x * 5.f); // rotationRueda guarda el signo
+						objects[i]->rotation.z -= (rotationSign.z* 8.f);
+					}
+				}
+				if ( show_ruedas ) objects[i]->draw();
+				break;
+			case RUEDA_T: // Aplicamos la rotacion si pertenecen al seleccionado actual
+				if ( objects[i]->parent == objSeleccion )
+				{
+					// Rotacion en eje z
+					if ( rotationSign.z != 0.0f )
+					{
+						objects[i]->rotation.z -= (rotationSign.z* 8.f);
 					}
 				}
 				if ( show_ruedas ) objects[i]->draw();
@@ -609,12 +684,6 @@ void Scene::renderObjects()
 				break;
 		}
 	}
-
-	// Resetea el estado de rotacion, el input lo volver a activar
-	// si fuera necesario
-	rotationRueda = Vector3(0.0, 0.0, 0.0);
-
-	glDisable( GL_TEXTURE_2D );
 }
 
 
@@ -692,6 +761,7 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
 				if ( (seleccion >= objects[i]->firstDList && seleccion <= maximo) )
 				{
 					objSeleccion = objects[i];
+					carRotation = objSeleccion->rotation.y;
 					iconSelection->parent = objSeleccion;
 					continue;
 				}
@@ -733,4 +803,15 @@ Texture* Scene::getTexture(std::string fileName)
 	Texture* newTexture = new Texture(fileName);
 	loadedTextures.push_back(newTexture);
 	return newTexture;
+}
+
+Vector3 Scene::normalize(Vector3 v)
+{
+	float length = sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
+
+	float x = v.x/length;
+    float y = v.y/length;
+    float z = v.z/length;
+
+	return Vector3(x, y, z);
 }

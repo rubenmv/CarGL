@@ -43,7 +43,9 @@ public:
 
     void setTransparent(bool transparent);
 
-    float globalRotationY; // Para las ruedas
+	// Rotacion a la que se quiere llegar, esto impide controlar que los coches giren
+	// cuando no estan avanzando
+    Vector3 targetRotation;
 
 private:
     std::vector<Material*> materials; // Este contiene la textura

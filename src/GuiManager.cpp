@@ -36,7 +36,7 @@ GuiManager::GuiManager(Scene* scene)
 
 	listboxCamarasCount = 0;
 
-	enable_panel2 = 1;
+	enable_panel2 = 0;
 }
 
 GuiManager::~GuiManager()
@@ -213,12 +213,7 @@ void __fastcall GuiManager::ControlCallback( int control )
 			glui2->disable();
 			break;
 		case RESET_ID:
-			/*
-		memcpy(escena.view_position, view_position_c, 3*sizeof(float));
-		//memcpy(escena.view_rotate,view_rotate_c,16*sizeof(float));
-		view_rot->reset();
-		escena.scale = 1.0;
-		*/
+			scene->setCamera(listboxCamaras->get_int_val());
 			break;
 		case SHADING_FLAT:
 			scene->smooth_shading = 0;
@@ -261,8 +256,7 @@ void __fastcall GuiManager::Idle(void)
 
   /*  GLUI_Master.sync_live_all();  -- not needed - nothing to sync in this
                                        application  */
-    if (enable_panel2)
-
+    if (enable_panel2 == 0)
         glui2->enable();
     else
         glui2->disable();

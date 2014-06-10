@@ -23,7 +23,8 @@ enum ID
 	ACERA,
 	ROTONDA,
 	COCHE,
-	RUEDA,
+	RUEDA_D, // Rueda delantera
+	RUEDA_T, // Rueda trasera (no rotan)
 	FAROLA,
 	EDIFICIO,
 	CUBO_BASURA,

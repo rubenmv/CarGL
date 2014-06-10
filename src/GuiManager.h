@@ -44,7 +44,7 @@ public:
 
 
 private:
-    int             window_id;
+    int window_id;
 
 	Scene* scene;
 };

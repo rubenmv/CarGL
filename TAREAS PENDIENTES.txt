@@ -1,10 +1,8 @@
 COSAS DEL ENUNCIADO
 
-- Resetear posicion no funciona
-- Bloquear posicion funciona al reves
+- El coche parado debe guardar la rotacion como maximo desde su actual hasta el maximo de las ruedas
 
 Teclado
-	- El coche gira pero solo cuando se avanza.
 	- Camara
 		- Rotación: el movimiento del ratón y botón izquierdo (+CTRL para el eje z).
 		- Traslación: (SHIFT) + el movimiento del ratón y botón izquierdo (+CTRL para el eje z).

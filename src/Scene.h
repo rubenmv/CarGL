@@ -73,7 +73,6 @@ public:
 
 	void reshape(int x, int y);
 	void __fastcall pick3D(int mouse_x, int mouse_y);
-
     void initOpenGL();
 
     // Agrega una camara e indica si es la activa
@@ -83,9 +82,15 @@ public:
     void initObjects();
     // Bucle de dibujado de la escena
     void render();
-    // Rotacion que aplicamos a las ruedas del coche seleccionado
+
     // Indica el sentido en el que gira el eje, 0.0 si no hay giro
-    Vector3 rotationRueda;
+	Vector3 rotationSign;
+    // Rotacion a la que se quiere llegar en este momento, es el targetRotation del objeto (coche) seleccionado
+    float carRotation;
+    // El coche solo gira si se esta moviendo
+    int moving; // 1 acelera, -1 desacelera
+
+    Vector3 direction;
 
     GuiManager* guiManager;
 
@@ -129,6 +134,9 @@ private:
 	std::vector<Texture*> loadedTextures;
 
 	int seleccion; // Parte del objeto seleccionado
+
+	// Normaliza un vector
+	Vector3 normalize(Vector3 v);
 };
 
 #endif // SCENE_H

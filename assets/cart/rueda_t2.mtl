@@ -1,15 +1,7 @@
-# Blender MTL File: 'cart_low_ready.blend'
+# Blender MTL File: 'rueda.blend'
 # Material Count: 3
 
-newmtl None
-Ns 100
-Ka 1 1 1
-Kd 1 1 1
-Ks 0 0 0
-d 1
-illum 2
-
-newmtl PAINT_yellow
+newmtl METAL_alumin
 Ns 100
 Ka 1 1 1
 Kd 1 1 1
@@ -18,7 +10,16 @@ Ni 1.000000
 d 1.000000
 illum 2
 
-newmtl shadeless_bl
+newmtl RUBBER
+Ns 100
+Ka 1 1 1
+Kd 1 1 1
+Ks 0 0 0
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl RUBBER_tread
 Ns 100
 Ka 1 1 1
 Kd 1 1 1
