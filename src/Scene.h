@@ -22,6 +22,7 @@ public:
     	bool isStatic;
         Vector3 position;
         Vector3 lookAt;
+        Vector3 rotation;
     };
 
     struct Light

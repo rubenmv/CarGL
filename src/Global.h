@@ -5,6 +5,8 @@ Enumerados y tipos globales
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define PI  3.14159265358979
+
 #include <string>
 #include <map>
 

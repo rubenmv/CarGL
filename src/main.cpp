@@ -133,9 +133,9 @@ int main(int argc, char* argv[])
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
     // Camaras
-    scene->addCamera( "Camara", 18.0, -0.4, 6.0, -10.0, 130.0, 0.0, true); // Agrega una camara estatica y es la activa
-    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true, true); // Agrega una camara estatica y es la activa
-    scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false); // Agrega una camara estatica y es la activa
+    scene->addCamera( "Camara", 18.0, -0.4, 6.0, -10.0, 130.0, 0.0, false); // Agrega una camara estatica
+    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true, false); // Agrega una camara estatica
+    scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false, true); // Agrega una camara de seguimiento y es la activa
 
     // Luces
     GLfloat light0_ambient_c[4]  = {   1.0f, 1.0f, 1.0f, 1.0f };

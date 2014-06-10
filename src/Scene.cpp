@@ -396,9 +396,13 @@ void Scene::render()
 		// Camara no estatica, sigue a un objeto
 		else
 		{
-			gluLookAt(  objSeleccion->position.x - 5, objSeleccion->position.y+3, objSeleccion->position.z,
-                    objSeleccion->position.x, objSeleccion->position.y+1, objSeleccion->position.z,
+			float angulo = ((objSeleccion->rotation.y+90)*PI)/180.0;
+
+			gluLookAt(  objSeleccion->position.x - 10 * sin(angulo), objSeleccion->position.y+5, objSeleccion->position.z - 10 * cos(angulo),
+                    objSeleccion->position.x, objSeleccion->position.y, objSeleccion->position.z,
                     0.0, 1.0, 0.0 );
+
+			//gluLookAt(cam->tx-20*sin(angulo),cam->ty+10,cam->tz-20*cos(angulo),cam->tx,cam->ty+5,cam->tz,0,1,0);
 		}
     }
 
