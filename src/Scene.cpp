@@ -8,10 +8,6 @@
 
 Scene* Scene::pInstance = 0;
 
-#define MAX_WHEEL_ROTATION 20
-#define SPEED 0.3
-#define RADIANS 0.017
-
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
@@ -65,6 +61,8 @@ Scene::Scene()
 
     carRotation = 0.0;
     moving = false;
+
+    carSpeed = 0.0;
 }
 
 void Scene::initOpenGL()
@@ -132,7 +130,7 @@ void Scene::initObjects()
 
 	// COCHE 1
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-10.0, 0.04, 0.9), Vector3(), 0, true ); // Seleccionable
+						Vector3(-0.9, 0.04, -10), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
 	object->color[0] = 0.6; object->color[1] = 0.5; object->color[2] = 0.4;
@@ -143,22 +141,21 @@ void Scene::initObjects()
 
 	// Ruedas del coche 1, ponemos el coche como parent y las posiciones seran relativas a este
 	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
-						Vector3(1.3, 0.14, 0.45), Vector3(), objSeleccion);
+						Vector3(-0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
-
 	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
-						Vector3(0.0, 0.14, 0.45), Vector3(), objSeleccion);
+						Vector3(-0.45, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
-						Vector3(1.3, 0.14, -0.45), Vector3(), objSeleccion);
+						Vector3(0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
-						Vector3(0.0, 0.14, -0.45), Vector3(), objSeleccion);
+						Vector3(0.45, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
-						Vector3(-12.0, 0.04, -0.9), Vector3(), 0, true ); // Seleccionable
+						Vector3(0.9, 0.04, -12.0), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
 	objects.push_back( object );
@@ -169,18 +166,17 @@ void Scene::initObjects()
 	carRotation = objSeleccion->rotation.y;
 
 	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
-						Vector3(1.3, 0.14, 0.45), Vector3(), objSeleccion);
+						Vector3(-0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
-
 	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
-						Vector3(0.0, 0.14, 0.45), Vector3(), objSeleccion);
+						Vector3(-0.45, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
-						Vector3(1.3, 0.14, -0.45), Vector3(), objSeleccion);
+						Vector3(0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
-						Vector3(0.0, 0.14, -0.45), Vector3(), objSeleccion);
+						Vector3(0.45, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	// FAROLAS
@@ -396,13 +392,11 @@ void Scene::render()
 		// Camara no estatica, sigue a un objeto
 		else
 		{
-			float angulo = ((objSeleccion->rotation.y+90)*PI)/180.0;
+			float angulo = ((objSeleccion->rotation.y)*PI)/180.0;
 
-			gluLookAt(  objSeleccion->position.x - 10 * sin(angulo), objSeleccion->position.y+5, objSeleccion->position.z - 10 * cos(angulo),
+			gluLookAt(  objSeleccion->position.x - 10 * sin(angulo), objSeleccion->position.y + 5, objSeleccion->position.z - 10 * cos(angulo),
                     objSeleccion->position.x, objSeleccion->position.y, objSeleccion->position.z,
                     0.0, 1.0, 0.0 );
-
-			//gluLookAt(cam->tx-20*sin(angulo),cam->ty+10,cam->tz-20*cos(angulo),cam->tx,cam->ty+5,cam->tz,0,1,0);
 		}
     }
 
@@ -437,8 +431,7 @@ void Scene::render()
 
     glutSwapBuffers();
 
-    moving = 0;
-    rotationSign = Vector3(0.0, 0.0, 0.0);
+    //rotationSign = Vector3(0.0, 0.0, 0.0);
 }
 
 void Scene::initRender()
@@ -542,7 +535,6 @@ void Scene::renderReflection()
 	glDisable(GL_STENCIL_TEST);                     // We Don't Need The Stencil Buffer Any More (Disable)
 }
 
-
 void Scene::renderLights()
 {
 	for ( size_t i = 0; i < lights.size(); i++ )
@@ -578,41 +570,32 @@ void Scene::renderObjects()
 				// Si el coche es el escogido actualizamos la rotacion
 				if ( objects[i] == objSeleccion )
 				{
-					carRotation += (rotationSign.y * 2.f);
 					// Pero solo se la empezamos a aplicar cuando se mueva
-					if ( moving != 0 )
+					if ( carSpeed != 0 )
 					{
+						if ( carSpeed > MAX_SPEED ) carSpeed = MAX_SPEED;
+						else if ( carSpeed < -MAX_SPEED ) carSpeed = -MAX_SPEED;
+
+						/*
 						// Rotamos mientras esta sea distinta de la deseada
-						if ( objects[i]->rotation.y != carRotation  )
+						if ( objects[i]->rotation.y != objects[i]->targetRotation.y  )
 						{
-							if ( carRotation < 0 )
-							{
-								objects[i]->rotation.y -= 0.5;
-							}
-							else if ( carRotation > 0 )
-							{
-								objects[i]->rotation.y += 0.5;
-							}
+							if ( objects[i]->targetRotation.y < 0 ) objects[i]->rotation.y -= 0.5;
+							else if ( objects[i]->targetRotation.y > 0 ) objects[i]->rotation.y += 0.5;
 						}
-						float dx = 0;
-						float dz = 0;
-						if ( moving == 1 )
-						{
-							dx = sin(objects[i]->rotation.y * RADIANS);
-							dz = cos(objects[i]->rotation.y * RADIANS);
-						}
+						*/
 
-						else
-						{
-							dx = sin((objects[i]->rotation.y-180) * RADIANS);
-							dz = cos((objects[i]->rotation.y-180) * RADIANS);
-						}
+						carSpeed *= FRICTION;
+						// Detenemos el coche si la velocidad es muy baja
+						if( inRange(carSpeed, 0.002f) ) carSpeed = 0.0f;
 
-						direction = normalize(Vector3(dx, 0.0, dz));
+						float angulo = (objects[i]->rotation.y * PI) / 180.0;
 
-						objects[i]->position.z += -direction.x * SPEED;
-						objects[i]->position.x += direction.z * SPEED;
+						float coseno = cos(angulo);
+						float seno = sin(angulo);
 
+						objects[i]->position.x += carSpeed * seno;
+						objects[i]->position.z += carSpeed * coseno;
 					}
 				}
 
@@ -626,27 +609,19 @@ void Scene::renderObjects()
 					{
 						if ( objects[i]->rotation.y > MAX_WHEEL_ROTATION) objects[i]->rotation.y = MAX_WHEEL_ROTATION;
 						if ( objects[i]->rotation.y < -MAX_WHEEL_ROTATION) objects[i]->rotation.y = -MAX_WHEEL_ROTATION;
-						objects[i]->rotation.y += (rotationSign.y * 1.f); // rotationSign guarda el signo
+						objects[i]->rotation.y += (rotationSign.y * WHEEL_ROTATION_Y); // rotationSign guarda el signo
 
 						// Actualizamos la targetRotation del coche padre, esto no lo rotara
 						// sino que lo dejara preparado para rotarlo cuando lo hagamos avanzar
-						if( objects[i]->parent != 0 )
+						if( carSpeed == 0.0 && objects[i]->parent != 0 )
 						{
-							objects[i]->parent->targetRotation.y = objects[i]->rotation.y;
+							objects[i]->parent->rotation.y = objects[i]->rotation.y;
 						}
-
-						// Direccion segun rotacion
-						//float dx = cos(objects[i]->rotation.y);
-						//float dz = sin(objects[i]->rotation.y);
-						//std::cout << "x: " << dx << ", z: " << dz << std::endl;
-
-						//direction = normalize(Vector3(dx, 0.0, dz));
-						//std::cout << "x: " << vNormal.x << ", z: " << vNormal.z << std::endl;
 					}
-					// Rotacion en eje z
-					if ( rotationSign.z != 0.0f )
+					// Rotacion en eje x
+					if ( carSpeed != 0.0f )
 					{
-						objects[i]->rotation.z -= (rotationSign.z* 8.f);
+						objects[i]->rotation.x += ( WHEEL_ROTATION_X * carSpeed );
 					}
 				}
 				if ( show_ruedas ) objects[i]->draw();
@@ -654,10 +629,10 @@ void Scene::renderObjects()
 			case RUEDA_T: // Aplicamos la rotacion si pertenecen al seleccionado actual
 				if ( objects[i]->parent == objSeleccion )
 				{
-					// Rotacion en eje z
-					if ( rotationSign.z != 0.0f )
+					// Rotacion en eje x
+					if ( carSpeed != 0.0f )
 					{
-						objects[i]->rotation.z -= (rotationSign.z* 8.f);
+						objects[i]->rotation.x += ( WHEEL_ROTATION_X * carSpeed );
 					}
 				}
 				if ( show_ruedas ) objects[i]->draw();
@@ -818,4 +793,12 @@ Vector3 Scene::normalize(Vector3 v)
     float z = v.z/length;
 
 	return Vector3(x, y, z);
+}
+
+bool Scene::inRange(float value, float range)
+{
+	if ( value >= -range && value <= range )
+		return true;
+	else
+		return false;
 }

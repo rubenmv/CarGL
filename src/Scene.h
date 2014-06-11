@@ -9,6 +9,14 @@
 #include <GL/glu.h>
 #include <GL/glui.h>
 
+#define MAX_WHEEL_ROTATION 20
+#define MAX_SPEED 0.1
+#define ACCELERATION 0.02
+#define FRICTION 0.99
+#define RADIANS 0.017
+#define WHEEL_ROTATION_X 90
+#define WHEEL_ROTATION_Y 1
+
 class Object;
 class GuiManager;
 class Texture;
@@ -20,7 +28,7 @@ public:
     {
     	const char* name;
     	bool isStatic;
-        Vector3 position;
+        Vector3 position; // Posicion relativa en el caso de seguimiento (!isStatic)
         Vector3 lookAt;
         Vector3 rotation;
     };
@@ -88,6 +96,7 @@ public:
 	Vector3 rotationSign;
     // Rotacion a la que se quiere llegar en este momento, es el targetRotation del objeto (coche) seleccionado
     float carRotation;
+    float carSpeed;
     // El coche solo gira si se esta moviendo
     int moving; // 1 acelera, -1 desacelera
 
@@ -138,6 +147,8 @@ private:
 
 	// Normaliza un vector
 	Vector3 normalize(Vector3 v);
+	// Comprueba si un valor float esta dentro de un rango indicado con +-=range
+	bool inRange(float value, float range);
 };
 
 #endif // SCENE_H

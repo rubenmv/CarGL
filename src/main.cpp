@@ -70,20 +70,20 @@ static void specialKey(int key, int x, int y)
     switch (key)
     {
         case GLUT_KEY_UP:   // El coche avanza
-        	scene->moving = 1;
-            //car->position.x += 0.1;
-            scene->rotationSign.z = 1.0;
+        	scene->carSpeed += ACCELERATION;
+            scene->rotationSign.x = 1.0;
             break;
         case GLUT_KEY_DOWN:   // El coche retrocede
-        	scene->moving = -1;
-			//car->position.x -= 0.1;
-            scene->rotationSign.z = -1.0;
+        	scene->carSpeed -= ACCELERATION;
+            scene->rotationSign.x = -1.0;
             break;
 		 case GLUT_KEY_LEFT:   // Izquierda
             scene->rotationSign.y = 1.0;
+            if ( scene->carSpeed != 0.0 ) car->rotation.y += 2.0f;
             break;
         case GLUT_KEY_RIGHT:   // Derecha
             scene->rotationSign.y = -1.0;
+			if ( scene->carSpeed != 0.0 ) car->rotation.y -= 2.0f;
             break;
     }
 }
@@ -133,8 +133,9 @@ int main(int argc, char* argv[])
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
     // Camaras
-    scene->addCamera( "Camara", 18.0, -0.4, 6.0, -10.0, 130.0, 0.0, false); // Agrega una camara estatica
-    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true, false); // Agrega una camara estatica
+    scene->addCamera( "Camara", 17.5, -2, 5.0, 5.0, 130.0, 0.0, true); // Agrega una camara estatica
+    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true); // Agrega una camara estatica
+    scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, true); // Agrega una camara estatica
     scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false, true); // Agrega una camara de seguimiento y es la activa
 
     // Luces
