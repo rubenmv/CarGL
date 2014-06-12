@@ -69,21 +69,36 @@ static void specialKey(int key, int x, int y)
 
     switch (key)
     {
-        case GLUT_KEY_UP:   // El coche avanza
-        	scene->carSpeed += ACCELERATION;
-            scene->rotationSign.x = 1.0;
+        case GLUT_KEY_UP:
+        	scene->moving = 1; // acelera
             break;
-        case GLUT_KEY_DOWN:   // El coche retrocede
-        	scene->carSpeed -= ACCELERATION;
-            scene->rotationSign.x = -1.0;
+        case GLUT_KEY_DOWN:
+        	scene->moving = -1; // acelera hacia atras
             break;
 		 case GLUT_KEY_LEFT:   // Izquierda
-            scene->rotationSign.y = 1.0;
-            if ( scene->carSpeed != 0.0 ) car->rotation.y += 2.0f;
+            scene->wheelsRotation = 1;
             break;
         case GLUT_KEY_RIGHT:   // Derecha
-            scene->rotationSign.y = -1.0;
-			if ( scene->carSpeed != 0.0 ) car->rotation.y -= 2.0f;
+            scene->wheelsRotation = -1;
+            break;
+    }
+}
+
+static void specialKeyUp(int key, int x, int y)
+{
+	Object* car = scene->objSeleccion;
+
+    switch (key)
+    {	// Si se suelta alguna de las teclas de acelerar, empieza a pararse
+    	case GLUT_KEY_UP:
+		case GLUT_KEY_DOWN:
+        	scene->moving = 0; // deja de acelerar
+            break;
+		 case GLUT_KEY_LEFT:   // Izquierda
+            scene->wheelsRotation = 0;
+            break;
+        case GLUT_KEY_RIGHT:   // Derecha
+            scene->wheelsRotation = 0;
             break;
     }
 }
@@ -167,6 +182,7 @@ int main(int argc, char* argv[])
     GLUI_Master.set_glutSpecialFunc( specialKey );
     GLUI_Master.set_glutMouseFunc( mouse );
     glutMotionFunc( motion );
+	glutSpecialUpFunc( specialKeyUp );
 
     /**** We register the idle callback with GLUI, *not* with GLUT ****/
     GLUI_Master.set_glutIdleFunc( idle );

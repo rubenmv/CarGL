@@ -10,9 +10,9 @@
 #include <GL/glui.h>
 
 #define MAX_WHEEL_ROTATION 20
-#define MAX_SPEED 0.1
-#define ACCELERATION 0.02
-#define FRICTION 0.99
+#define MAX_SPEED 0.15
+#define ACCELERATION 0.005
+#define FRICTION 0.98
 #define RADIANS 0.017
 #define WHEEL_ROTATION_X 90
 #define WHEEL_ROTATION_Y 1
@@ -92,8 +92,8 @@ public:
     // Bucle de dibujado de la escena
     void render();
 
-    // Indica el sentido en el que gira el eje, 0.0 si no hay giro
-	Vector3 rotationSign;
+    // Indica el sentido en el que gira el eje, 1 = derecha, -1 = izquierda, 0 = no hay giro
+	int wheelsRotation;
     // Rotacion a la que se quiere llegar en este momento, es el targetRotation del objeto (coche) seleccionado
     float carRotation;
     float carSpeed;
@@ -139,6 +139,7 @@ private:
 	void renderReflection();
 	void renderLights();
 	void renderObjects();
+	void updateObjects();
 
 	// Guarda las texturas ya cargadas para que los materiales las compartan
 	std::vector<Texture*> loadedTextures;

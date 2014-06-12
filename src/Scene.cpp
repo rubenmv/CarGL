@@ -60,7 +60,7 @@ Scene::Scene()
     seleccion = 0;
 
     carRotation = 0.0;
-    moving = false;
+    moving = 0;
 
     carSpeed = 0.0;
 }
@@ -144,14 +144,14 @@ void Scene::initObjects()
 						Vector3(-0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
-						Vector3(-0.45, 0.14, 0.0), Vector3(), objSeleccion);
+						Vector3(-0.44, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
 						Vector3(0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
-						Vector3(0.45, 0.14, 0.0), Vector3(), objSeleccion);
+						Vector3(0.44, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/cart_low.obj", COCHE,
@@ -169,14 +169,14 @@ void Scene::initObjects()
 						Vector3(-0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
-						Vector3(-0.45, 0.14, 0.0), Vector3(), objSeleccion);
+						Vector3(-0.44, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
 						Vector3(0.45, 0.14, 1.3), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
-						Vector3(0.45, 0.14, 0.0), Vector3(), objSeleccion);
+						Vector3(0.44, 0.14, 0.0), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	// FAROLAS
@@ -365,6 +365,10 @@ void Scene::reshape(int x, int y)
 
 void Scene::render()
 {
+	// Actualizamos las posiciones de los objetos antes del render
+	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
+	updateObjects();
+
     glClearColor(0.0, 0.7, 0.9, 1.0);
     //Para los REFLEJOS limpiamos tambien el stencil buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -373,7 +377,6 @@ void Scene::render()
     glLoadIdentity();
 
 	initRender();
-	renderLights();
 
     // Camara
     if ( activeCamera != 0 )
@@ -399,6 +402,8 @@ void Scene::render()
                     0.0, 1.0, 0.0 );
 		}
     }
+
+    renderLights();
 
 	if ( show_carretera )
 	{
@@ -430,8 +435,6 @@ void Scene::render()
 	}
 
     glutSwapBuffers();
-
-    //rotationSign = Vector3(0.0, 0.0, 0.0);
 }
 
 void Scene::initRender()
@@ -557,33 +560,36 @@ void Scene::renderLights()
 	}
 }
 
-void Scene::renderObjects()
+void Scene::updateObjects()
 {
 	for(size_t i = 0; i < objects.size(); i++)
 	{
 		switch ( objects[i]->id )
 		{
-			case CARRETERA:
-				if ( show_carretera ) objects[i]->draw();
-				break;
 			case COCHE:
 				// Si el coche es el escogido actualizamos la rotacion
 				if ( objects[i] == objSeleccion )
 				{
+					// Actualizamos la velocidad y rotacion del coche
+					if (moving == 1) {
+						carSpeed += ACCELERATION;
+					}
+					else if(moving == -1) {
+						carSpeed -= ACCELERATION;
+					}
+
+					if (wheelsRotation == 1 && carSpeed != 0.0) {
+						objSeleccion->rotation.y += 8.0f * carSpeed;
+					}
+					else if(wheelsRotation == -1 && carSpeed != 0.0) {
+						objSeleccion->rotation.y -= 8.0f * carSpeed;
+					}
+
 					// Pero solo se la empezamos a aplicar cuando se mueva
 					if ( carSpeed != 0 )
 					{
 						if ( carSpeed > MAX_SPEED ) carSpeed = MAX_SPEED;
 						else if ( carSpeed < -MAX_SPEED ) carSpeed = -MAX_SPEED;
-
-						/*
-						// Rotamos mientras esta sea distinta de la deseada
-						if ( objects[i]->rotation.y != objects[i]->targetRotation.y  )
-						{
-							if ( objects[i]->targetRotation.y < 0 ) objects[i]->rotation.y -= 0.5;
-							else if ( objects[i]->targetRotation.y > 0 ) objects[i]->rotation.y += 0.5;
-						}
-						*/
 
 						carSpeed *= FRICTION;
 						// Detenemos el coche si la velocidad es muy baja
@@ -598,33 +604,43 @@ void Scene::renderObjects()
 						objects[i]->position.z += carSpeed * coseno;
 					}
 				}
-
-				if ( show_car ) objects[i]->draw();
 				break;
 			case RUEDA_D: // Aplicamos la rotacion si pertenecen al seleccionado actual
 				if ( objects[i]->parent == objSeleccion )
 				{
 					// Rotacion en eje y
-					if ( rotationSign.y != 0.0f )
+					if ( wheelsRotation != 0 )
 					{
-						if ( objects[i]->rotation.y > MAX_WHEEL_ROTATION) objects[i]->rotation.y = MAX_WHEEL_ROTATION;
-						if ( objects[i]->rotation.y < -MAX_WHEEL_ROTATION) objects[i]->rotation.y = -MAX_WHEEL_ROTATION;
-						objects[i]->rotation.y += (rotationSign.y * WHEEL_ROTATION_Y); // rotationSign guarda el signo
-
-						// Actualizamos la targetRotation del coche padre, esto no lo rotara
-						// sino que lo dejara preparado para rotarlo cuando lo hagamos avanzar
-						if( carSpeed == 0.0 && objects[i]->parent != 0 )
-						{
-							objects[i]->parent->rotation.y = objects[i]->rotation.y;
+						if ( objects[i]->rotation.y > MAX_WHEEL_ROTATION) {
+							objects[i]->rotation.y = MAX_WHEEL_ROTATION;
 						}
+						if ( objects[i]->rotation.y < -MAX_WHEEL_ROTATION) {
+							objects[i]->rotation.y = -MAX_WHEEL_ROTATION;
+						}
+
+						objects[i]->rotation.y += (wheelsRotation * WHEEL_ROTATION_Y); // wheelsRotation guarda el signo
 					}
+					else // Las ruedas vuelven automaticamente a la posicion inicial
+					{
+						if ( objects[i]->rotation.y > 0.0f ) {
+							objects[i]->rotation.y -= WHEEL_ROTATION_Y;
+						}
+						else if ( objects[i]->rotation.y < 0.0f ) {
+							objects[i]->rotation.y += WHEEL_ROTATION_Y;
+						}
+
+						// Para evitar posibles problemas de imprecision, si estamos cerca de 0, es 0
+						// Rango de -WHEEL_ROTATION_Y a WHEEL_ROTATION_Y pasando por cero
+						if ( inRange(objects[i]->rotation.y, WHEEL_ROTATION_Y) )
+							objects[i]->rotation.y = 0.0f;
+					}
+
 					// Rotacion en eje x
 					if ( carSpeed != 0.0f )
 					{
 						objects[i]->rotation.x += ( WHEEL_ROTATION_X * carSpeed );
 					}
 				}
-				if ( show_ruedas ) objects[i]->draw();
 				break;
 			case RUEDA_T: // Aplicamos la rotacion si pertenecen al seleccionado actual
 				if ( objects[i]->parent == objSeleccion )
@@ -635,6 +651,28 @@ void Scene::renderObjects()
 						objects[i]->rotation.x += ( WHEEL_ROTATION_X * carSpeed );
 					}
 				}
+				break;
+		}
+	}
+}
+
+
+void Scene::renderObjects()
+{
+	for(size_t i = 0; i < objects.size(); i++)
+	{
+		switch ( objects[i]->id )
+		{
+			case CARRETERA:
+				if ( show_carretera ) objects[i]->draw();
+				break;
+			case COCHE:
+				if ( show_car ) objects[i]->draw();
+				break;
+			case RUEDA_D:
+				if ( show_ruedas ) objects[i]->draw();
+				break;
+			case RUEDA_T:
 				if ( show_ruedas ) objects[i]->draw();
 				break;
 			case ACERA:
@@ -742,6 +780,7 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
 					objSeleccion = objects[i];
 					carRotation = objSeleccion->rotation.y;
 					iconSelection->parent = objSeleccion;
+					carSpeed = 0.0f;
 					continue;
 				}
 			}
