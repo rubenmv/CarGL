@@ -117,15 +117,33 @@ private:
 	Scene();
 	static Scene* pInstance;
 
+	enum SkyboxEnum {
+		SKYFRONT = 0,
+		SKYBACK,
+		SKYLEFT,
+		SKYRIGHT,
+		SKYUP,
+		SKYDOWN
+	};
+	Texture* SkyboxTexture[6];
+
 	// Objetos de la escena
 	std::vector<Object*> objects;
 	Object* road; // La carretera se renderiza por separado para aplicar reflejo
 
     // Camaras en la escena
     std::vector<Camera*> cameras;
-
      // Luces en la escena
     std::vector<Light*> lights;
+    // Guarda las texturas ya cargadas para que los materiales las compartan
+	std::vector<Texture*> loadedTextures;
+
+	int seleccion; // Parte del objeto seleccionado
+
+	// Normaliza un vector
+	Vector3 normalize(Vector3 v);
+	// Comprueba si un valor float esta dentro de un rango indicado con +-=range
+	bool inRange(float value, float range);
 
 	// Proyecciones
     void setPerspective();
@@ -136,20 +154,11 @@ private:
 	Clock timerClock;
 
 	void initRender();
+	void renderSkybox();
 	void renderReflection();
 	void renderLights();
 	void renderObjects();
 	void updateObjects();
-
-	// Guarda las texturas ya cargadas para que los materiales las compartan
-	std::vector<Texture*> loadedTextures;
-
-	int seleccion; // Parte del objeto seleccionado
-
-	// Normaliza un vector
-	Vector3 normalize(Vector3 v);
-	// Comprueba si un valor float esta dentro de un rango indicado con +-=range
-	bool inRange(float value, float range);
 };
 
 #endif // SCENE_H

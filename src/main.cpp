@@ -94,10 +94,10 @@ static void specialKeyUp(int key, int x, int y)
 		case GLUT_KEY_DOWN:
         	scene->moving = 0; // deja de acelerar
             break;
-		 case GLUT_KEY_LEFT:   // Izquierda
+		 case GLUT_KEY_LEFT:
             scene->wheelsRotation = 0;
             break;
-        case GLUT_KEY_RIGHT:   // Derecha
+        case GLUT_KEY_RIGHT:
             scene->wheelsRotation = 0;
             break;
     }

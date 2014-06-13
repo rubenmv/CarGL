@@ -1,6 +1,7 @@
 COSAS DEL ENUNCIADO
 
-- El coche parado debe guardar la rotacion como maximo desde su actual hasta el maximo de las ruedas
+- Hacer que los coches solo cambien de color en la carroceria y el volante gire igual que las ruedas.
+- Hacer los coches mas pequeños o los edificios mucho mas grandes.
 
 Teclado
 	- Camara
@@ -12,7 +13,6 @@ Teclado
 - Documento de desarrollador
 
 COSAS MIAS
-- Skybox
 - Poner lineas de carretera directamente sobre el modelo
 - Colocar todos los objetos de la ciudad
 	- Senales que faltan

@@ -336,7 +336,7 @@
 	<string>
 	<vector>
 
-1402570148 source:c:\users\ruben\documents\github\cargl\src\main.cpp
+1402617691 source:c:\users\ruben\documents\github\cargl\src\main.cpp
 	<iostream>
 	<GL/glui.h>
 	"GuiManager.h"
@@ -697,7 +697,7 @@
 
 1401271395 c:\users\ruben\documents\github\cargl\src\eventmanager.h
 
-1402436219 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
+1402617761 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
 	"GuiManager.h"
 	"Scene.h"
 	"Object.h"
@@ -708,7 +708,7 @@
 	<vector>
 	<GL/glui.h>
 
-1402189079 source:c:\users\ruben\documents\github\cargl\src\material.cpp
+1402619584 source:c:\users\ruben\documents\github\cargl\src\material.cpp
 	"Material.h"
 	"Texture.h"
 	"Scene.h"
@@ -725,7 +725,7 @@
 	<iostream>
 	<math.h>
 
-1402570454 c:\users\ruben\documents\github\cargl\src\scene.h
+1402619377 c:\users\ruben\documents\github\cargl\src\scene.h
 	"Clock.h"
 	<vector>
 	"Global.h"

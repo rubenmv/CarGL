@@ -110,6 +110,7 @@ void __fastcall GuiManager::init(int main_window) {
     obj_panel = new GLUI_Rollout(glui, "Propiedades", false );
 
     /***** Control para las propiedades de scene *****/
+    new GLUI_Checkbox( obj_panel, "Dibujar reflejos", &scene->show_reflections );
     new GLUI_Checkbox( obj_panel, "Luz ambiente", &(scene->ambientLighting) );
     new GLUI_Checkbox( obj_panel, "Modo alambrico", &(scene->wireframe) );
     new GLUI_Checkbox( obj_panel, "Z Buffer", &scene->zbuffer);
@@ -127,7 +128,6 @@ void __fastcall GuiManager::init(int main_window) {
 
     /***  Rollout de Opciones ***/
     GLUI_Rollout *options = new GLUI_Rollout(glui, "Objetos", false );
-    new GLUI_Checkbox( options, "Dibujar reflejos", &scene->show_reflections );
     new GLUI_Checkbox( options, "Dibujar Coche", &scene->show_car );
     new GLUI_Checkbox( options, "Dibujar Ruedas", &scene->show_ruedas );
     new GLUI_Checkbox( options, "Dibujar Carretera", &scene->show_carretera );

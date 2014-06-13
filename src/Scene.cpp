@@ -263,6 +263,14 @@ void Scene::initObjects()
 	objects.push_back( object );
 
 	iconSelection = object; // Icono de objeto seleccionado
+
+	// Finalmente el skybox, solo cargamos las texturas
+	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/txStormydays_front.jpg");
+	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/txStormydays_back.jpg");
+	SkyboxTexture[SKYLEFT] = getTexture("assets/skybox/txStormydays_left.jpg");
+	SkyboxTexture[SKYRIGHT] = getTexture("assets/skybox/txStormydays_right.jpg");
+	SkyboxTexture[SKYUP] = getTexture("assets/skybox/txStormydays_up.jpg");
+	SkyboxTexture[SKYDOWN] = getTexture("assets/skybox/txStormydays_down.jpg");
 }
 
 void Scene::addCamera(const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic /* = true */, bool active /* = false */)
@@ -397,13 +405,15 @@ void Scene::render()
 		{
 			float angulo = ((objSeleccion->rotation.y)*PI)/180.0;
 
-			gluLookAt(  objSeleccion->position.x - 10 * sin(angulo), objSeleccion->position.y + 5, objSeleccion->position.z - 10 * cos(angulo),
-                    objSeleccion->position.x, objSeleccion->position.y, objSeleccion->position.z,
+			gluLookAt(  objSeleccion->position.x - 6 * sin(angulo), objSeleccion->position.y + 3, objSeleccion->position.z - 6 * cos(angulo),
+                    objSeleccion->position.x, objSeleccion->position.y + 2, objSeleccion->position.z,
                     0.0, 1.0, 0.0 );
 		}
     }
 
     renderLights();
+
+    renderSkybox();
 
 	if ( show_carretera )
 	{
@@ -497,6 +507,78 @@ void Scene::initRender()
         glFrontFace( GL_CCW ); // Antihorario
     }
 }
+
+void Scene::renderSkybox()
+{
+	glDisable(GL_LIGHTING);
+	float x = 0, y = 0, z = 0;
+	float width = 1000, height = 1000, length = 1000;
+	// Center the Skybox around the given x,y,z position
+	x = x - width  / 2;
+	y = y - height / 2;
+	z = z - length / 2;
+
+	// Draw Front side
+	SkyboxTexture[SKYFRONT]->bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(x,		  y+height, z+length);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y+height, z+length);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y,		z+length);
+	glEnd();
+
+	// Draw Back side
+	SkyboxTexture[SKYBACK]->bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y,		z);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y+height, z);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z);
+	glEnd();
+
+	// Draw Left side
+	SkyboxTexture[SKYLEFT]->bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(x,		  y+height,	z);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z+length);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z+length);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z);
+	glEnd();
+
+	// Draw Right side
+	SkyboxTexture[SKYRIGHT]->bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y,		z);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y,		z+length);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y+height,	z+length);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y+height,	z);
+	glEnd();
+
+	// Draw Up side
+	SkyboxTexture[SKYUP]->bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y+height, z);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y+height, z+length);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(x,		  y+height,	z+length);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z);
+	glEnd();
+
+	// Draw Down side
+	SkyboxTexture[SKYDOWN]->bind();
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y,		z+length);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y,		z);
+	glEnd();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if ( ambientLighting ) {
+		glEnable(GL_LIGHTING);
+	}
+}
+
 
 void Scene::renderReflection()
 {
