@@ -9,6 +9,22 @@
 
 Scene* Scene::pInstance = 0;
 
+static const char* OBJ_CARRETERA		= "assets/carretera/carretera.obj";
+static const char* OBJ_ACERA			= "assets/acera/acera.obj";
+static const char* OBJ_COCHE			= "assets/cart/cart.obj";
+static const char* OBJ_RUEDA_T1			= "assets/cart/rueda_t1.obj";
+static const char* OBJ_RUEDA_T2			= "assets/cart/rueda_t2.obj";
+static const char* OBJ_VOLANTE			= "assets/cart/volante.obj";
+static const char* OBJ_FAROLA			= "assets/farola/farola.obj";
+static const char* OBJ_BANCO			= "assets/banco/banco.obj";
+static const char* OBJ_PAPELERA			= "assets/papelera/papelera.obj";
+static const char* OBJ_EDIFICIO_1		= "assets/edificios/edificio1.obj";
+static const char* OBJ_EDIFICIO_2		= "assets/edificios/edificio2.obj";
+static const char* OBJ_SENAL_TRAFICO	= "assets/senal_trafico/senal_trafico.obj";
+static const char* OBJ_ROTONDA_BASE		= "assets/rotonda/rotonda_base.obj";
+static const char* OBJ_ROTONDA_BOLA		= "assets/rotonda/rotonda_bola.obj";
+static const char* OBJ_SELECCION		= "assets/seleccion/seleccion.obj";
+
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
@@ -175,22 +191,25 @@ void Scene::initObjects()
 {
 	Object* object = 0;
 
+	// Ponemos el suelo un poco mas bajo de manera que no tenemos que subir el resto de objetos
+	float floor = -0.15;
+
 	// CARRETERA, se guarda por separado para aplicar reflejos
-	road = new Object("assets/carretera/carretera.obj", CARRETERA, Vector3(), Vector3(), 0, false, true);
+	road = new Object(OBJ_CARRETERA, CARRETERA, Vector3(0.0, floor, 0.0), Vector3(), 0, false, true);
 
 	// ACERAS
-	object = new Object("assets/acera/acera.obj", ACERA, Vector3(-13.0, -0.0, -13.0));
+	object = new Object(OBJ_ACERA, ACERA, Vector3(-13.0, floor, -13.0));
 	objects.push_back( object );
-	object = new Object("assets/acera/acera.obj", ACERA, Vector3(13.0, 0.0, 13.0), Vector3(0.0, 180.0, 0.0) );
+	object = new Object(OBJ_ACERA, ACERA, Vector3(13.0, floor, 13.0), Vector3(0.0, 180.0, 0.0) );
 	objects.push_back( object );
-	object = new Object("assets/acera/acera.obj", ACERA, Vector3(13.0, 0.0, -13.0), Vector3(0.0, -90.0, 0.0) );
+	object = new Object(OBJ_ACERA, ACERA, Vector3(13.0, floor, -13.0), Vector3(0.0, -90.0, 0.0) );
 	objects.push_back( object );
-	object = new Object("assets/acera/acera.obj", ACERA, Vector3(-13.0, 0.0, 13.0), Vector3(0.0, 90.0, 0.0) );
+	object = new Object(OBJ_ACERA, ACERA, Vector3(-13.0, floor, 13.0), Vector3(0.0, 90.0, 0.0) );
 	objects.push_back( object );
 
 
 	// COCHE 1
-	object = new Object( "assets/cart/cart.obj", COCHE,
+	object = new Object(OBJ_COCHE, COCHE,
 						Vector3(-0.9, 0.04, -10), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
@@ -201,27 +220,27 @@ void Scene::initObjects()
 	objSeleccion = object; // Uso esto para pasarlo como parent a las ruedas y ya dejo uno seleccionado al final
 
 	// Ruedas del coche 1, ponemos el coche como parent y las posiciones seran relativas a este
-	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
+	object = new Object(OBJ_RUEDA_T2, RUEDA_D,
 						Vector3(-0.45, 0.14, 1.5), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
+	object = new Object(OBJ_RUEDA_T2, RUEDA_T,
 						Vector3(-0.44, 0.14, 0.25), Vector3(), objSeleccion);
 	objects.push_back( object );
 
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
+	object = new Object(OBJ_RUEDA_T1, RUEDA_D,
 						Vector3(0.45, 0.14, 1.5), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
+	object = new Object(OBJ_RUEDA_T1, RUEDA_T,
 						Vector3(0.44, 0.14, 0.25), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	// Volante 1 por separado, para que gire igual que las ruedas
-	object = new Object( "assets/cart/volante.obj", VOLANTE,
+	object = new Object(OBJ_VOLANTE, VOLANTE,
 						Vector3(0.24, 0.77, 0.98), Vector3(45.0, 0.0, 0.0), objSeleccion);
 	objects.push_back( object );
 
 	// COCHE 2
-	object = new Object( "assets/cart/cart.obj", COCHE,
+	object = new Object(OBJ_COCHE, COCHE,
 						Vector3(0.9, 0.04, -12.0), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
@@ -231,28 +250,28 @@ void Scene::initObjects()
 	objSeleccion = object;
 
 	// Ruedas del coche 2
-	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
+	object = new Object(OBJ_RUEDA_T2, RUEDA_D,
 						Vector3(-0.45, 0.14, 1.5), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
+	object = new Object(OBJ_RUEDA_T2, RUEDA_T,
 						Vector3(-0.44, 0.14, 0.25), Vector3(), objSeleccion);
 	objects.push_back( object );
 
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
+	object = new Object(OBJ_RUEDA_T1, RUEDA_D,
 						Vector3(0.45, 0.14, 1.5), Vector3(), objSeleccion);
 	objects.push_back( object );
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
+	object = new Object(OBJ_RUEDA_T1, RUEDA_T,
 						Vector3(0.44, 0.14, 0.25), Vector3(), objSeleccion);
 	objects.push_back( object );
 
 	// Volante 2 por separado, para que gire igual que las ruedas
-	object = new Object( "assets/cart/volante.obj", VOLANTE,
+	object = new Object(OBJ_VOLANTE, VOLANTE,
 						Vector3(0.24, 0.77, 0.98), Vector3(45.0, 0.0, 0.0), objSeleccion);
 	objects.push_back( object );
 
 	carRotation = objSeleccion->rotation.y;
 
-	// FAROLAS Y PAPELERAS
+	// FAROLAS, PAPELERAS, BANCOS
     float despX = 10;
     float despZ = 3;
     float despY = 0;
@@ -264,27 +283,33 @@ void Scene::initObjects()
 	{
 		for(int i = 1; i < 3; i++)
 		{
-			object = new Object("assets/farola/farola.obj", FAROLA,
+			object = new Object(OBJ_FAROLA, FAROLA,
 								Vector3(despX * j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
-			// Una papelera cada 2 farolas
 			if ( j % 2 == 0 )
 			{
-				object = new Object("assets/papelera/papelera.obj", PAPELERA,
+				object = new Object(OBJ_PAPELERA, PAPELERA,
 								Vector3(2 + despX * j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+
+				object = new Object(OBJ_BANCO, BANCO,
+								Vector3(despX * j - 5, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 				objects.push_back( object );
 			}
 
-			object = new Object("assets/farola/farola.obj", FAROLA,
+			object = new Object(OBJ_FAROLA, FAROLA,
 								Vector3(despX * -j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
-			// Una papelera cada 2 farolas
 			if ( j % 2 == 0 )
 			{
-				object = new Object("assets/papelera/papelera.obj", PAPELERA,
-								Vector3(2 + despX * -j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
+				object = new Object(OBJ_PAPELERA, PAPELERA,
+								Vector3(despX * -j - 2, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+
+				object = new Object(OBJ_BANCO, BANCO,
+								Vector3(despX * -j + 5, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 				objects.push_back( object );
 			}
 
@@ -301,27 +326,35 @@ void Scene::initObjects()
 	{
 		for(int i = 1; i < 3; i++)
 		{
-			object = new Object("assets/farola/farola.obj", FAROLA,
+			object = new Object(OBJ_FAROLA, FAROLA,
 								Vector3(despZ * sign, despY, despX * j), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
 			// Una papelera cada 2 farolas
 			if ( j % 2 == 0 )
 			{
-				object = new Object("assets/papelera/papelera.obj", PAPELERA,
+				object = new Object(OBJ_PAPELERA, PAPELERA,
 								Vector3(despZ * sign, despY, 2 + despX * j), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+
+				object = new Object(OBJ_BANCO, BANCO,
+								Vector3(despZ * sign, despY, despX * j - 5), Vector3(0.0, rotation, 0.0) );
 				objects.push_back( object );
 			}
 
-			object = new Object("assets/farola/farola.obj", FAROLA,
+			object = new Object(OBJ_FAROLA, FAROLA,
 								Vector3(despZ * sign, despY, despX * -j), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
 			// Una papelera cada 2 farolas
 			if ( j % 2 == 0 )
 			{
-				object = new Object("assets/papelera/papelera.obj", PAPELERA,
-								Vector3(despZ * sign, despY, 2 + despX * -j), Vector3(0.0, rotation, 0.0) );
+				object = new Object(OBJ_PAPELERA, PAPELERA,
+								Vector3(despZ * sign, despY, despX * -j - 2), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+
+				object = new Object(OBJ_BANCO, BANCO,
+								Vector3(despZ * sign, despY, 5 + despX * -j), Vector3(0.0, rotation, 0.0) );
 				objects.push_back( object );
 			}
 
@@ -342,13 +375,13 @@ void Scene::initObjects()
 
 		switch (randomNumber) {
 			case 0:
-				edificio = "assets/edificios/edificio1.obj";
+				edificio = OBJ_EDIFICIO_1;
 				break;
 			case 1:
-				edificio = "assets/edificios/edificio2.obj";
+				edificio = OBJ_EDIFICIO_2;
 				break;
 			default:
-				edificio = "assets/edificios/edificio1.obj";
+				edificio = OBJ_EDIFICIO_1;
 				break;
 		}
 
@@ -359,29 +392,29 @@ void Scene::initObjects()
 	}
 
 	// SENALES DE TRAFICO
-	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
 						Vector3(9.0, 0.0, -2.5), Vector3(0.0, 90.0, 0.0) );
 	objects.push_back( object );
-	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
 						Vector3(-9.0, 0.0, 2.5), Vector3(0.0, -90.0, 0.0) );
 	objects.push_back( object );
-	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
 						Vector3(2.5, 0.0, 9.0), Vector3(0.0, 0.0, 0.0) );
 	objects.push_back( object );
-	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
 						Vector3(-2.5, 0.0, -9.0), Vector3(0.0, 180.0, 0.0) );
 	objects.push_back( object );
 
 	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
-	object = new Object("assets/rotonda/rotonda_base.obj", ROTONDA);
+	object = new Object(OBJ_ROTONDA_BASE, ROTONDA);
 	objects.push_back( object );
 
 	// Objetos transparentes al final para preservar la profuncdidad					  No seleccionable, transparente
-	object = new Object("assets/rotonda/rotonda_bola.obj", ROTONDA, Vector3(), Vector3(), 0, false, true);
+	object = new Object(OBJ_ROTONDA_BOLA, ROTONDA, Vector3(), Vector3(), 0, false, true);
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.02);
 	objects.push_back( object );
 	// Icono de seleccion encima del objeto
-	object = new Object( "assets/seleccion/seleccion.obj", SELECCION,
+	object = new Object(OBJ_SELECCION, SELECCION,
 						Vector3(0.0, 2.0, 0.0), Vector3(0.0, 0.0, 0.0), objSeleccion, false, true );// Su parent es el coche seleccionado actualmente
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.08);
 	objects.push_back( object );
@@ -656,6 +689,7 @@ void Scene::renderSkybox()
 
 	// Draw Front side
 	if (textures == 1) SkyboxTexture[SKYFRONT]->bind();
+	else glColor4f(0.2, 0.4, 0.6, 1.0);
 	glBegin(GL_QUADS);
 		glTexCoord2f(-1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
 		glTexCoord2f(-1.0f, -1.0f); glVertex3f(x,		  y+height, z+length);

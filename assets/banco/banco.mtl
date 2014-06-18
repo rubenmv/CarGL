@@ -1,10 +1,32 @@
 # Blender MTL File: 'banco.blend'
-# Material Count: 1
+# Material Count: 3
 
-newmtl None
-Ns 100
-Ka 1 1 1
-Kd 1 1 1
-Ks 0 0 0
-d 1
+newmtl Metal
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.558554 0.558554 0.558554
+Ks 0.702532 0.702532 0.702532
+Ni 1.000000
+d 1.000000
 illum 2
+map_Kd ../edificios/metal_galvanized.jpg
+
+newmtl Wood
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.386466 0.270299
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd wood_plank.jpg
+
+newmtl Wood_rock_smooth.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.386466 0.270299
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd ../edificios/rock_smooth.jpg

@@ -8,11 +8,3 @@ Teclado
 
 - Documento de ususario
 - Documento de desarrollador
-
-COSAS MIAS
-- Poner lineas de carretera directamente sobre el modelo
-- Colocar todos los objetos de la ciudad
-	- Senales que faltan
-	- Papeleras
-	- Edificios
-	- Cubos basura
