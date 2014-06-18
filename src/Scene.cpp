@@ -110,6 +110,7 @@ Scene::Scene()
     show_cubos = 1;
     show_bancos = 1;
     show_senales = 1;
+    show_papeleras = 1;
 
     memcpy(view_rotate, view_rotate_c, 16*sizeof(float));
     memcpy(view_position, view_position_c, 3*sizeof(float));
@@ -251,7 +252,7 @@ void Scene::initObjects()
 
 	carRotation = objSeleccion->rotation.y;
 
-	// FAROLAS
+	// FAROLAS Y PAPELERAS
     float despX = 10;
     float despZ = 3;
     float despY = 0;
@@ -267,13 +268,30 @@ void Scene::initObjects()
 								Vector3(despX * j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
+			// Una papelera cada 2 farolas
+			if ( j % 2 == 0 )
+			{
+				object = new Object("assets/papelera/papelera.obj", PAPELERA,
+								Vector3(2 + despX * j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+			}
+
 			object = new Object("assets/farola/farola.obj", FAROLA,
 								Vector3(despX * -j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
+			// Una papelera cada 2 farolas
+			if ( j % 2 == 0 )
+			{
+				object = new Object("assets/papelera/papelera.obj", PAPELERA,
+								Vector3(2 + despX * -j, despY, despZ * sign), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+			}
+
 			sign *= -1;
 			rotation = 180;
 		}
+
 		rotation = 0;
 	}
 
@@ -287,9 +305,25 @@ void Scene::initObjects()
 								Vector3(despZ * sign, despY, despX * j), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
 
+			// Una papelera cada 2 farolas
+			if ( j % 2 == 0 )
+			{
+				object = new Object("assets/papelera/papelera.obj", PAPELERA,
+								Vector3(despZ * sign, despY, 2 + despX * j), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+			}
+
 			object = new Object("assets/farola/farola.obj", FAROLA,
 								Vector3(despZ * sign, despY, despX * -j), Vector3(0.0, rotation, 0.0) );
 			objects.push_back( object );
+
+			// Una papelera cada 2 farolas
+			if ( j % 2 == 0 )
+			{
+				object = new Object("assets/papelera/papelera.obj", PAPELERA,
+								Vector3(despZ * sign, despY, 2 + despX * -j), Vector3(0.0, rotation, 0.0) );
+				objects.push_back( object );
+			}
 
 			sign *= -1;
 			rotation = -90;
@@ -326,7 +360,16 @@ void Scene::initObjects()
 
 	// SENALES DE TRAFICO
 	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+						Vector3(9.0, 0.0, -2.5), Vector3(0.0, 90.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
 						Vector3(-9.0, 0.0, 2.5), Vector3(0.0, -90.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+						Vector3(2.5, 0.0, 9.0), Vector3(0.0, 0.0, 0.0) );
+	objects.push_back( object );
+	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
+						Vector3(-2.5, 0.0, -9.0), Vector3(0.0, 180.0, 0.0) );
 	objects.push_back( object );
 
 	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
@@ -700,6 +743,7 @@ void Scene::renderReflection()
 	double eqr[] = {0.0f,-1.0f, 0.0f, 0.0f};                // Plane Equation To Use For The Reflected
 	glClipPlane(GL_CLIP_PLANE0, eqr);                   // Equation For Reflected Objects
 
+
 	// Dibujamos los objetos rotados y girados
 	glPushMatrix();                             // Push The Matrix Onto The Stack
 		glFrontFace( GL_CW );
@@ -894,6 +938,9 @@ void Scene::renderObjects()
 				break;
 			case EDIFICIO:
 				if ( show_edificios ) objects[i]->draw();
+				break;
+			case PAPELERA:
+				if ( show_papeleras ) objects[i]->draw();
 				break;
 			case CUBO_BASURA:
 				if ( show_cubos ) objects[i]->draw();

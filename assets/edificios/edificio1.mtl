@@ -1,5 +1,5 @@
 # Blender MTL File: 'edificio1.blend'
-# Material Count: 7
+# Material Count: 8
 
 newmtl extractor
 Ns 96.078431
@@ -9,7 +9,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd metal_bare.jpg
+map_Kd metal_galvanized.jpg
 
 newmtl pared
 Ns 96.078431
@@ -51,6 +51,16 @@ d 1.000000
 illum 1
 map_Kd edificio_t1_ladrillo.jpg
 
+newmtl pared_rock_smooth.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.700000 0.642946 0.634003
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd rock_smooth.jpg
+
 newmtl pared_stairs.jpg
 Ns 96.078431
 Ka 0.000000 0.000000 0.000000
@@ -69,4 +79,4 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd marble_white.jpg
+map_Kd rock_smooth.jpg

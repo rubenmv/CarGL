@@ -1,11 +1,52 @@
 # Blender MTL File: 'senal_trafico.blend'
-# Material Count: 1
+# Material Count: 5
 
-newmtl BatchBakeMaterial
-Ns 100
-Ka 1 1 1
-Kd 1 1 1
-Ks 0 0 0
+newmtl Metal
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.413867 0.413867 0.413867
+Ks 0.750000 0.750000 0.750000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd ../edificios/metal_galvanized.jpg
+
+newmtl Metal_metal_galvanized.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.413867 0.413867 0.413867
+Ks 0.750000 0.750000 0.750000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ../edificios/metal_galvanized.jpg
+
+newmtl Roca
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.219959 0.219959 0.219959
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd ../edificios/rock.jpg
+
+newmtl Rojo
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.314491 0.029322 0.033326
+Ks 0.722222 0.722222 0.722222
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd traffic_signal.png
+
+newmtl Rojo_metal_rust.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.314491 0.029322 0.033326
+Ks 0.722222 0.722222 0.722222
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd metal_rust.jpg

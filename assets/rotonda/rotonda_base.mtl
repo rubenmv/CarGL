@@ -1,11 +1,31 @@
 # Blender MTL File: 'rotonda.blend'
-# Material Count: 1
+# Material Count: 3
 
-newmtl BatchBakeMaterial
-Ns 100
-Ka 1 1 1
-Kd 1 1 1
-Ks 0 0 0
+newmtl Cesped
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.447978 0.000051
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd grass.jpg
+
+newmtl Metal
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.825000 0.825000 0.825000
 Ni 1.000000
 d 1.000000
 illum 2
+
+newmtl Roca
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.319387 0.319387 0.319387
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd ../edificios/rock.jpg

@@ -677,7 +677,7 @@
 	<string>
 	<vector>
 
-1402667882 source:c:\users\ruben\documents\github\cargl\src\object.cpp
+1403113733 source:c:\users\ruben\documents\github\cargl\src\object.cpp
 	"Object.h"
 	"tiny_obj_loader.h"
 	"Material.h"
@@ -697,7 +697,7 @@
 
 1401271395 c:\users\ruben\documents\github\cargl\src\eventmanager.h
 
-1402658137 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
+1403117526 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
 	"GuiManager.h"
 	"Scene.h"
 	"Object.h"
@@ -717,7 +717,7 @@
 1402667754 c:\users\ruben\documents\github\cargl\src\material.h
 	"Object.h"
 
-1403097278 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
+1403117737 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
 	"Scene.h"
 	"Object.h"
 	"Texture.h"
@@ -726,14 +726,14 @@
 	<math.h>
 	<time.h>
 
-1402673745 c:\users\ruben\documents\github\cargl\src\scene.h
+1403117539 c:\users\ruben\documents\github\cargl\src\scene.h
 	"Clock.h"
 	<vector>
 	"Global.h"
 	<GL/glu.h>
 	<GL/glui.h>
 
-1402188567 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
+1403104149 source:c:\users\ruben\documents\github\cargl\src\texture.cpp
 	"Texture.h"
 	<GL/glu.h>
 	<iostream>

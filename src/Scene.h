@@ -73,6 +73,7 @@ public:
     int show_farolas;
     int show_edificios;
     int show_cubos;
+    int show_papeleras;
     int show_bancos;
     int show_senales;
 

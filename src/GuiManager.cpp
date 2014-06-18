@@ -134,7 +134,7 @@ void __fastcall GuiManager::init(int main_window) {
     new GLUI_Checkbox( options, "Dibujar Acera", &scene->show_acera );
     new GLUI_Checkbox( options, "Dibujar Farolas", &scene->show_farolas );
     new GLUI_Checkbox( options, "Dibujar Edificios", &scene->show_edificios );
-    new GLUI_Checkbox( options, "Dibujar Cubos de basura", &scene->show_cubos );
+    new GLUI_Checkbox( options, "Dibujar Papeleras", &scene->show_papeleras );
     new GLUI_Checkbox( options, "Dibujar Bancos", &scene->show_bancos );
     new GLUI_Checkbox( options, "Dibujar Rotonda", &scene->show_rotonda );
     new GLUI_Checkbox( options, "Dibujar Senales", &scene->show_senales );

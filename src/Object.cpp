@@ -129,17 +129,6 @@ void Object::createDisplayList()
 		// Rellenamos cada display list creada
 		for (size_t i = 0; i < dListCount; ++i)
 		{
-			/*
-			if ( id == COCHE )
-			{
-				std::cout << "positions: " << shapes[i].mesh.positions.size() << std::endl;
-				std::cout << "normals: " << shapes[i].mesh.normals.size() << std::endl;
-				std::cout << "texcoords: " << shapes[i].mesh.texcoords.size() << std::endl;
-				std::cout << "indices: " << shapes[i].mesh.indices.size() << std::endl;
-			}
-			*/
-
-
 			// start list
 			glNewList(firstDList+i, GL_COMPILE);
 
