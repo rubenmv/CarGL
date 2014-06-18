@@ -1,11 +1,41 @@
 # Blender MTL File: 'farola.blend'
-# Material Count: 1
+# Material Count: 4
 
-newmtl BatchBakeMaterial
-Ns 100
-Ka 1 1 1
+newmtl Bombilla
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
 Kd 1 1 1
-Ks 0 0 0
+Ks 1.000000 1.000000 1.000000
 Ni 1.000000
 d 1.000000
 illum 2
+
+newmtl base
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.237037 0.237037 0.237037
+Ks 0.759259 0.759259 0.759259
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd metal_base.jpg
+
+newmtl body
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.705185 0.705185 0.705185
+Ks 0.551852 0.551852 0.551852
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd foam.jpg
+
+newmtl body_metal_body.jpg
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.705185 0.705185 0.705185
+Ks 0.551852 0.551852 0.551852
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd metal_body.jpg

@@ -1,8 +1,5 @@
 COSAS DEL ENUNCIADO
 
-- Hacer que los coches solo cambien de color en la carroceria y el volante gire igual que las ruedas.
-- Hacer los coches mas pequeños o los edificios mucho mas grandes.
-
 Teclado
 	- Camara
 		- Rotación: el movimiento del ratón y botón izquierdo (+CTRL para el eje z).

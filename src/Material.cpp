@@ -11,6 +11,7 @@ Material::Material(material_t material, bool transparent)
 
     this->transparent = transparent;
 	this->material = material;
+	this->name = material.name;
 	// Textura
 	if(!material.diffuse_texname.empty())
 	{

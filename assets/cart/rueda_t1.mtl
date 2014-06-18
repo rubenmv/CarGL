@@ -1,10 +1,19 @@
 # Blender MTL File: 'rueda.blend'
-# Material Count: 1
+# Material Count: 2
 
-newmtl Material
+newmtl Llanta
 Ns 96.078431
 Ka 1 1 1
-Kd 0.8 0.8 0.8
+Kd 0.552290 0.552290 0.552290
+Ks 0.117647 0.117647 0.117647
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Neumatico
+Ns 96.078431
+Ka 1 1 1
+Kd 0.196338 0.196338 0.196338
 Ks 0.117647 0.117647 0.117647
 Ni 1.000000
 d 1.000000

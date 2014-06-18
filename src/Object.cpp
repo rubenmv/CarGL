@@ -129,6 +129,17 @@ void Object::createDisplayList()
 		// Rellenamos cada display list creada
 		for (size_t i = 0; i < dListCount; ++i)
 		{
+			/*
+			if ( id == COCHE )
+			{
+				std::cout << "positions: " << shapes[i].mesh.positions.size() << std::endl;
+				std::cout << "normals: " << shapes[i].mesh.normals.size() << std::endl;
+				std::cout << "texcoords: " << shapes[i].mesh.texcoords.size() << std::endl;
+				std::cout << "indices: " << shapes[i].mesh.indices.size() << std::endl;
+			}
+			*/
+
+
 			// start list
 			glNewList(firstDList+i, GL_COMPILE);
 
@@ -174,7 +185,9 @@ void Object::draw()
 	for (size_t i = 0; i < dListCount; ++i)
 	{
 		glPushMatrix();
-			if (id == COCHE) // Los coches puede cambiar su color de carroceria
+			// Los coches puede cambiar su color de carroceria
+			// pero el resto de colores se mantiene
+			if (id == COCHE && materials[i]->name.compare("MaterialCarroceria") == 0 )
 			{
 				materials[i]->setColor(color);
 			}

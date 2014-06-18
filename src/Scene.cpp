@@ -5,11 +5,69 @@
 #include "GuiManager.h"
 #include <iostream>
 #include <math.h>
+#include <time.h>  // Para random
 
 Scene* Scene::pInstance = 0;
 
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
+
+#define NUM_EDF_BLOQUE 5
+#define NUM_BLOQUES 4
+// Posicion de los edficios del bloque con x,y positivo
+float pos_edf[NUM_EDF_BLOQUE*NUM_BLOQUES][3] = {
+	// Bloque 1
+	{45.0, 0.0, 10.0},
+	{30.0, 0.0, 10.0},
+	{15.0, 0.0, 15.0},
+	{10.0, 0.0, 30.0},
+	{10.0, 0.0, 45.0},
+	// Bloque 2
+	{-45.0, 0.0, 10.0},
+	{-30.0, 0.0, 10.0},
+	{-15.0, 0.0, 15.0},
+	{-10.0, 0.0, 30.0},
+	{-10.0, 0.0, 45.0},
+	// Bloque 3
+	{45.0, 0.0, -10.0},
+	{30.0, 0.0, -10.0},
+	{15.0, 0.0, -15.0},
+	{10.0, 0.0, -30.0},
+	{10.0, 0.0, -45.0},
+	// Bloque 4
+	{-45.0, 0.0, -10.0},
+	{-30.0, 0.0, -10.0},
+	{-15.0, 0.0, -15.0},
+	{-10.0, 0.0, -30.0},
+	{-10.0, 0.0, -45.0}
+};
+
+float rot_edf[NUM_EDF_BLOQUE*NUM_BLOQUES][3] = {
+	// Bloque 1
+	{0.0, 180.0, 0.0},
+	{0.0, 180.0, 0.0},
+	{0.0, -135.0, 0.0},
+	{0.0, -90.0, 0.0},
+	{0.0, -90.0, 0.0},
+	// Bloque 2
+	{0.0, 180.0, 0.0},
+	{0.0, 180.0, 0.0},
+	{0.0, 135.0, 0.0},
+	{0.0, 90.0, 0.0},
+	{0.0, 90.0, 0.0},
+	// Bloque 3
+	{0.0, 0.0, 0.0},
+	{0.0, 0.0, 0.0},
+	{0.0, -45.0, 0.0},
+	{0.0, -90.0, 0.0},
+	{0.0, -90.0, 0.0},
+	// Bloque 4
+	{0.0, 0.0, 0.0},
+	{0.0, 0.0, 0.0},
+	{0.0, 45.0, 0.0},
+	{0.0, 90.0, 0.0},
+	{0.0, 90.0, 0.0}
+};
 
 // Inicializacion del singleton
 Scene* Scene::instance() {
@@ -41,7 +99,7 @@ Scene::Scene()
 	perspective = 1;
 	clockwise = 0;
 
-	show_reflections = 1;
+	show_reflections = 0;
     show_car = 1;
     show_ruedas = 1;
     show_carretera = 1;
@@ -63,6 +121,8 @@ Scene::Scene()
     moving = 0;
 
     carSpeed = 0.0;
+
+    srand (time(NULL)); // Para poner edificios aleatorios
 }
 
 void Scene::initOpenGL()
@@ -129,32 +189,38 @@ void Scene::initObjects()
 
 
 	// COCHE 1
-	object = new Object( "assets/cart/cart_low.obj", COCHE,
+	object = new Object( "assets/cart/cart.obj", COCHE,
 						Vector3(-0.9, 0.04, -10), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
-	object->color[0] = 0.6; object->color[1] = 0.5; object->color[2] = 0.4;
+	object->color[0] = 0.5; object->color[1] = 0.3; object->color[2] = 0.4;
 	objects.push_back( object );
 	guiManager->addCarItem( object );
 
 	objSeleccion = object; // Uso esto para pasarlo como parent a las ruedas y ya dejo uno seleccionado al final
 
 	// Ruedas del coche 1, ponemos el coche como parent y las posiciones seran relativas a este
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
-						Vector3(-0.45, 0.14, 1.3), Vector3(), objSeleccion);
-	objects.push_back( object );
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
-						Vector3(-0.44, 0.14, 0.0), Vector3(), objSeleccion);
-	objects.push_back( object );
-
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
-						Vector3(0.45, 0.14, 1.3), Vector3(), objSeleccion);
+						Vector3(-0.45, 0.14, 1.5), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
-						Vector3(0.44, 0.14, 0.0), Vector3(), objSeleccion);
+						Vector3(-0.44, 0.14, 0.25), Vector3(), objSeleccion);
 	objects.push_back( object );
 
-	object = new Object( "assets/cart/cart_low.obj", COCHE,
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
+						Vector3(0.45, 0.14, 1.5), Vector3(), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
+						Vector3(0.44, 0.14, 0.25), Vector3(), objSeleccion);
+	objects.push_back( object );
+
+	// Volante 1 por separado, para que gire igual que las ruedas
+	object = new Object( "assets/cart/volante.obj", VOLANTE,
+						Vector3(0.24, 0.77, 0.98), Vector3(45.0, 0.0, 0.0), objSeleccion);
+	objects.push_back( object );
+
+	// COCHE 2
+	object = new Object( "assets/cart/cart.obj", COCHE,
 						Vector3(0.9, 0.04, -12.0), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
@@ -163,21 +229,27 @@ void Scene::initObjects()
 
 	objSeleccion = object;
 
-	carRotation = objSeleccion->rotation.y;
-
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
-						Vector3(-0.45, 0.14, 1.3), Vector3(), objSeleccion);
-	objects.push_back( object );
-	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
-						Vector3(-0.44, 0.14, 0.0), Vector3(), objSeleccion);
-	objects.push_back( object );
-
+	// Ruedas del coche 2
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_D,
-						Vector3(0.45, 0.14, 1.3), Vector3(), objSeleccion);
+						Vector3(-0.45, 0.14, 1.5), Vector3(), objSeleccion);
 	objects.push_back( object );
 	object = new Object( "assets/cart/rueda_t2.obj", RUEDA_T,
-						Vector3(0.44, 0.14, 0.0), Vector3(), objSeleccion);
+						Vector3(-0.44, 0.14, 0.25), Vector3(), objSeleccion);
 	objects.push_back( object );
+
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_D,
+						Vector3(0.45, 0.14, 1.5), Vector3(), objSeleccion);
+	objects.push_back( object );
+	object = new Object( "assets/cart/rueda_t1.obj", RUEDA_T,
+						Vector3(0.44, 0.14, 0.25), Vector3(), objSeleccion);
+	objects.push_back( object );
+
+	// Volante 2 por separado, para que gire igual que las ruedas
+	object = new Object( "assets/cart/volante.obj", VOLANTE,
+						Vector3(0.24, 0.77, 0.98), Vector3(45.0, 0.0, 0.0), objSeleccion);
+	objects.push_back( object );
+
+	carRotation = objSeleccion->rotation.y;
 
 	// FAROLAS
     float despX = 10;
@@ -187,7 +259,7 @@ void Scene::initObjects()
     float rotation = 0;
 
     // En el eje x
-    for(int j = 1; j < 3; j++)
+    for(int j = 1; j < 5; j++)
 	{
 		for(int i = 1; i < 3; i++)
 		{
@@ -207,7 +279,7 @@ void Scene::initObjects()
 
 	// En el eje z
 	rotation = 90;
-	for(int j = 1; j < 3; j++)
+	for(int j = 1; j < 5; j++)
 	{
 		for(int i = 1; i < 3; i++)
 		{
@@ -226,22 +298,31 @@ void Scene::initObjects()
 	}
 
 	// EDIFICIOS
-	// Bloque 1
-	object = new Object("assets/edificios/edificio1.obj", EDIFICIO,
-						Vector3(-20.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
-	objects.push_back( object );
-	object = new Object("assets/edificios/edificio1.obj", EDIFICIO,
-						Vector3(-15.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
-	objects.push_back( object );
-	object = new Object("assets/edificios/edificio2.obj", EDIFICIO,
-						Vector3(-10.0, 0.0, -6.0), Vector3(0.0, 0.0, 0.0) );
-	objects.push_back( object );
-	object = new Object("assets/edificios/edificio2.obj", EDIFICIO,
-						Vector3(-6.0, 0.0, -10.0), Vector3(0.0, 90.0, 0.0) );
-	objects.push_back( object );
-	object = new Object("assets/edificios/edificio2.obj", EDIFICIO,
-						Vector3(-6.0, 0.0, -15.0), Vector3(0.0, 90.0, 0.0) );
-	objects.push_back( object );
+	int randomNumber = 0;
+	std::string edificio;
+	float numEdificios = NUM_EDF_BLOQUE*NUM_BLOQUES;
+	for(size_t i = 0; i < numEdificios; i++)
+	{
+		// El edificio se genera aleatoriamente
+		randomNumber = rand() % 2;
+
+		switch (randomNumber) {
+			case 0:
+				edificio = "assets/edificios/edificio1.obj";
+				break;
+			case 1:
+				edificio = "assets/edificios/edificio2.obj";
+				break;
+			default:
+				edificio = "assets/edificios/edificio1.obj";
+				break;
+		}
+
+		object = new Object(edificio.c_str(), EDIFICIO,
+						Vector3(pos_edf[i][0], pos_edf[i][1], pos_edf[i][2]),
+						Vector3(rot_edf[i][0], rot_edf[i][1], rot_edf[i][2]) );
+		objects.push_back( object );
+	}
 
 	// SENALES DE TRAFICO
 	object = new Object("assets/senal_trafico/senal_trafico.obj", SENAL,
@@ -265,12 +346,22 @@ void Scene::initObjects()
 	iconSelection = object; // Icono de objeto seleccionado
 
 	// Finalmente el skybox, solo cargamos las texturas
+	/*
 	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/txStormydays_front.jpg");
 	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/txStormydays_back.jpg");
 	SkyboxTexture[SKYLEFT] = getTexture("assets/skybox/txStormydays_left.jpg");
 	SkyboxTexture[SKYRIGHT] = getTexture("assets/skybox/txStormydays_right.jpg");
 	SkyboxTexture[SKYUP] = getTexture("assets/skybox/txStormydays_up.jpg");
 	SkyboxTexture[SKYDOWN] = getTexture("assets/skybox/txStormydays_down.jpg");
+	*/
+
+	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/xpos.png");
+	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/xneg.png");
+	SkyboxTexture[SKYLEFT] = getTexture("assets/skybox/zpos.png");
+	SkyboxTexture[SKYRIGHT] = getTexture("assets/skybox/zneg.png");
+	SkyboxTexture[SKYUP] = getTexture("assets/skybox/ypos.png");
+	SkyboxTexture[SKYDOWN] = getTexture("assets/skybox/yneg.png");
+
 }
 
 void Scene::addCamera(const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic /* = true */, bool active /* = false */)
@@ -377,7 +468,7 @@ void Scene::render()
 	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
 	updateObjects();
 
-    glClearColor(0.0, 0.7, 0.9, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     //Para los REFLEJOS limpiamos tambien el stencil buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -412,8 +503,6 @@ void Scene::render()
     }
 
     renderLights();
-
-    renderSkybox();
 
 	if ( show_carretera )
 	{
@@ -518,44 +607,48 @@ void Scene::renderSkybox()
 	y = y - height / 2;
 	z = z - length / 2;
 
+	glPushMatrix();
+	// Lo posicionamos de manera que por debajo solo quede un poco del cubo
+	glTranslatef(0.0, height/2-300, 0.0);
+
 	// Draw Front side
-	SkyboxTexture[SKYFRONT]->bind();
+	if (textures == 1) SkyboxTexture[SKYFRONT]->bind();
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(x,		  y+height, z+length);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y+height, z+length);
+		glTexCoord2f(-1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
+		glTexCoord2f(-1.0f, -1.0f); glVertex3f(x,		  y+height, z+length);
+		glTexCoord2f(0.0f, -1.0f); glVertex3f(x+width, y+height, z+length);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y,		z+length);
 	glEnd();
 
 	// Draw Back side
-	SkyboxTexture[SKYBACK]->bind();
+	if (textures == 1) SkyboxTexture[SKYBACK]->bind();
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y,		z);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y+height, z);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z);
+		glTexCoord2f(-1.0f, 0.0f); glVertex3f(x+width, y,		z);
+		glTexCoord2f(-1.0f, -1.0f); glVertex3f(x+width, y+height, z);
+		glTexCoord2f(0.0f, -1.0f); glVertex3f(x,		  y+height,	z);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z);
 	glEnd();
 
 	// Draw Left side
-	SkyboxTexture[SKYLEFT]->bind();
+	if (textures == 1) SkyboxTexture[SKYLEFT]->bind();
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(x,		  y+height,	z);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z+length);
+		glTexCoord2f(-1.0f, -1.0f); glVertex3f(x,		  y+height,	z);
+		glTexCoord2f(0.0f, -1.0f); glVertex3f(x,		  y+height,	z+length);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z+length);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z);
+		glTexCoord2f(-1.0f, 0.0f); glVertex3f(x,		  y,		z);
 	glEnd();
 
 	// Draw Right side
-	SkyboxTexture[SKYRIGHT]->bind();
+	if (textures == 1) SkyboxTexture[SKYRIGHT]->bind();
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y,		z);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y,		z+length);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y+height,	z+length);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y+height,	z);
+		glTexCoord2f(-1.0f, 0.0f); glVertex3f(x+width, y,		z+length);
+		glTexCoord2f(-1.0f, -1.0f); glVertex3f(x+width, y+height,	z+length);
+		glTexCoord2f(0.0f, -1.0f); glVertex3f(x+width, y+height,	z);
 	glEnd();
 
 	// Draw Up side
-	SkyboxTexture[SKYUP]->bind();
+	if (textures == 1) SkyboxTexture[SKYUP]->bind();
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y+height, z);
 		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y+height, z+length);
@@ -564,7 +657,7 @@ void Scene::renderSkybox()
 	glEnd();
 
 	// Draw Down side
-	SkyboxTexture[SKYDOWN]->bind();
+	if (textures == 1) SkyboxTexture[SKYDOWN]->bind();
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z);
 		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
@@ -573,6 +666,8 @@ void Scene::renderSkybox()
 	glEnd();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glPopMatrix();
 
 	if ( ambientLighting ) {
 		glEnable(GL_LIGHTING);
@@ -734,6 +829,35 @@ void Scene::updateObjects()
 					}
 				}
 				break;
+			case VOLANTE:
+				if ( objects[i]->parent == objSeleccion )
+				{
+					// Rotacion en eje y
+					if ( wheelsRotation != 0 )
+					{
+						if ( objects[i]->rotation.z > MAX_WHEEL_ROTATION*3) {
+							objects[i]->rotation.z = MAX_WHEEL_ROTATION*3;
+						}
+						if ( objects[i]->rotation.z < -MAX_WHEEL_ROTATION*3) {
+							objects[i]->rotation.z = -MAX_WHEEL_ROTATION*3;
+						}
+
+						objects[i]->rotation.z -= (wheelsRotation * WHEEL_ROTATION_Y*3); // wheelsRotation guarda el signo
+					}
+					else
+					{
+						if ( objects[i]->rotation.z > 0.0f ) {
+							objects[i]->rotation.z -= WHEEL_ROTATION_Y*3;
+						}
+						else if ( objects[i]->rotation.z < 0.0f ) {
+							objects[i]->rotation.z += WHEEL_ROTATION_Y*3;
+						}
+
+						if ( inRange(objects[i]->rotation.z, WHEEL_ROTATION_Y*3) )
+							objects[i]->rotation.z = 0.0f;
+					}
+				}
+				break;
 		}
 	}
 }
@@ -741,6 +865,8 @@ void Scene::updateObjects()
 
 void Scene::renderObjects()
 {
+	renderSkybox();
+
 	for(size_t i = 0; i < objects.size(); i++)
 	{
 		switch ( objects[i]->id )

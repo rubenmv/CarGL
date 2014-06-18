@@ -57,9 +57,35 @@ void keyboard(unsigned char Key, int x, int y)
     switch(Key)
     {
         case 27:
-        case 'q': //con q se cierra la aplicacion
+        case 'Q': //con q se cierra la aplicacion
+		case 'q': //con q se cierra la aplicacion
             exit(0);
             break;
+		// Activacion/desactivacion de propiedades de la escena
+		case 'T': // Texturas
+		case 't':
+			scene->textures = 1-scene->textures;
+			break;
+		case 'W': // Wireframe
+		case 'w':
+			scene->wireframe = 1-scene->wireframe;
+			break;
+		case 'C': // Culling
+		case 'c':
+			scene->culling = 1-scene->culling;
+			break;
+		case 'Z': // Z-Buffer
+		case 'z':
+			scene->zbuffer = 1-scene->zbuffer;
+			break;
+		case 'L': // Luz ambiente
+		case 'l':
+			scene->ambientLighting = 1-scene->ambientLighting;
+			break;
+		case 'R': // Reflejos
+		case 'r':
+			scene->show_reflections = 1-scene->show_reflections;
+			break;
     }
 }
 
@@ -148,10 +174,10 @@ int main(int argc, char* argv[])
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
     // Camaras
-    scene->addCamera( "Camara", 17.5, -2, 5.0, 5.0, 130.0, 0.0, true); // Agrega una camara estatica
-    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true); // Agrega una camara estatica
-    scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, true); // Agrega una camara estatica
-    scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false, true); // Agrega una camara de seguimiento y es la activa
+    scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false, false); // Agrega una camara de seguimiento y es la activa
+    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true, true);
+    scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, true);
+    scene->addCamera( "Camara Callejon", 22.0, -2, 15.0, 5.0, 160.0, 0.0, true);
 
     // Luces
     GLfloat light0_ambient_c[4]  = {   1.0f, 1.0f, 1.0f, 1.0f };

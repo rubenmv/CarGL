@@ -14,7 +14,7 @@
 #define ACCELERATION 0.005
 #define FRICTION 0.98
 #define RADIANS 0.017
-#define WHEEL_ROTATION_X 90
+#define WHEEL_ROTATION_X 180
 #define WHEEL_ROTATION_Y 1
 
 class Object;

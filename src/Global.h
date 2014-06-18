@@ -27,6 +27,7 @@ enum ID
 	COCHE,
 	RUEDA_D, // Rueda delantera
 	RUEDA_T, // Rueda trasera (no rotan)
+	VOLANTE,
 	FAROLA,
 	EDIFICIO,
 	CUBO_BASURA,
