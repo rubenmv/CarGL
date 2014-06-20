@@ -14,6 +14,7 @@ public:
     void unbind();
 private:
     unsigned int textureID;
+    unsigned int mipmapID;
 
     int width;
     int height;

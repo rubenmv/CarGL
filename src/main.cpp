@@ -66,6 +66,10 @@ void keyboard(unsigned char Key, int x, int y)
 		case 't':
 			scene->textures = 1-scene->textures;
 			break;
+		case 'M': // Mipmapping
+		case 'm':
+			scene->mipmapping = 1-scene->mipmapping;
+			break;
 		case 'W': // Wireframe
 		case 'w':
 			scene->wireframe = 1-scene->wireframe;
@@ -91,8 +95,6 @@ void keyboard(unsigned char Key, int x, int y)
 
 static void specialKey(int key, int x, int y)
 {
-	Object* car = scene->objSeleccion;
-
     switch (key)
     {
         case GLUT_KEY_UP:
@@ -112,9 +114,7 @@ static void specialKey(int key, int x, int y)
 
 static void specialKeyUp(int key, int x, int y)
 {
-	Object* car = scene->objSeleccion;
-
-    switch (key)
+	switch (key)
     {	// Si se suelta alguna de las teclas de acelerar, empieza a pararse
     	case GLUT_KEY_UP:
 		case GLUT_KEY_DOWN:
@@ -173,11 +173,12 @@ int main(int argc, char* argv[])
 
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
-    // Camaras
-    scene->addCamera( "Camara seguimiento", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, false, false); // Agrega una camara de seguimiento y es la activa
-    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, true, true);
-    scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, true);
-    scene->addCamera( "Camara Callejon", 22.0, -2, 15.0, 5.0, 160.0, 0.0, true);
+    // Camaras															  Seguimiento?, activa?
+    scene->addCamera( "Camara seguimiento", -6.0, 3.0, -6.0, 0.0, 2.0, 0.0, true, true);
+    scene->addCamera( "Camara volante", -0.2, 0.9, -0.2, 0.0, 0.9, 0.0, true, false);
+    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, false, false);
+    scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, false, false);
+    scene->addCamera( "Camara Callejon", 22.0, -2, 15.0, 5.0, 160.0, 0.0, false, false);
 
     // Luces
     GLfloat light0_ambient_c[4]  = {   1.0f, 1.0f, 1.0f, 1.0f };
@@ -185,7 +186,7 @@ int main(int argc, char* argv[])
 	GLfloat light0_specular_c[4] = {   1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat light0_position_c[4] = { -30.0f, 1.0f, 0.0f, 1.0f };
 	float intensity = 0.6f;
-	scene->addLight( "Luz 0", GL_LIGHT0, 1, light0_position_c, intensity, light0_ambient_c, light0_diffuse_c, light0_specular_c);
+	scene->addLight( "Luz 0", GL_LIGHT0, 0, light0_position_c, intensity, light0_ambient_c, light0_diffuse_c, light0_specular_c);
 
 	GLfloat light1_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light1_diffuse_c[4]  = { 0.5f,   0.5f,  0.5f, 1.0f };
@@ -198,8 +199,22 @@ int main(int argc, char* argv[])
 	GLfloat light2_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
 	GLfloat light2_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light2_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
-	intensity = 0.4f;
-    scene->addLight("Luz 2", GL_LIGHT2, 0, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
+	intensity = 0.6f;
+    scene->addLight("Luz 2", GL_LIGHT2, 1, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
+
+    GLfloat light3_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light3_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
+	GLfloat light3_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light3_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
+	intensity = 0.35f;
+    scene->addLight("Luz 3", GL_LIGHT3, 0, light3_position_c, intensity, light3_ambient_c, light3_diffuse_c, light3_specular_c);
+
+    GLfloat light4_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light4_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
+	GLfloat light4_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
+	GLfloat light4_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
+	intensity = 0.2f;
+    scene->addLight("Luz 4", GL_LIGHT4, 0, light4_position_c, intensity, light4_ambient_c, light4_diffuse_c, light4_specular_c);
 
     // Funciones para el render
     glutDisplayFunc( render );

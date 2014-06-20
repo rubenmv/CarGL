@@ -38,7 +38,7 @@ public:
 	unsigned int listboxCamarasCount;
 
 	// Para agregar elementos a las listbox/rollouts dinamicamente segun se crean
-	void addLightItem(Scene::Light* light);
+	void addLightItem(Light* light);
 	void addCarItem(Object* car);
 	void addCameraItem(const char* name, bool active);
 

@@ -106,7 +106,6 @@ Object::~Object()
 
 void Object::createDisplayList()
 {
-	// Queremos que los seleccionables tengan listas unicas
 	if ( !this->selectable )
 	{
 		// Antes de generar nuevas listas, preguntamos a la escena si ya

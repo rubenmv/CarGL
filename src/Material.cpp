@@ -15,7 +15,7 @@ Material::Material(material_t material, bool transparent)
 	// Textura
 	if(!material.diffuse_texname.empty())
 	{
-		texture = Scene::instance()->getTexture(material.diffuse_texname);
+		texture = scene->getTexture(material.diffuse_texname);
 	}
 }
 
@@ -31,9 +31,13 @@ void Material::bind()
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 }; // Por defecto para los que tienen texturas
 	if (transparent)
 	{
+		// Para objetos semitransparentes debemos desactivar el culling siempre
+		// ya que tendriamos que poder ver las caras interiores
+		glDisable(GL_CULL_FACE);
+
 		glEnable (GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		color[3] = 0.8;
+		color[3] = 0.6; // Alpha para transparencia
 	}
 
 	// Dibujamos texturas con color de material por defecto (no queremos que el color afecte a la textura)
@@ -70,6 +74,12 @@ void Material::unbind()
 	if (transparent)
 	{
 		glDisable (GL_BLEND);
+	}
+
+	// Reactivamos el resto de propiedades segun la escena
+	if(scene->culling)
+	{
+		glEnable(GL_CULL_FACE);
 	}
 }
 

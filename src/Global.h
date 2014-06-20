@@ -10,6 +10,8 @@ Enumerados y tipos globales
 #include <string>
 #include <map>
 
+#include <gl/gl.h>
+
 struct Vector3
 {
 	float x;
@@ -37,6 +39,27 @@ enum ID
 	SELECCION
 };
 
+typedef struct
+{
+	const char* name;
+	bool tracing;
+	Vector3 position; // Posicion relativa en el caso de seguimiento (tracing)
+	Vector3 lookAt;
+	Vector3 rotation;
+} Camera;
+
+typedef struct
+{
+	const char* name;
+	GLenum numLight; // GL_LIGHT0, GL_LIGHT1...
+	int enabled;
+	float ambient[4];
+	float diffuse[4];
+	float specular[4];
+	float position[3];
+	float intensity;
+} Light;
+
 // Tipos de datos para el modelo
 typedef struct
 {
@@ -49,7 +72,6 @@ typedef struct
 	float emission[3];
 	float shininess;
 	float ior; // indice de refraccion
-	int shader;
 
 	std::string ambient_texname;
 	std::string diffuse_texname;

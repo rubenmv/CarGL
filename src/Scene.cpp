@@ -108,6 +108,7 @@ Scene::Scene()
 	// FLAGS
 	ambientLighting = 1;
     textures = 1;
+    mipmapping = 1;
     wireframe = 0;
     culling = 1;
     zbuffer = 1;
@@ -154,8 +155,7 @@ void Scene::initOpenGL()
 	glClearDepth(1.f);
 
     glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);
-    // Las luces se agregan desde addLight
+    glEnable(GL_LIGHTING);// Las luces se agregan desde addLight
 	glEnable(GL_NORMALIZE);
 
     // Por defecto proyeccion perspectiva
@@ -210,7 +210,7 @@ void Scene::initObjects()
 
 	// COCHE 1
 	object = new Object(OBJ_COCHE, COCHE,
-						Vector3(-0.9, 0.04, -10), Vector3(), 0, true ); // Seleccionable
+						Vector3(-0.9, floor+0.04, -10), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
 	object->color[0] = 0.5; object->color[1] = 0.3; object->color[2] = 0.4;
@@ -241,7 +241,7 @@ void Scene::initObjects()
 
 	// COCHE 2
 	object = new Object(OBJ_COCHE, COCHE,
-						Vector3(0.9, 0.04, -12.0), Vector3(), 0, true ); // Seleccionable
+						Vector3(0.9, floor+0.04, -12.0), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
 	objects.push_back( object );
@@ -440,7 +440,7 @@ void Scene::initObjects()
 
 }
 
-void Scene::addCamera(const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic /* = true */, bool active /* = false */)
+void Scene::addCamera(const char* name, float px, float py, float pz, float lx, float ly, float lz, bool tracing /* = false */, bool active /* = false */)
 {
     Camera* camera = new Camera();
     camera->name = name;
@@ -450,7 +450,7 @@ void Scene::addCamera(const char* name, float px, float py, float pz, float lx, 
     camera->lookAt.x = lx;
     camera->lookAt.y = ly;
     camera->lookAt.z = lz;
-    camera->isStatic = isStatic;
+    camera->tracing = tracing;
 
     cameras.push_back(camera);
 
@@ -556,8 +556,8 @@ void Scene::render()
     // Camara
     if ( activeCamera != 0 )
     {
-    	// Camara estatica
-    	if ( activeCamera->isStatic )
+    	// Camara normal
+    	if ( !activeCamera->tracing )
 		{
 			glRotatef(activeCamera->lookAt.x, 1.0, 0.0, 0.0);
 			glRotatef(activeCamera->lookAt.y, 0.0, 1.0, 0.0);
@@ -565,16 +565,24 @@ void Scene::render()
 			//glTranslatef( activeCamera->position.x, activeCamera->position.y, activeCamera->position.z );
 			glMultMatrixf(view_rotate);
 			glTranslatef( view_position[0], view_position[1], view_position[2] );
+			// Primero el skybox ya que no queremos que se redimensione
+			renderSkybox();
 			glScalef(scale, scale, scale);
 		}
-		// Camara no estatica, sigue a un objeto
+		// Camara de seguimiento
 		else
 		{
 			float angulo = ((objSeleccion->rotation.y)*PI)/180.0;
 
-			gluLookAt(  objSeleccion->position.x - 6 * sin(angulo), objSeleccion->position.y + 3, objSeleccion->position.z - 6 * cos(angulo),
-                    objSeleccion->position.x, objSeleccion->position.y + 2, objSeleccion->position.z,
+			gluLookAt(  objSeleccion->position.x + activeCamera->position.x * sin(angulo),
+						objSeleccion->position.y + activeCamera->position.y,
+						objSeleccion->position.z + activeCamera->position.z * cos(angulo),
+						objSeleccion->position.x + activeCamera->lookAt.x,
+						objSeleccion->position.y + activeCamera->lookAt.y,
+						objSeleccion->position.z + activeCamera->lookAt.z,
                     0.0, 1.0, 0.0 );
+
+			renderSkybox();
 		}
     }
 
@@ -834,10 +842,10 @@ void Scene::updateObjects()
 					}
 
 					if (wheelsRotation == 1 && carSpeed != 0.0) {
-						objSeleccion->rotation.y += 8.0f * carSpeed;
+						objSeleccion->rotation.y += 10.0f * carSpeed;
 					}
 					else if(wheelsRotation == -1 && carSpeed != 0.0) {
-						objSeleccion->rotation.y -= 8.0f * carSpeed;
+						objSeleccion->rotation.y -= 10.0f * carSpeed;
 					}
 
 					// Pero solo se la empezamos a aplicar cuando se mueva
@@ -943,8 +951,6 @@ void Scene::updateObjects()
 
 void Scene::renderObjects()
 {
-	renderSkybox();
-
 	for(size_t i = 0; i < objects.size(); i++)
 	{
 		switch ( objects[i]->id )
@@ -994,7 +1000,7 @@ void Scene::renderObjects()
 
 
 // Selecciona un objeto a través del ratón
-void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
+void Scene::pick3D(int mouse_x, int mouse_y) {
 	// formato de buffer, cada cuatro posiciones almacena:
 	//      buffer[i]   = número de objetos
     //      buffer[i+1] = profundidad mínima
@@ -1055,7 +1061,19 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
 		}
     }
 
-    // Si se ha seleccionado algo, miramos entre los objetos
+	setSelection(seleccion);
+
+	if ( guiManager != 0 )
+	{
+		sprintf(cad, "%s [%03d, %03d]", objSeleccion->name.c_str(), mouse_x, mouse_y);
+		guiManager->sel_tex->set_text(cad);
+	}
+}
+
+// Una vez realizado el pick3D se busca el objeto seleccionado
+void Scene::setSelection(int seleccion)
+{
+	// Si se ha seleccionado algo, miramos entre los objetos
     // y cogemos el Object padre de este objeto seleccionado
     if ( seleccion != 0 )
 	{
@@ -1075,13 +1093,8 @@ void __fastcall Scene::pick3D(int mouse_x, int mouse_y) {
 			}
 		}
 	}
-
-    if ( guiManager != 0 )
-	{
-		sprintf(cad, "%03d [%03d, %03d]", seleccion, mouse_x, mouse_y);
-		guiManager->sel_tex->set_text(cad);
-	}
 }
+
 
 unsigned int Scene::getObjectList(std::string fileName)
 {

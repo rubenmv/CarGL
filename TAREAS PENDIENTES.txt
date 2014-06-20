@@ -6,5 +6,11 @@ Teclado
 		- Traslación: (SHIFT) + el movimiento del ratón y botón izquierdo (+CTRL para el eje z).
 		- Escalado: el movimiento del ratón y botón derecho (+CTRL para el eje z).
 
+- Los reflejos en los coches se ven raros, tema del suelo
+- Mirar triangulos de las señales
+- Texturas en las papeleras, que se ven cutres
+- Al resetear la camara no se resetea lo del GLUI, y al volver a mover desde ahi se jode el tema.
+
 - Documento de ususario
 - Documento de desarrollador
+	- Falta lo de las camaras con el teclado

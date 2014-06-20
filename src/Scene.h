@@ -23,28 +23,6 @@ class Texture;
 
 class Scene {
 public:
-
-	struct Camera
-    {
-    	const char* name;
-    	bool isStatic;
-        Vector3 position; // Posicion relativa en el caso de seguimiento (!isStatic)
-        Vector3 lookAt;
-        Vector3 rotation;
-    };
-
-    struct Light
-    {
-    	const char* name;
-    	GLenum numLight; // GL_LIGHT0, GL_LIGHT1...
-    	int enabled;
-        float ambient[4];
-        float diffuse[4];
-        float specular[4];
-        float position[3];
-        float intensity;
-    };
-
 	static Scene* instance();
     virtual ~Scene();
 
@@ -58,6 +36,7 @@ public:
     int ambientLighting;
 	int wireframe;
 	int textures;
+	int mipmapping;
 	int culling;
 	int zbuffer;
 	int smooth_shading;
@@ -82,11 +61,13 @@ public:
     float scale;
 
 	void reshape(int x, int y);
-	void __fastcall pick3D(int mouse_x, int mouse_y);
+	void pick3D(int mouse_x, int mouse_y);
+	// Una vez realizado el pick3D se busca el objeto seleccionado
+	void setSelection(int seleccion);
     void initOpenGL();
 
     // Agrega una camara e indica si es la activa
-    void addCamera( const char* name, float px, float py, float pz, float lx, float ly, float lz, bool isStatic = true, bool active = false );
+    void addCamera( const char* name, float px, float py, float pz, float lx, float ly, float lz, bool tracing = false, bool active = false );
     void addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] );
     // Agrega objetos a la escena e inicializa otras cosas
     void initObjects();

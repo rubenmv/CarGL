@@ -44,7 +44,7 @@ GuiManager::~GuiManager()
 	scene = 0;
 }
 
-void GuiManager::addLightItem(Scene::Light* light)
+void GuiManager::addLightItem(Light* light)
 {
 	GLUI_Rollout* luz = new GLUI_Rollout( rolloutLuces, light->name, false );
 	new GLUI_Checkbox( luz, "Enabled", &light->enabled );
@@ -116,6 +116,7 @@ void __fastcall GuiManager::init(int main_window) {
     new GLUI_Checkbox( obj_panel, "Z Buffer (Z)", &scene->zbuffer);
     new GLUI_Checkbox( obj_panel, "Culling (C)", &scene->culling );
     new GLUI_Checkbox( obj_panel, "Texturas (T)", &scene->textures );
+    new GLUI_Checkbox( obj_panel, "Mipmapping (M)", &scene->mipmapping );
     new GLUI_StaticText( obj_panel, "Modelo de sombreado" );
     new GLUI_Button( obj_panel, "Flat", SHADING_FLAT, controlCallback );
     new GLUI_Button( obj_panel, "Smooth", SHADING_SMOOTH, controlCallback );
