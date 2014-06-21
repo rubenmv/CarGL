@@ -280,7 +280,6 @@ void InitMaterial(material_t& material) {
   }
   material.shininess = 1.f;
   material.unknown_parameter.clear();
-  material.shader = -1;
 }
 
 std::string LoadMtl (
@@ -447,13 +446,6 @@ std::string LoadMtl (
 	  token += 7;
 	  material.normal_texname = mtl_basepath + std::string(token);
 	  continue;
-	}
-
-	// shader
-	if ((0 == strncmp(token, "shader", 6)) && isSpace(token[6])) {
-		token += 7;
-		material.shader = parseInt(token);
-		continue;
 	}
 
 	// unknown parameter

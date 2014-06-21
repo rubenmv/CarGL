@@ -31,6 +31,7 @@ public:
 	GLUI            *glui, *glui2;
 	GLUI_Panel      *obj_panel;
 	GLUI_Rotation   *view_rot;
+	GLUI_Translation *zoom;
 
 	GLUI_Rollout* rolloutLuces;
 	GLUI_Rollout* rolloutCoches;

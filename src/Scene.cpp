@@ -473,7 +473,6 @@ void Scene::setCamera(int id)
 	scale = 1.0f;
 }
 
-
 void Scene::addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] )
 {
     Light* light = new Light();
@@ -562,17 +561,18 @@ void Scene::render()
 			glRotatef(activeCamera->lookAt.x, 1.0, 0.0, 0.0);
 			glRotatef(activeCamera->lookAt.y, 0.0, 1.0, 0.0);
 			glRotatef(activeCamera->lookAt.z, 0.0, 0.0, 1.0);
-			//glTranslatef( activeCamera->position.x, activeCamera->position.y, activeCamera->position.z );
 			glMultMatrixf(view_rotate);
-			glTranslatef( view_position[0], view_position[1], view_position[2] );
+			glTranslatef(view_position[0], view_position[1], view_position[2]);
 			// Primero el skybox ya que no queremos que se redimensione
 			renderSkybox();
+			//std::cout << "scale : " << scale << std::endl;
+
 			glScalef(scale, scale, scale);
 		}
 		// Camara de seguimiento
 		else
 		{
-			float angulo = ((objSeleccion->rotation.y)*PI)/180.0;
+			float angulo = ((objSeleccion->rotation.y)*PI) / 180.0;
 
 			gluLookAt(  objSeleccion->position.x + activeCamera->position.x * sin(angulo),
 						objSeleccion->position.y + activeCamera->position.y,
@@ -580,13 +580,13 @@ void Scene::render()
 						objSeleccion->position.x + activeCamera->lookAt.x,
 						objSeleccion->position.y + activeCamera->lookAt.y,
 						objSeleccion->position.z + activeCamera->lookAt.z,
-                    0.0, 1.0, 0.0 );
+						0.0, 1.0, 0.0 );
 
 			renderSkybox();
 		}
     }
 
-    renderLights();
+	renderLights();
 
 	if ( show_carretera )
 	{

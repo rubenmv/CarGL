@@ -697,13 +697,14 @@
 
 1401271395 c:\users\ruben\documents\github\cargl\src\eventmanager.h
 
-1403299890 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
+1403340510 source:c:\users\ruben\documents\github\cargl\src\guimanager.cpp
 	"GuiManager.h"
 	"Scene.h"
 	"Object.h"
 	<GL/glui.h>
+	<iostream>
 
-1403299887 c:\users\ruben\documents\github\cargl\src\guimanager.h
+1403339831 c:\users\ruben\documents\github\cargl\src\guimanager.h
 	"Scene.h"
 	<vector>
 	<GL/glui.h>
@@ -717,7 +718,7 @@
 1402667754 c:\users\ruben\documents\github\cargl\src\material.h
 	"Object.h"
 
-1403283054 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
+1403340538 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
 	"Scene.h"
 	"Object.h"
 	"Texture.h"
@@ -726,7 +727,7 @@
 	<math.h>
 	<time.h>
 
-1403299855 c:\users\ruben\documents\github\cargl\src\scene.h
+1403340451 c:\users\ruben\documents\github\cargl\src\scene.h
 	"Clock.h"
 	<vector>
 	"Global.h"
@@ -775,7 +776,7 @@
 
 1215447208 c:\users\ruben\documents\github\cargl\src\soil.h
 
-1402667868 source:c:\users\ruben\documents\github\cargl\src\tiny_obj_loader.cc
+1403338080 source:c:\users\ruben\documents\github\cargl\src\tiny_obj_loader.cc
 	<cstdlib>
 	<cstring>
 	<cassert>
@@ -799,7 +800,7 @@
 1401529207 source:c:\users\ruben\documents\github\cargl\src\clock.cpp
 	"Clock.h"
 
-1403299954 c:\users\ruben\documents\github\cargl\src\global.h
+1403300089 c:\users\ruben\documents\github\cargl\src\global.h
 	<string>
 	<map>
 	<gl/gl.h>

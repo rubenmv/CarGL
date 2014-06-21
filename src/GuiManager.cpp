@@ -4,6 +4,8 @@
 #include "Object.h"
 #include <GL/glui.h>
 
+#include <iostream>
+
 // IDs para los callbacks de TGui
 #define LISTBOX_CAMERAS			100
 
@@ -197,10 +199,14 @@ void __fastcall GuiManager::init(int main_window) {
     new GLUI_Column( glui2, false );
     GLUI_Translation *trans_y = new GLUI_Translation( glui2, "Traslacion scene Y", GLUI_TRANSLATION_Y, &scene->view_position[1] );
     trans_y->set_speed( .05 );
-
+/*
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_z = new GLUI_Translation( glui2, "Traslacion scene Z", GLUI_TRANSLATION_Z, &scene->scale );
-    trans_z->set_speed( .005 );
+    GLUI_Translation *trans_z = new GLUI_Translation( glui2, "Traslacion scene Z", GLUI_TRANSLATION_Z, &scene->view_position[2] );
+    trans_z->set_speed( .05 );
+*/
+    new GLUI_Column( glui2, false );
+    zoom = new GLUI_Translation( glui2, "Zoom", GLUI_TRANSLATION_Z, &scene->scale );
+    zoom->set_speed( .05 );
 }
 
 void __fastcall GuiManager::ControlCallback( int control )
@@ -215,6 +221,9 @@ void __fastcall GuiManager::ControlCallback( int control )
 			break;
 		case RESET_ID:
 			scene->setCamera(listboxCamaras->get_int_val());
+			// Al parecer la GLUI_TRANSLATION_Z es la unica traslacion que
+			// no se resetea correctamente con la scale de la escena
+			zoom->set_z(scene->scale);
 			break;
 		case SHADING_FLAT:
 			scene->smooth_shading = 0;
