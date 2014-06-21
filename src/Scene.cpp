@@ -191,26 +191,25 @@ void Scene::initObjects()
 {
 	Object* object = 0;
 
-	// Ponemos el suelo un poco mas bajo de manera que no tenemos que subir el resto de objetos
-	float floor = -0.15;
+	float aceraHeight = 0.15; // Para los objetos encima de la acera
 
 	// CARRETERA, se guarda por separado para aplicar reflejos
-	road = new Object(OBJ_CARRETERA, CARRETERA, Vector3(0.0, floor, 0.0), Vector3(), 0, false, true);
+	road = new Object(OBJ_CARRETERA, CARRETERA, Vector3(), Vector3(), 0, false, true);
 
 	// ACERAS
-	object = new Object(OBJ_ACERA, ACERA, Vector3(-13.0, floor, -13.0));
+	object = new Object(OBJ_ACERA, ACERA, Vector3(-13.0, 0.0, -13.0));
 	objects.push_back( object );
-	object = new Object(OBJ_ACERA, ACERA, Vector3(13.0, floor, 13.0), Vector3(0.0, 180.0, 0.0) );
+	object = new Object(OBJ_ACERA, ACERA, Vector3(13.0, 0.0, 13.0), Vector3(0.0, 180.0, 0.0) );
 	objects.push_back( object );
-	object = new Object(OBJ_ACERA, ACERA, Vector3(13.0, floor, -13.0), Vector3(0.0, -90.0, 0.0) );
+	object = new Object(OBJ_ACERA, ACERA, Vector3(13.0, 0.0, -13.0), Vector3(0.0, -90.0, 0.0) );
 	objects.push_back( object );
-	object = new Object(OBJ_ACERA, ACERA, Vector3(-13.0, floor, 13.0), Vector3(0.0, 90.0, 0.0) );
+	object = new Object(OBJ_ACERA, ACERA, Vector3(-13.0, 0.0, 13.0), Vector3(0.0, 90.0, 0.0) );
 	objects.push_back( object );
 
 
 	// COCHE 1
 	object = new Object(OBJ_COCHE, COCHE,
-						Vector3(-0.9, floor+0.04, -10), Vector3(), 0, true ); // Seleccionable
+						Vector3(-0.9, 0.04, -10), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 1";
 	// Le damos un color inicial diferente para que se distingan los coches
 	object->color[0] = 0.5; object->color[1] = 0.3; object->color[2] = 0.4;
@@ -241,7 +240,7 @@ void Scene::initObjects()
 
 	// COCHE 2
 	object = new Object(OBJ_COCHE, COCHE,
-						Vector3(0.9, floor+0.04, -12.0), Vector3(), 0, true ); // Seleccionable
+						Vector3(0.9, 0.04, -12.0), Vector3(), 0, true ); // Seleccionable
 	object->name = "Coche 2";
 	object->color[0] = 0.2; object->color[1] = 0.6; object->color[2] = 0.4;
 	objects.push_back( object );
@@ -274,7 +273,7 @@ void Scene::initObjects()
 	// FAROLAS, PAPELERAS, BANCOS
     float despX = 10;
     float despZ = 3;
-    float despY = 0;
+    float despY = aceraHeight;
     int sign = -1;
     float rotation = 0;
 
@@ -386,23 +385,23 @@ void Scene::initObjects()
 		}
 
 		object = new Object(edificio.c_str(), EDIFICIO,
-						Vector3(pos_edf[i][0], pos_edf[i][1], pos_edf[i][2]),
+						Vector3(pos_edf[i][0], aceraHeight + pos_edf[i][1], pos_edf[i][2]),
 						Vector3(rot_edf[i][0], rot_edf[i][1], rot_edf[i][2]) );
 		objects.push_back( object );
 	}
 
 	// SENALES DE TRAFICO
 	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
-						Vector3(9.0, 0.0, -2.5), Vector3(0.0, 90.0, 0.0) );
+						Vector3(9.0, aceraHeight, -2.5), Vector3(0.0, 90.0, 0.0) );
 	objects.push_back( object );
 	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
-						Vector3(-9.0, 0.0, 2.5), Vector3(0.0, -90.0, 0.0) );
+						Vector3(-9.0, aceraHeight, 2.5), Vector3(0.0, -90.0, 0.0) );
 	objects.push_back( object );
 	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
-						Vector3(2.5, 0.0, 9.0), Vector3(0.0, 0.0, 0.0) );
+						Vector3(2.5, aceraHeight, 9.0), Vector3(0.0, 0.0, 0.0) );
 	objects.push_back( object );
 	object = new Object(OBJ_SENAL_TRAFICO, SENAL,
-						Vector3(-2.5, 0.0, -9.0), Vector3(0.0, 180.0, 0.0) );
+						Vector3(-2.5, aceraHeight, -9.0), Vector3(0.0, 180.0, 0.0) );
 	objects.push_back( object );
 
 	// ROTONDA, por separado para agregarle la rotacion y transparencia a la bola
@@ -447,9 +446,9 @@ void Scene::addCamera(const char* name, float px, float py, float pz, float lx, 
     camera->position.x = px;
     camera->position.y = py;
     camera->position.z = pz;
-    camera->lookAt.x = lx;
-    camera->lookAt.y = ly;
-    camera->lookAt.z = lz;
+    camera->rotation.x = lx;
+    camera->rotation.y = ly;
+    camera->rotation.z = lz;
     camera->tracing = tracing;
 
     cameras.push_back(camera);
@@ -469,6 +468,7 @@ void Scene::setCamera(int id)
 	view_position[0] = activeCamera->position.x;
 	view_position[1] = activeCamera->position.y;
 	view_position[2] = activeCamera->position.z;
+	view_rotation = activeCamera->rotation;
 	memcpy(view_rotate, view_rotate_c, 16*sizeof(float));
 	scale = 1.0f;
 }
@@ -558,14 +558,16 @@ void Scene::render()
     	// Camara normal
     	if ( !activeCamera->tracing )
 		{
-			glRotatef(activeCamera->lookAt.x, 1.0, 0.0, 0.0);
-			glRotatef(activeCamera->lookAt.y, 0.0, 1.0, 0.0);
-			glRotatef(activeCamera->lookAt.z, 0.0, 0.0, 1.0);
-			glMultMatrixf(view_rotate);
 			glTranslatef(view_position[0], view_position[1], view_position[2]);
+
+			glRotatef(view_rotation.x, 1.0, 0.0, 0.0);
+			glRotatef(view_rotation.y, 0.0, 1.0, 0.0);
+			glRotatef(view_rotation.z, 0.0, 0.0, 1.0);
+
+			glMultMatrixf(view_rotate);
+
 			// Primero el skybox ya que no queremos que se redimensione
 			renderSkybox();
-			//std::cout << "scale : " << scale << std::endl;
 
 			glScalef(scale, scale, scale);
 		}
@@ -577,9 +579,9 @@ void Scene::render()
 			gluLookAt(  objSeleccion->position.x + activeCamera->position.x * sin(angulo),
 						objSeleccion->position.y + activeCamera->position.y,
 						objSeleccion->position.z + activeCamera->position.z * cos(angulo),
-						objSeleccion->position.x + activeCamera->lookAt.x,
-						objSeleccion->position.y + activeCamera->lookAt.y,
-						objSeleccion->position.z + activeCamera->lookAt.z,
+						objSeleccion->position.x + activeCamera->rotation.x,
+						objSeleccion->position.y + activeCamera->rotation.y,
+						objSeleccion->position.z + activeCamera->rotation.z,
 						0.0, 1.0, 0.0 );
 
 			renderSkybox();

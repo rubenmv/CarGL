@@ -16,11 +16,8 @@ public:
 	void __fastcall init( int main_window );
 	void __fastcall ControlCallback( int control );
 	void __fastcall Idle( void ); // ooo BUCLE INFINITO -> GESTOR DE EVENTOS // ooo no deja de pintar ; borra y pinta, borra y pinta. Si digo q el coche cambia un milimetro en la pantalla veo donde se mueve --- CONTROLO Q PULSO Y ADEMAS PINTO
-	void __fastcall Reshape( int x, int y  );
 	void __fastcall Motion( int x, int y  );
 	void __fastcall Mouse(int button, int button_state, int x, int y );
-
-	void __fastcall output(int x, int y, float r, float g, float b, int font, char *string); //Mostrar algo por pantalla
 
 	// live variables usadas por GLUI
 	GLUI_StaticText *sel_tex;
@@ -28,13 +25,17 @@ public:
 	int             enable_panel2;
 
 	// ooo punteros a los paneles
-	GLUI            *glui, *glui2;
-	GLUI_Panel      *obj_panel;
-	GLUI_Rotation   *view_rot;
-	GLUI_Translation *zoom;
+	GLUI				*glui, *glui2;
+	GLUI_Panel			*obj_panel;
+	GLUI_Rotation  		*view_rot;
+	GLUI_Translation	*zoom;
+	GLUI_Translation	*trans_xy;
+	GLUI_Translation	*trans_x;
+	GLUI_Translation	*trans_y;
+	GLUI_Translation	*trans_z;
 
-	GLUI_Rollout* rolloutLuces;
-	GLUI_Rollout* rolloutCoches;
+	GLUI_Rollout *rolloutLuces;
+	GLUI_Rollout *rolloutCoches;
 	GLUI_Listbox *listboxCamaras;
 	unsigned int listboxCamarasCount;
 
@@ -43,6 +44,12 @@ public:
 	void addCarItem(Object* car);
 	void addCameraItem(const char* name, bool active);
 
+	struct Input {
+		int mouseX;
+		int mouseY;
+		int buttonDown; // -1 = no boton, 0 = izquierdo, 1 = central, 2 = derecho
+		int specialKey;
+	} input;
 
 private:
     int window_id;

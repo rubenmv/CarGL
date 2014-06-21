@@ -56,6 +56,7 @@ public:
     int show_bancos;
     int show_senales;
 
+	Vector3 view_rotation; // Esta para los accesos de teclado
     float view_rotate[16];
     float view_position[3];
     float scale;

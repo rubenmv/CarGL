@@ -44,7 +44,6 @@ typedef struct
 	const char* name;
 	bool tracing;
 	Vector3 position; // Posicion relativa en el caso de seguimiento (tracing)
-	Vector3 lookAt;
 	Vector3 rotation;
 } Camera;
 

@@ -51,6 +51,7 @@
 
 GuiManager* guiManager;
 Scene* scene;
+int mouseDown;
 
 void keyboard(unsigned char Key, int x, int y)
 {
@@ -89,6 +90,10 @@ void keyboard(unsigned char Key, int x, int y)
 		case 'R': // Reflejos
 		case 'r':
 			scene->show_reflections = 1-scene->show_reflections;
+			break;
+		case 'K': // Reflejos
+		case 'k':
+			scene->view_position[0]++;
 			break;
     }
 }
@@ -131,7 +136,12 @@ static void specialKeyUp(int key, int x, int y)
 
 void mouse(int button, int button_state, int x, int y )
 {
-    guiManager->Mouse(button, button_state, x, y);
+	guiManager->Mouse(button, button_state, x, y);
+}
+
+void motion(int x, int y)
+{
+	guiManager->Motion(x, y);
 }
 
 void idle()
@@ -142,11 +152,6 @@ void idle()
 void reshape(int x, int y)
 {
    scene->reshape(x, y);
-}
-
-void motion(int x, int y)
-{
-    guiManager->Motion(x, y);
 }
 
 void render()
@@ -176,7 +181,7 @@ int main(int argc, char* argv[])
     // Camaras															  Seguimiento?, activa?
     scene->addCamera( "Camara seguimiento", -6.0, 3.0, -6.0, 0.0, 2.0, 0.0, true, true);
     scene->addCamera( "Camara volante", -0.2, 0.9, -0.2, 0.0, 0.9, 0.0, true, false);
-    scene->addCamera( "Camara Aerea", 0.0, -20.0, -40.0, 30.0, 0.0, 0.0, false, false);
+    scene->addCamera( "Camara Aerea", 0.0, -5.0, -70.0, 30.0, 0.0, 0.0, false, false);
     scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, false, false);
     scene->addCamera( "Camara Callejon", 22.0, -2, 15.0, 5.0, 160.0, 0.0, false, false);
 

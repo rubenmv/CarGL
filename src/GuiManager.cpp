@@ -22,6 +22,10 @@
 #define CLOCKWISE				504
 #define CCLOCKWISE				505
 
+#define TRANSLATE_FACTOR		0.4
+#define ROTATE_FACTOR			1.5
+#define SCALE_FACTOR			0.05
+
 GuiManager* guiMan;
 
 // By-pass para el controllCallback de tipo ANSI C
@@ -39,6 +43,10 @@ GuiManager::GuiManager(Scene* scene)
 	listboxCamarasCount = 0;
 
 	enable_panel2 = 0;
+
+	input.mouseX = 0;
+	input.mouseY = 0;
+	input.buttonDown = -1;
 }
 
 GuiManager::~GuiManager()
@@ -189,23 +197,23 @@ void __fastcall GuiManager::init(int main_window) {
     //view_rot->set_spin( 0.5 );
 
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_xy = new GLUI_Translation(glui2, "Traslacion scene XY", GLUI_TRANSLATION_XY, scene->view_position );
+    trans_xy = new GLUI_Translation(glui2, "Traslacion scene XY", GLUI_TRANSLATION_XY, scene->view_position );
     trans_xy->set_speed( .05 );
 
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_x =  new GLUI_Translation(glui2, "Traslacion scene X", GLUI_TRANSLATION_X, scene->view_position );
+    trans_x =  new GLUI_Translation(glui2, "Traslacion scene X", GLUI_TRANSLATION_X, scene->view_position );
     trans_x->set_speed( .05 );
 
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_y = new GLUI_Translation( glui2, "Traslacion scene Y", GLUI_TRANSLATION_Y, &scene->view_position[1] );
+    trans_y = new GLUI_Translation( glui2, "Traslacion scene Y", GLUI_TRANSLATION_Y, &scene->view_position[1] );
     trans_y->set_speed( .05 );
-/*
+
     new GLUI_Column( glui2, false );
-    GLUI_Translation *trans_z = new GLUI_Translation( glui2, "Traslacion scene Z", GLUI_TRANSLATION_Z, &scene->view_position[2] );
+    trans_z = new GLUI_Translation( glui2, "Traslacion scene Z", GLUI_TRANSLATION_Z, &scene->view_position[2] );
     trans_z->set_speed( .05 );
-*/
+
     new GLUI_Column( glui2, false );
-    zoom = new GLUI_Translation( glui2, "Zoom", GLUI_TRANSLATION_Z, &scene->scale );
+    zoom = new GLUI_Translation( glui2, "Escalado", GLUI_TRANSLATION_Z, &scene->scale );
     zoom->set_speed( .05 );
 }
 
@@ -251,41 +259,120 @@ void __fastcall GuiManager::ControlCallback( int control )
 	}
 }
 
-void __fastcall GuiManager::Mouse(int button, int button_state, int x, int y )
-{
-    scene->pick3D(x, y);
-}
-
 void __fastcall GuiManager::Idle(void)
 {
 	/* According to the GLUT specification, the current window is
-     undefined during an idle callback.  So we need to explicitly change
-     it if necessary */
+	undefined during an idle callback.  So we need to explicitly change
+	it if necessary */
 	if ( glutGetWindow() != window_id )
-    glutSetWindow(window_id);
+		glutSetWindow(window_id);
 
-  /*  GLUI_Master.sync_live_all();  -- not needed - nothing to sync in this
-                                       application  */
-    if (enable_panel2 == 0)
-        glui2->enable();
-    else
-        glui2->disable();
+	/*  GLUI_Master.sync_live_all();  -- not needed - nothing to sync in this
+							   application  */
+	if (enable_panel2 == 0)
+		glui2->enable();
+	else
+		glui2->disable();
 
-  glutPostRedisplay();
+	glutPostRedisplay();
 }
 
-void __fastcall GuiManager::Reshape(int x, int y)
+void __fastcall GuiManager::Mouse(int button, int button_state, int x, int y )
 {
+	if(button_state == GLUT_DOWN)
+	{
+		input.buttonDown = button;
+	}
+	else
+	{
+		input.buttonDown = -1;
+	}
 
+	input.specialKey = glutGetModifiers();
+
+    scene->pick3D(x, y);
 }
 
+// Detecta movimiento de raton
 void __fastcall GuiManager::Motion(int x, int y)
 {
+	if(input.buttonDown >= 0)
+	{
+		// control pulsado
+		if(input.specialKey == GLUT_ACTIVE_CTRL)
+		{
+			// Rotacion en z
+			if(input.buttonDown == 0) // boton izquierdo
+			{
+				if(input.mouseX < x)
+					scene->view_rotation.z += ROTATE_FACTOR;
+				else if(input.mouseX > x)
+					scene->view_rotation.z -= ROTATE_FACTOR;
+			}
+			// Escalado en x,y,z
+			else if(input.buttonDown == 2)
+			{
+				if(input.mouseY < y)
+					scene->scale -= SCALE_FACTOR;
+				else if(input.mouseY > y)
+					scene->scale += SCALE_FACTOR;
+			}
 
+		}
+		else if(input.specialKey == GLUT_ACTIVE_SHIFT)
+		{
+			// Traslacion x,y
+			if(input.buttonDown == 0) // boton izquierdo
+			{
+				// x
+				if(input.mouseX < x )
+					scene->view_position[0] += TRANSLATE_FACTOR;
+				else if(input.mouseX > x )
+					scene->view_position[0] -= TRANSLATE_FACTOR;
+				// y
+				if(input.mouseY < y)
+					scene->view_position[1] -= TRANSLATE_FACTOR;
+				else if(input.mouseY > y)
+					scene->view_position[1] += TRANSLATE_FACTOR;
+			}
+		}
+		else if(input.specialKey == 3) // no encuentro enumerado para shift+control, pero glutGetModifiers devuelve 3
+		{
+			// Traslacion z
+			if(input.buttonDown == 0) // boton izquierdo
+			{
+				if(input.mouseY < y)
+					scene->view_position[2] -= TRANSLATE_FACTOR;
+				else if(input.mouseY > y)
+					scene->view_position[2] += TRANSLATE_FACTOR;
+			}
+		}
+		else // Rotaciones y escalado
+		{
+			// Rotacion en x, y
+			if(input.buttonDown == 0)
+			{
+				if(input.mouseX < x ) // Cuando el raton se mueve en x, queremos girar en y
+					scene->view_rotation.y -= ROTATE_FACTOR;
+				else if(input.mouseX > x )
+					scene->view_rotation.y += ROTATE_FACTOR;
+				// y
+				if(input.mouseY < y) //Cuando el raton se mueve en y, queremos girar en x
+					scene->view_rotation.x += ROTATE_FACTOR;
+				else if(input.mouseY > y)
+					scene->view_rotation.x -= ROTATE_FACTOR;
+			}
+			// Escalado
+			else if(input.buttonDown == 2)
+			{
+				if(input.mouseY < y)
+					scene->scale -= SCALE_FACTOR;
+				else if(input.mouseY > y)
+					scene->scale += SCALE_FACTOR;
+			}
+		}
+	}
+
+	input.mouseX = x;
+	input.mouseY = y;
 }
-
-void __fastcall GuiManager::output(int x, int y, float r, float g, float b, int font, char* string)
-{
-
-}
-
