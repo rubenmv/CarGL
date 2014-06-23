@@ -28,61 +28,37 @@ static const char* OBJ_SELECCION		= "assets/seleccion/seleccion.obj";
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
 
-#define NUM_EDF_BLOQUE 5
+#define NUM_EDF_BLOQUE 9
 #define NUM_BLOQUES 4
 // Posicion de los edficios del bloque con x,y positivo
 float pos_edf[NUM_EDF_BLOQUE*NUM_BLOQUES][3] = {
 	// Bloque 1
-	{45.0, 0.0, 10.0},
-	{30.0, 0.0, 10.0},
-	{15.0, 0.0, 15.0},
-	{10.0, 0.0, 30.0},
-	{10.0, 0.0, 45.0},
+	{40.0, 0.0, 10.0},	{25.0, 0.0, 10.0},	{12.0, 0.0, 12.0},	{10.0, 0.0, 25.0},	{10.0, 0.0, 40.0},
+	{40.0, 0.0, 25.0},	{40.0, 0.0, 40.0},	{25.0, 0.0, 40.0},	{25.0, 0.0, 25.0},
 	// Bloque 2
-	{-45.0, 0.0, 10.0},
-	{-30.0, 0.0, 10.0},
-	{-15.0, 0.0, 15.0},
-	{-10.0, 0.0, 30.0},
-	{-10.0, 0.0, 45.0},
+	{-40.0, 0.0, 10.0},	{-25.0, 0.0, 10.0},	{-12.0, 0.0, 12.0},	{-10.0, 0.0, 25.0},	{-10.0, 0.0, 40.0},
+	{-40.0, 0.0, 25.0},	{-40.0, 0.0, 40.0},	{-25.0, 0.0, 40.0},	{-25.0, 0.0, 25.0},
 	// Bloque 3
-	{45.0, 0.0, -10.0},
-	{30.0, 0.0, -10.0},
-	{15.0, 0.0, -15.0},
-	{10.0, 0.0, -30.0},
-	{10.0, 0.0, -45.0},
+	{-40.0, 0.0, -10.0}, {-25.0, 0.0, -10.0}, {-12.0, 0.0, -12.0}, {-10.0, 0.0, -25.0}, {-10.0, 0.0, -40.0},
+	{-40.0, 0.0, -25.0}, {-40.0, 0.0, -40.0}, {-25.0, 0.0, -40.0}, {-25.0, 0.0, -25.0},
 	// Bloque 4
-	{-45.0, 0.0, -10.0},
-	{-30.0, 0.0, -10.0},
-	{-15.0, 0.0, -15.0},
-	{-10.0, 0.0, -30.0},
-	{-10.0, 0.0, -45.0}
+	{40.0, 0.0, -10.0},	{25.0, 0.0, -10.0},	{12.0, 0.0, -12.0},	{10.0, 0.0, -25.0},	{10.0, 0.0, -40.0},
+	{40.0, 0.0, -25.0},	{40.0, 0.0, -40.0},	{25.0, 0.0, -40.0},	{25.0, 0.0, -25.0}
 };
 
 float rot_edf[NUM_EDF_BLOQUE*NUM_BLOQUES][3] = {
 	// Bloque 1
-	{0.0, 180.0, 0.0},
-	{0.0, 180.0, 0.0},
-	{0.0, -135.0, 0.0},
-	{0.0, -90.0, 0.0},
-	{0.0, -90.0, 0.0},
+	{0.0, 180.0, 0.0},	{0.0, 180.0, 0.0},	{0.0, -135.0, 0.0},	{0.0, -90.0, 0.0},	{0.0, -90.0, 0.0},
+	{0.0, 90.0, 0.0},	{0.0, 90.0, 0.0},	{0.0, 0.0, 0.0},	{0.0, 180.0, 0.0},
 	// Bloque 2
-	{0.0, 180.0, 0.0},
-	{0.0, 180.0, 0.0},
-	{0.0, 135.0, 0.0},
-	{0.0, 90.0, 0.0},
-	{0.0, 90.0, 0.0},
+	{0.0, 180.0, 0.0},	{0.0, 180.0, 0.0},	{0.0, 135.0, 0.0},	{0.0, 90.0, 0.0},	{0.0, 90.0, 0.0},
+	{0.0, -90.0, 0.0},	{0.0, -90.0, 0.0},	{0.0, 0.0, 0.0},	{0.0, 180.0, 0.0},
 	// Bloque 3
-	{0.0, 0.0, 0.0},
-	{0.0, 0.0, 0.0},
-	{0.0, -45.0, 0.0},
-	{0.0, -90.0, 0.0},
-	{0.0, -90.0, 0.0},
+	{0.0, 0.0, 0.0},	{0.0, 0.0, 0.0},	{0.0, 45.0, 0.0},	{0.0, 90.0, 0.0},	{0.0, 90.0, 0.0},
+	{0.0, -90.0, 0.0},	{0.0, -90.0, 0.0},	{0.0, 180.0, 0.0},	{0.0, 0.0, 0.0},
 	// Bloque 4
-	{0.0, 0.0, 0.0},
-	{0.0, 0.0, 0.0},
-	{0.0, 45.0, 0.0},
-	{0.0, 90.0, 0.0},
-	{0.0, 90.0, 0.0}
+	{0.0, 0.0, 0.0},	{0.0, 0.0, 0.0},	{0.0, -45.0, 0.0},	{0.0, -90.0, 0.0},	{0.0, -90.0, 0.0},
+	{0.0, 90.0, 0.0},	{0.0, 90.0, 0.0},	{0.0, 180.0, 0.0},	{0.0, 0.0, 0.0}
 };
 
 // Inicializacion del singleton
@@ -139,6 +115,10 @@ Scene::Scene()
     moving = 0;
 
     carSpeed = 0.0;
+
+    frame = 0;
+    actualTime = 0;
+    timebase = 0;
 
     srand (time(NULL)); // Para poner edificios aleatorios
 }
@@ -421,15 +401,6 @@ void Scene::initObjects()
 	iconSelection = object; // Icono de objeto seleccionado
 
 	// Finalmente el skybox, solo cargamos las texturas
-	/*
-	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/txStormydays_front.jpg");
-	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/txStormydays_back.jpg");
-	SkyboxTexture[SKYLEFT] = getTexture("assets/skybox/txStormydays_left.jpg");
-	SkyboxTexture[SKYRIGHT] = getTexture("assets/skybox/txStormydays_right.jpg");
-	SkyboxTexture[SKYUP] = getTexture("assets/skybox/txStormydays_up.jpg");
-	SkyboxTexture[SKYDOWN] = getTexture("assets/skybox/txStormydays_down.jpg");
-	*/
-
 	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/xpos.png");
 	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/xneg.png");
 	SkyboxTexture[SKYLEFT] = getTexture("assets/skybox/zpos.png");
@@ -539,6 +510,16 @@ void Scene::reshape(int x, int y)
 
 void Scene::render()
 {
+	frame++;
+	actualTime = glutGet(GLUT_ELAPSED_TIME);
+	if (actualTime - timebase > 1000) {
+		char s[10];
+		sprintf(s,"CarGL (2013-14) FPS:%4.2f", frame * 1000.0 / (actualTime - timebase));
+		glutSetWindowTitle(s);
+		timebase = actualTime;
+		frame = 0;
+	}
+
 	// Actualizamos las posiciones de los objetos antes del render
 	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
 	updateObjects();
@@ -558,13 +539,13 @@ void Scene::render()
     	// Camara normal
     	if ( !activeCamera->tracing )
 		{
-			glTranslatef(view_position[0], view_position[1], view_position[2]);
-
 			glRotatef(view_rotation.x, 1.0, 0.0, 0.0);
 			glRotatef(view_rotation.y, 0.0, 1.0, 0.0);
 			glRotatef(view_rotation.z, 0.0, 0.0, 1.0);
 
 			glMultMatrixf(view_rotate);
+
+			glTranslatef(view_position[0], view_position[1], view_position[2]);
 
 			// Primero el skybox ya que no queremos que se redimensione
 			renderSkybox();
@@ -1040,7 +1021,8 @@ void Scene::pick3D(int mouse_x, int mouse_y) {
     // Para cambiar la perspectiva desde aqui pondriamos un if para seleccionarla
     gluPerspective(45, aspectRatio, 1.0, 1000.0);
 	glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView
-    renderObjects();	 			// Renderiza los objetos a seleccionar
+	render();
+    //renderObjects();	 			// Renderiza los objetos a seleccionar
     glMatrixMode(GL_PROJECTION);   	// Selecciona la matriz de Proyección
     glPopMatrix();				   	// Recupera la matriz de Proyección
     glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView

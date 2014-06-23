@@ -193,27 +193,27 @@ void __fastcall GuiManager::init(int main_window) {
     glui2->set_main_gfx_window( window_id );
 
 	// Rotacion en todas las direcciones
-    view_rot = new GLUI_Rotation(glui2, "Rotacion scene", scene->view_rotate );
+    view_rot = new GLUI_Rotation(glui2, "Rotacion escena", scene->view_rotate );
     //view_rot->set_spin( 0.5 );
 
     new GLUI_Column( glui2, false );
-    trans_xy = new GLUI_Translation(glui2, "Traslacion scene XY", GLUI_TRANSLATION_XY, scene->view_position );
+    trans_xy = new GLUI_Translation(glui2, "Traslacion escena XY", GLUI_TRANSLATION_XY, scene->view_position );
     trans_xy->set_speed( .05 );
 
     new GLUI_Column( glui2, false );
-    trans_x =  new GLUI_Translation(glui2, "Traslacion scene X", GLUI_TRANSLATION_X, scene->view_position );
+    trans_x =  new GLUI_Translation(glui2, "Traslacion escena X", GLUI_TRANSLATION_X, scene->view_position );
     trans_x->set_speed( .05 );
 
     new GLUI_Column( glui2, false );
-    trans_y = new GLUI_Translation( glui2, "Traslacion scene Y", GLUI_TRANSLATION_Y, &scene->view_position[1] );
+    trans_y = new GLUI_Translation( glui2, "Traslacion escena Y", GLUI_TRANSLATION_Y, &scene->view_position[1] );
     trans_y->set_speed( .05 );
 
     new GLUI_Column( glui2, false );
-    trans_z = new GLUI_Translation( glui2, "Traslacion scene Z", GLUI_TRANSLATION_Z, &scene->view_position[2] );
+    trans_z = new GLUI_Translation( glui2, "Traslacion escena Z", GLUI_TRANSLATION_Z, &scene->view_position[2] );
     trans_z->set_speed( .05 );
 
     new GLUI_Column( glui2, false );
-    zoom = new GLUI_Translation( glui2, "Escalado", GLUI_TRANSLATION_Z, &scene->scale );
+    zoom = new GLUI_Translation( glui2, "Escalado escena", GLUI_TRANSLATION_Z, &scene->scale );
     zoom->set_speed( .05 );
 }
 
@@ -232,6 +232,7 @@ void __fastcall GuiManager::ControlCallback( int control )
 			// Al parecer la GLUI_TRANSLATION_Z es la unica traslacion que
 			// no se resetea correctamente con la scale de la escena
 			zoom->set_z(scene->scale);
+			view_rot->reset();
 			break;
 		case SHADING_FLAT:
 			scene->smooth_shading = 0;
@@ -255,6 +256,8 @@ void __fastcall GuiManager::ControlCallback( int control )
 			break;
 		case LISTBOX_CAMERAS:
 			scene->setCamera(listboxCamaras->get_int_val());
+			zoom->set_z(scene->scale);
+			view_rot->reset();
 			break;
 	}
 }

@@ -1,9 +1,0 @@
-COSAS DEL ENUNCIADO
-
-- Los reflejos en los coches se ven raros, tema del suelo
-- Mirar triangulos de las señales
-- Texturas en las papeleras, que se ven cutres
-
-- Documento de ususario
-- Documento de desarrollador
-	- Falta lo de las camaras con el teclado y repasarlo

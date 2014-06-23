@@ -179,11 +179,14 @@ int main(int argc, char* argv[])
     // Rellena la escena con los objetos y los coloca en la posicion inicial
     scene->initObjects();
     // Camaras															  Seguimiento?, activa?
-    scene->addCamera( "Camara seguimiento", -6.0, 3.0, -6.0, 0.0, 2.0, 0.0, true, true);
-    scene->addCamera( "Camara volante", -0.2, 0.9, -0.2, 0.0, 0.9, 0.0, true, false);
-    scene->addCamera( "Camara Aerea", 0.0, -5.0, -70.0, 30.0, 0.0, 0.0, false, false);
-    scene->addCamera( "Camara Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, false, false);
-    scene->addCamera( "Camara Callejon", 22.0, -2, 15.0, 5.0, 160.0, 0.0, false, false);
+    scene->addCamera( "*Seguimiento exterior", -6.0, 3.0, -6.0, 0.0, 2.0, 0.0, true, false);
+    scene->addCamera( "*Volante", -0.2, 0.9, -0.2, 0.0, 0.9, 0.0, true, false);
+    scene->addCamera( "Aerea", 0.0, -100.0, 0.0, 90.0, 0.0, 0.0, false, false);
+    scene->addCamera( "Vista ciudad", 50.0, -60.0, -30.0, 45.0, 60.0, 0.0, false, false);
+    scene->addCamera( "Oblicua", 0.0, -100.0, 0.0, 90.0, 0.0, 0.0, false, false);
+    scene->addCamera( "Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, false, false);
+    scene->addCamera( "Calle interior", 20.0, -2, 15.0, 5.0, 160.0, 0.0, false, false);
+    scene->addCamera( "Calle exterior", 2.0, -3.0, 3.0, 10.0, 10.0, 0.0, false, true);
 
     // Luces
     GLfloat light0_ambient_c[4]  = {   1.0f, 1.0f, 1.0f, 1.0f };
@@ -197,15 +200,15 @@ int main(int argc, char* argv[])
 	GLfloat light1_diffuse_c[4]  = { 0.5f,   0.5f,  0.5f, 1.0f };
 	GLfloat light1_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light1_position_c[4] = { 30.0f, 10.0f, 10.0f, 1.0f };
-	intensity = 0.2f;
-    scene->addLight("Luz 1", GL_LIGHT1, 0, light1_position_c, intensity, light1_ambient_c, light1_diffuse_c, light1_specular_c);
+	intensity = 0.6f;
+    scene->addLight("Luz 1", GL_LIGHT1, 1, light1_position_c, intensity, light1_ambient_c, light1_diffuse_c, light1_specular_c);
 
     GLfloat light2_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light2_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
 	GLfloat light2_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light2_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
-	intensity = 0.6f;
-    scene->addLight("Luz 2", GL_LIGHT2, 1, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
+	intensity = 0.4f;
+    scene->addLight("Luz 2", GL_LIGHT2, 0, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
 
     GLfloat light3_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light3_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };

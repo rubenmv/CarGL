@@ -134,6 +134,8 @@ private:
 
 	float aspectRatio;
 
+	// Para el calculo de FPS
+	int frame, actualTime,timebase;
 	Clock timerClock;
 
 	void initRender();
