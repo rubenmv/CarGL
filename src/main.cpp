@@ -183,46 +183,47 @@ int main(int argc, char* argv[])
     scene->addCamera( "*Volante", -0.2, 0.9, -0.2, 0.0, 0.9, 0.0, true, false);
     scene->addCamera( "Aerea", 0.0, -100.0, 0.0, 90.0, 0.0, 0.0, false, false);
     scene->addCamera( "Vista ciudad", 50.0, -60.0, -30.0, 45.0, 60.0, 0.0, false, false);
-    scene->addCamera( "Oblicua", 0.0, -100.0, 0.0, 90.0, 0.0, 0.0, false, false);
     scene->addCamera( "Rotonda", 5.5, -3.0, -6.0, 10.0, 20.0, 0.0, false, false);
     scene->addCamera( "Calle interior", 20.0, -2, 15.0, 5.0, 160.0, 0.0, false, false);
     scene->addCamera( "Calle exterior", 2.0, -3.0, 3.0, 10.0, 10.0, 0.0, false, true);
 
     // Luces
+
+    // Luz por defecto, sin ninguna coloracion especial, solo grisacea
     GLfloat light0_ambient_c[4]  = {   1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat light0_diffuse_c[4]  = {   1.0f, 0.8f, 0.8f, 1.0f };
+	GLfloat light0_diffuse_c[4]  = {   0.8f, 0.8f, 0.8f, 1.0f };
 	GLfloat light0_specular_c[4] = {   1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat light0_position_c[4] = { -30.0f, 1.0f, 0.0f, 1.0f };
 	float intensity = 0.6f;
-	scene->addLight( "Luz 0", GL_LIGHT0, 0, light0_position_c, intensity, light0_ambient_c, light0_diffuse_c, light0_specular_c);
+	scene->addLight( "Luz 0", GL_LIGHT0, 0, 1, light0_position_c, intensity, light0_ambient_c, light0_diffuse_c, light0_specular_c);
 
 	GLfloat light1_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light1_diffuse_c[4]  = { 0.5f,   0.5f,  0.5f, 1.0f };
 	GLfloat light1_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light1_position_c[4] = { 30.0f, 10.0f, 10.0f, 1.0f };
 	intensity = 0.6f;
-    scene->addLight("Luz 1", GL_LIGHT1, 1, light1_position_c, intensity, light1_ambient_c, light1_diffuse_c, light1_specular_c);
+    scene->addLight("Luz 1", GL_LIGHT1, 0, 0, light1_position_c, intensity, light1_ambient_c, light1_diffuse_c, light1_specular_c);
 
     GLfloat light2_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light2_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
 	GLfloat light2_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light2_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
 	intensity = 0.4f;
-    scene->addLight("Luz 2", GL_LIGHT2, 0, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
+    scene->addLight("Luz 2", GL_LIGHT2, 0, 0, light2_position_c, intensity, light2_ambient_c, light2_diffuse_c, light2_specular_c);
 
     GLfloat light3_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light3_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
 	GLfloat light3_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light3_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
 	intensity = 0.35f;
-    scene->addLight("Luz 3", GL_LIGHT3, 0, light3_position_c, intensity, light3_ambient_c, light3_diffuse_c, light3_specular_c);
+    scene->addLight("Luz 3", GL_LIGHT3, 0, 0, light3_position_c, intensity, light3_ambient_c, light3_diffuse_c, light3_specular_c);
 
     GLfloat light4_ambient_c[4]  = { 1.0f,   1.0f,  1.0f, 1.0f };
 	GLfloat light4_diffuse_c[4]  = { 0.6f,   0.6f,  0.55f, 1.0f };
 	GLfloat light4_specular_c[4] = { 1.0f,   1.0f,  1.0f, 1.0f };
-	GLfloat light4_position_c[4] = { 40.0f, 10.0f, -100.0f, 1.0f };
-	intensity = 0.2f;
-    scene->addLight("Luz 4", GL_LIGHT4, 0, light4_position_c, intensity, light4_ambient_c, light4_diffuse_c, light4_specular_c);
+	GLfloat light4_position_c[4] = { 0.0f, 10.0f, 0.0f, 1.0f };
+	intensity = 0.4f;
+    scene->addLight("Luz 4 Spotlight", GL_LIGHT4, 1, 0, light4_position_c, intensity, light4_ambient_c, light4_diffuse_c, light4_specular_c);
 
     // Funciones para el render
     glutDisplayFunc( render );

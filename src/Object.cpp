@@ -121,15 +121,15 @@ void Object::createDisplayList()
 		// cada una con sus materiales y texturas
 		firstDList = glGenLists(dListCount);
 
-		glEnableClientState( GL_VERTEX_ARRAY );
-		glEnableClientState( GL_NORMAL_ARRAY );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-
 		// Rellenamos cada display list creada
 		for (size_t i = 0; i < dListCount; ++i)
 		{
 			// start list
 			glNewList(firstDList+i, GL_COMPILE);
+
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_NORMAL_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
 			if ( !shapes[i].mesh.positions.empty() )
 			{
@@ -148,13 +148,13 @@ void Object::createDisplayList()
 				glDrawElements( GL_TRIANGLES, shapes[i].mesh.indices.size(), GL_UNSIGNED_INT, &shapes[i].mesh.indices[0] );
 			}
 
+			glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState( GL_NORMAL_ARRAY );
+			glDisableClientState( GL_VERTEX_ARRAY );
+
 			// endList
 			glEndList();
 		}
-
-		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-		glDisableClientState( GL_NORMAL_ARRAY );
-		glDisableClientState( GL_VERTEX_ARRAY );
 	}
 
 	// Una vez creada/obtenida la lista podemos limpiar la informacion de vertices de cada shape
@@ -214,7 +214,8 @@ void Object::draw()
 				glRotatef(rotation.z, 0, 0, 1);
 			}
 
-			if ( selectable )
+			// Es seleccionable? cargamos su nombre
+			if (selectable)
 			{
 				glLoadName(firstDList+i);
 			}

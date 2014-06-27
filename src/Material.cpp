@@ -34,8 +34,10 @@ void Material::bind()
 		// Para objetos semitransparentes debemos desactivar el culling siempre
 		// ya que tendriamos que poder ver las caras interiores
 		glDisable(GL_CULL_FACE);
-
-		glEnable (GL_BLEND);
+		// Como es SEMI transparencia queremos que la iluminacion tambien
+		// le afecte a los objetos de este tipo
+		//glDisable(GL_LIGHTING);
+		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		color[3] = 0.8; // Alpha para transparencia
 	}
@@ -73,13 +75,18 @@ void Material::unbind()
 
 	if (transparent)
 	{
-		glDisable (GL_BLEND);
-	}
+		glDisable(GL_BLEND);
 
-	// Reactivamos el resto de propiedades segun la escena
-	if(scene->culling)
-	{
-		glEnable(GL_CULL_FACE);
+		// Reactivamos el resto de propiedades segun la escena
+		if(scene->culling)
+		{
+			glEnable(GL_CULL_FACE);
+		}
+
+		if(scene->ambientLighting)
+		{
+			glEnable(GL_LIGHTING);
+		}
 	}
 }
 

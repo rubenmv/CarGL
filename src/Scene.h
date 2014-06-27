@@ -69,7 +69,7 @@ public:
 
     // Agrega una camara e indica si es la activa
     void addCamera( const char* name, float px, float py, float pz, float lx, float ly, float lz, bool tracing = false, bool active = false );
-    void addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] );
+    void addLight( const char* name, GLenum numLight, int type, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] );
     // Agrega objetos a la escena e inicializa otras cosas
     void initObjects();
     // Bucle de dibujado de la escena
@@ -131,6 +131,7 @@ private:
 	// Proyecciones
     void setPerspective();
 	void setParallel();
+	double projFar; // Necesitamos actualizarlo con el escalado
 
 	float aspectRatio;
 

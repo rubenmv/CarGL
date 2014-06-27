@@ -24,6 +24,7 @@ static const char* OBJ_SENAL_TRAFICO	= "assets/senal_trafico/senal_trafico.obj";
 static const char* OBJ_ROTONDA_BASE		= "assets/rotonda/rotonda_base.obj";
 static const char* OBJ_ROTONDA_BOLA		= "assets/rotonda/rotonda_bola.obj";
 static const char* OBJ_SELECCION		= "assets/seleccion/seleccion.obj";
+static const char* OBJ_LUNA_COCHE		= "assets/cart/luna.obj";
 
 float view_rotate_c[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 float view_position_c[3] = { 0.0, -2.0, -9.0 };
@@ -120,6 +121,8 @@ Scene::Scene()
     actualTime = 0;
     timebase = 0;
 
+    projFar = 1000; // Por defecto, luego se aplica con escala
+
     srand (time(NULL)); // Para poner edificios aleatorios
 }
 
@@ -135,7 +138,16 @@ void Scene::initOpenGL()
 	glClearDepth(1.f);
 
     glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);// Las luces se agregan desde addLight
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	// Activa la iluminacion
+    glEnable(GL_LIGHTING);
+    // Luz ambiental de la escana
+    GLfloat luzAmbiente[4] = {0.3, 0.3, 0.3, 1.0}; // Por defecto estaban a 0.2
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
+    // El resto de luces se agregan con addLight
+
+    // Normalizacion al escalar
 	glEnable(GL_NORMALIZE);
 
     // Por defecto proyeccion perspectiva
@@ -400,6 +412,10 @@ void Scene::initObjects()
 
 	iconSelection = object; // Icono de objeto seleccionado
 
+	object = new Object(OBJ_LUNA_COCHE, LUNA_COCHE,
+						Vector3(0.0, 0.0, 0.0), Vector3(0.0, -90.0, 0.0), objSeleccion, false, true );
+	objects.push_back( object );
+
 	// Finalmente el skybox, solo cargamos las texturas
 	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/xpos.png");
 	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/xneg.png");
@@ -444,7 +460,7 @@ void Scene::setCamera(int id)
 	scale = 1.0f;
 }
 
-void Scene::addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] )
+void Scene::addLight( const char* name, GLenum numLight, int type, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] )
 {
     Light* light = new Light();
 
@@ -462,7 +478,17 @@ void Scene::addLight( const char* name, GLenum numLight, int enabled, float posi
     glLightfv(numLight, GL_AMBIENT,  light->ambient);
     glLightfv(numLight, GL_DIFFUSE,  light->diffuse);
     glLightfv(numLight, GL_SPECULAR, light->specular);
-    glLightfv(numLight, GL_POSITION, light->position);
+
+
+    if(type == 0) {// Luz normal, todas direcciones
+		glLightfv(numLight, GL_POSITION, light->position);
+
+    }
+    else {// Spot light
+		glLightf(numLight, GL_SPOT_CUTOFF, 45.0);
+		GLfloat spot_direction[] = { 0.0, -1.0, 0.0 };
+		glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+    }
 
     lights.push_back(light);
 
@@ -474,7 +500,8 @@ void Scene::setPerspective()
 	perspective = true;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-    gluPerspective(45, aspectRatio, 1.0, 1000.0);
+
+    gluPerspective(45, aspectRatio, 1.0, projFar*scale);
 }
 
 void Scene::setParallel()
@@ -482,7 +509,7 @@ void Scene::setParallel()
 	perspective = false;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-8, 8, -4.5, 4.5, -1, 100);
+	glOrtho(-8, 8, -5, 5, 1, projFar*scale);
 }
 
 void Scene::reshape(int x, int y)
@@ -492,9 +519,6 @@ void Scene::reshape(int x, int y)
     glViewport( tx, ty, tw, th );
 
     aspectRatio = (float)tw / (float)th;
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
 
     if( perspective )
 	{
@@ -524,9 +548,18 @@ void Scene::render()
 	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
 	updateObjects();
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.2, 0.2, 0.2, 1.0);
     //Para los REFLEJOS limpiamos tambien el stencil buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	// La actualizamos en cada render por si el escalado de la escena
+	// ha cambiado, entonces el far se debe actualizar con el escalado
+    if(perspective) {
+		setPerspective();
+    }
+    else {
+		setParallel();
+    }
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -547,9 +580,6 @@ void Scene::render()
 
 			glTranslatef(view_position[0], view_position[1], view_position[2]);
 
-			// Primero el skybox ya que no queremos que se redimensione
-			renderSkybox();
-
 			glScalef(scale, scale, scale);
 		}
 		// Camara de seguimiento
@@ -564,31 +594,28 @@ void Scene::render()
 						objSeleccion->position.y + activeCamera->rotation.y,
 						objSeleccion->position.z + activeCamera->rotation.z,
 						0.0, 1.0, 0.0 );
-
-			renderSkybox();
 		}
     }
 
-	renderLights();
-
-	if ( show_carretera )
+	if (show_carretera)
 	{
-		if (show_reflections)
-		{
+		if (show_reflections) {
 			// Dibujamos la escena invertida en modo de reflejo
 			renderReflection();
-			// Volvemos a inicializar la escena antes de dibujar los objetos normalmente
-			initRender();
-			road->setTransparent(true);
 		}
-		else
-		{
+		else { // Como renderReflection la puede haber puesto a true...
 			road->setTransparent(false);
 		}
-
+		// Las luces las colocamos aqui para que la carretera tambien se vea afectada
+		renderLights();
+		// En cualquier caso se dibuja la carretera
 		road->draw();
 	}
+	else { // Parece redundante pero esto solo lo hace cuando no se dibuja carretera
+		renderLights();
+	}
 
+	renderSkybox();
 	renderObjects();
 
 	// Comprueba si ha habido algun error de OpenGL
@@ -666,21 +693,22 @@ void Scene::initRender()
 
 void Scene::renderSkybox()
 {
+	// No queremos que le afecte la iluminacion
 	glDisable(GL_LIGHTING);
 	float x = 0, y = 0, z = 0;
 	float width = 1000, height = 1000, length = 1000;
-	// Center the Skybox around the given x,y,z position
+
 	x = x - width  / 2;
 	y = y - height / 2;
 	z = z - length / 2;
 
 	glPushMatrix();
-	// Lo posicionamos de manera que por debajo solo quede un poco del cubo
+	// Lo posicionamos en la altura que mejor se ve el fondo
 	glTranslatef(0.0, height/2-300, 0.0);
 
 	// Draw Front side
 	if (textures == 1) SkyboxTexture[SKYFRONT]->bind();
-	else glColor4f(0.2, 0.4, 0.6, 1.0);
+	else glColor4f(0.2, 0.4, 0.6, 1.0); // El resto de caras se aplican con este color
 	glBegin(GL_QUADS);
 		glTexCoord2f(-1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
 		glTexCoord2f(-1.0f, -1.0f); glVertex3f(x,		  y+height, z+length);
@@ -746,42 +774,44 @@ void Scene::renderSkybox()
 void Scene::renderReflection()
 {
 	//REFLEJOS
-	glColorMask(0,0,0,0);                           // Set Color Mask
+	// Stencil Buffer a ceros para escribir en el
+	glColorMask(0,0,0,0);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_ALWAYS, 1, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glDisable(GL_DEPTH_TEST);
 
-	glEnable(GL_STENCIL_TEST);                      // Enable Stencil Buffer For "marking" The Floor
-	glStencilFunc(GL_ALWAYS, 1, 1);                     // Always Passes, 1 Bit Plane, 1 As Mask
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);              // We Set The Stencil Buffer To 1 Where We Draw Any Polygon
-										// Keep If Test Fails, Keep If Test Passes But Buffer Test Fails
-										// Replace If Test Passes
-	glDisable(GL_DEPTH_TEST);                       // Disable Depth Testing
-	//glEnable(GL_CULL_FACE); //------
-
+	// Renderizamos la carretera para que se escriba en el Stencil Buffer
 	road->draw();
 
-	glEnable(GL_DEPTH_TEST);                        // Enable Depth Testing
-	glColorMask(1,1,1,1);                           // Set Color Mask to TRUE, TRUE, TRUE, TRUE
-	glStencilFunc(GL_EQUAL, 1, 1);                      // We Draw Only Where The Stencil Is 1
-										// (I.E. Where The Floor Was Drawn)
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);                 // Don't Change The Stencil Buffer
+	// Cambiamos modo para poder escribir en el Stencil Buffer
+	glEnable(GL_DEPTH_TEST);
+	glColorMask(1,1,1,1);
+	glStencilFunc(GL_EQUAL, 1, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-	glEnable(GL_CLIP_PLANE0);                       // Enable Clip Plane For Removing Artifacts
-	double eqr[] = {0.0f,-1.0f, 0.0f, 0.0f};                // Plane Equation To Use For The Reflected
-	glClipPlane(GL_CLIP_PLANE0, eqr);                   // Equation For Reflected Objects
+	// Aplicamos plano de recortado definido por la ecuación eqr
+	double eqr[] = {0.0f,-1.0f, 0.0f, 0.0f};
+	glEnable(GL_CLIP_PLANE0);
+	glClipPlane(GL_CLIP_PLANE0, eqr);
 
-
-	// Dibujamos los objetos rotados y girados
-	glPushMatrix();                             // Push The Matrix Onto The Stack
+	// Dibujamos los objetos invertidos en y
+	glPushMatrix();
 		glFrontFace( GL_CW );
-		glScalef(1.0f, -1.0f, 1.0f);                    // Mirror Y Axis
-		glRotatef(0.0f, 1.0f, 0.0f, 0.0f);              // Rotate Local Coordinate System On X Axis------------
-		glRotatef(0.0f, 0.0f, 1.0f, 0.0f);              // Rotate Local Coordinate System On Y Axis------------
+		glScalef(1.0f, -1.0f, 1.0f);
+		renderLights();
 		//DIBUJO LOS OBJETOS
+		renderSkybox();
 		renderObjects();
 		glFrontFace( GL_CCW );
-	glPopMatrix();                              // Pop The Matrix Off The Stack
+	glPopMatrix();
 
-	glDisable(GL_CLIP_PLANE0);                      // Disable Clip Plane For Drawing The Floor
-	glDisable(GL_STENCIL_TEST);                     // We Don't Need The Stencil Buffer Any More (Disable)
+	// Deshabilitamos plano de recortado y dibujamos suelo semitransparente
+	glDisable(GL_CLIP_PLANE0);
+	glDisable(GL_STENCIL_TEST);
+
+	// La parte final de la carretera semitransparente se hace desde fuera de esta funcion
+	road->setTransparent(true);
 }
 
 void Scene::renderLights()
@@ -1016,10 +1046,12 @@ void Scene::pick3D(int mouse_x, int mouse_y) {
     // Crea una matriz que agranda la pequeña porción de pantalla donde se ecuentra el ratón
     gluPickMatrix((GLdouble) mouse_x, (GLdouble) (viewport[3]+viewport[1]-mouse_y), 1.0f, 1.0f, viewport);
 
-    // Aplica la Matriz de Perspectiva
-    //gluPerspective(45.0f, (GLfloat) (viewport[2]-viewport[0])/(GLfloat) (viewport[3]-viewport[1]), 1.0, 1000.0);
-    // Para cambiar la perspectiva desde aqui pondriamos un if para seleccionarla
-    gluPerspective(45, aspectRatio, 1.0, 1000.0);
+    if (this->perspective) {
+		gluPerspective(45, aspectRatio, 1.0, projFar*scale);
+    }
+    else {
+		glOrtho(-8, 8, -5, 5, 1, projFar*scale);
+    }
 	glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView
 	render();
     //renderObjects();	 			// Renderiza los objetos a seleccionar
