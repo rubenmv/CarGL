@@ -532,41 +532,9 @@ void Scene::reshape(int x, int y)
     glutPostRedisplay();
 }
 
-void Scene::render()
+void Scene::renderCamera()
 {
-	frame++;
-	actualTime = glutGet(GLUT_ELAPSED_TIME);
-	if (actualTime - timebase > 1000) {
-		char s[10];
-		sprintf(s,"CarGL (2013-14) FPS:%4.2f", frame * 1000.0 / (actualTime - timebase));
-		glutSetWindowTitle(s);
-		timebase = actualTime;
-		frame = 0;
-	}
-
-	// Actualizamos las posiciones de los objetos antes del render
-	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
-	updateObjects();
-
-    glClearColor(0.2, 0.2, 0.2, 1.0);
-    //Para los REFLEJOS limpiamos tambien el stencil buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	// La actualizamos en cada render por si el escalado de la escena
-	// ha cambiado, entonces el far se debe actualizar con el escalado
-    if(perspective) {
-		setPerspective();
-    }
-    else {
-		setParallel();
-    }
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-	initRender();
-
-    // Camara
+	 // Camara
     if ( activeCamera != 0 )
     {
     	// Camara normal
@@ -596,6 +564,44 @@ void Scene::render()
 						0.0, 1.0, 0.0 );
 		}
     }
+}
+
+
+void Scene::render()
+{
+	frame++;
+	actualTime = glutGet(GLUT_ELAPSED_TIME);
+	if (actualTime - timebase > 1000) {
+		char s[10];
+		sprintf(s,"CarGL (2013-14) FPS:%4.2f", frame * 1000.0 / (actualTime - timebase));
+		glutSetWindowTitle(s);
+		timebase = actualTime;
+		frame = 0;
+	}
+
+	// La actualizamos en cada render por si el escalado de la escena
+	// ha cambiado, entonces el far se debe actualizar con el escalado
+    if(perspective) {
+		setPerspective();
+    }
+    else {
+		setParallel();
+    }
+
+	// Actualizamos las posiciones de los objetos antes del render
+	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
+	updateObjects();
+
+    glClearColor(0.2, 0.2, 0.2, 1.0);
+    //Para los REFLEJOS limpiamos tambien el stencil buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+	initRender();
+
+	renderCamera();
 
 	if (show_carretera)
 	{
@@ -1040,9 +1046,11 @@ void Scene::pick3D(int mouse_x, int mouse_y) {
 
 	glInitNames();				  // Inicializa la pila de nombres
     glPushName(0);				  // Apila 0 (al menos una entrada) en la pila
+
     glMatrixMode(GL_PROJECTION);  // Selecciona el modo proyección
     glPushMatrix();				  // Apila la matriz de proyección
     glLoadIdentity();			  // Resetea la matriz (matriz identidad)
+
     // Crea una matriz que agranda la pequeña porción de pantalla donde se ecuentra el ratón
     gluPickMatrix((GLdouble) mouse_x, (GLdouble) (viewport[3]+viewport[1]-mouse_y), 1.0f, 1.0f, viewport);
 
@@ -1053,8 +1061,9 @@ void Scene::pick3D(int mouse_x, int mouse_y) {
 		glOrtho(-8, 8, -5, 5, 1, projFar*scale);
     }
 	glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView
-	render();
-    //renderObjects();	 			// Renderiza los objetos a seleccionar
+	glLoadIdentity();
+	renderCamera();
+	renderObjects();
     glMatrixMode(GL_PROJECTION);   	// Selecciona la matriz de Proyección
     glPopMatrix();				   	// Recupera la matriz de Proyección
     glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView

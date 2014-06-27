@@ -143,6 +143,7 @@ private:
 	void renderSkybox();
 	void renderReflection();
 	void renderLights();
+	void renderCamera();
 	void renderObjects();
 	void updateObjects();
 };

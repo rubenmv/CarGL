@@ -718,7 +718,7 @@
 1402667754 c:\users\ruben\documents\github\cargl\src\material.h
 	"Object.h"
 
-1403892543 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
+1403897336 source:c:\users\ruben\documents\github\cargl\src\scene.cpp
 	"Scene.h"
 	"Object.h"
 	"Texture.h"
@@ -727,7 +727,7 @@
 	<math.h>
 	<time.h>
 
-1403892275 c:\users\ruben\documents\github\cargl\src\scene.h
+1403897279 c:\users\ruben\documents\github\cargl\src\scene.h
 	"Clock.h"
 	<vector>
 	"Global.h"
