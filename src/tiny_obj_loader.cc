@@ -279,6 +279,8 @@ void InitMaterial(material_t& material) {
 	material.emission[i] = 0.f;
   }
   material.shininess = 1.f;
+  material.ior = 1.f;
+  material.opacity = 1.f;
   material.unknown_parameter.clear();
 }
 
@@ -399,6 +401,13 @@ std::string LoadMtl (
 	if (token[0] == 'N' && token[1] == 'i' && isSpace((token[2]))) {
 	  token += 2;
 	  material.ior = parseFloat(token);
+	  continue;
+	}
+
+	// Opacidad
+	if (token[0] == 'O' && token[1] == 'p' && isSpace((token[2]))) {
+	  token += 2;
+	  material.opacity = parseFloat(token);
 	  continue;
 	}
 

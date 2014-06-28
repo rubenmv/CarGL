@@ -39,7 +39,8 @@ void Material::bind()
 		//glDisable(GL_LIGHTING);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		color[3] = 0.8; // Alpha para transparencia
+		// Debemos de asegurarnos que la opacidad es menor de 1 en el .mtl
+		color[3] = material.opacity; // Alpha para transparencia
 	}
 
 	// Dibujamos texturas con color de material por defecto (no queremos que el color afecte a la textura)

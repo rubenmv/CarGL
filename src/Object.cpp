@@ -175,7 +175,7 @@ void Object::draw()
 		glPushMatrix();
 			// Los coches puede cambiar su color de carroceria
 			// pero el resto de colores se mantiene
-			if (id == COCHE && materials[i]->name.compare("MaterialCarroceria") == 0 )
+			if (id == COCHE && materials[i]->name.compare("Carroceria") == 0 )
 			{
 				materials[i]->setColor(color);
 			}

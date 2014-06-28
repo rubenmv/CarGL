@@ -94,6 +94,7 @@ Scene::Scene()
 	clockwise = 0;
 
 	show_reflections = 0;
+	show_skybox = 1;
     show_car = 1;
     show_ruedas = 1;
     show_carretera = 1;
@@ -167,6 +168,18 @@ Scene::~Scene()
         cameras.pop_back();
     }
 
+    while (!lights.empty())
+    {
+        delete lights.back();
+        lights.pop_back();
+    }
+
+	while (!loadedTextures.empty())
+    {
+        delete loadedTextures.back();
+        loadedTextures.pop_back();
+    }
+
     while (!objects.empty())
     {
         delete objects.back();
@@ -227,7 +240,7 @@ void Scene::initObjects()
 
 	// Volante 1 por separado, para que gire igual que las ruedas
 	object = new Object(OBJ_VOLANTE, VOLANTE,
-						Vector3(0.24, 0.77, 0.98), Vector3(45.0, 0.0, 0.0), objSeleccion);
+						Vector3(0.24, 0.77, 0.92), Vector3(45.0, 0.0, 0.0), objSeleccion);
 	objects.push_back( object );
 
 	// COCHE 2
@@ -257,7 +270,7 @@ void Scene::initObjects()
 
 	// Volante 2 por separado, para que gire igual que las ruedas
 	object = new Object(OBJ_VOLANTE, VOLANTE,
-						Vector3(0.24, 0.77, 0.98), Vector3(45.0, 0.0, 0.0), objSeleccion);
+						Vector3(0.24, 0.77, 0.92), Vector3(45.0, 0.0, 0.0), objSeleccion);
 	objects.push_back( object );
 
 	carRotation = objSeleccion->rotation.y;
@@ -406,17 +419,27 @@ void Scene::initObjects()
 	objects.push_back( object );
 	// Icono de seleccion encima del objeto
 	object = new Object(OBJ_SELECCION, SELECCION,
-						Vector3(0.0, 2.0, 0.0), Vector3(0.0, 0.0, 0.0), objSeleccion, false, true );// Su parent es el coche seleccionado actualmente
+						Vector3(0.0, 2.0, 0.0), Vector3(), objSeleccion, false, true );// Su parent es el coche seleccionado actualmente
 	object->setConstantRotation(0.0, 1.0, 0.0, 0.08);
 	objects.push_back( object );
 
 	iconSelection = object; // Icono de objeto seleccionado
 
-	object = new Object(OBJ_LUNA_COCHE, LUNA_COCHE,
-						Vector3(0.0, 0.0, 0.0), Vector3(0.0, -90.0, 0.0), objSeleccion, false, true );
-	objects.push_back( object );
+	// Vamos a agregar los cristales a los coches, lo hacemos ahora porque los
+	// objetos con transparencia deben dibujarse los ultimos
+	int actualSize = objects.size();
+	for(size_t i = 0; i < actualSize; i++)
+	{
+		if(objects[i]->id == COCHE)
+		{
+			object = new Object(OBJ_LUNA_COCHE, LUNA_COCHE,
+							Vector3(), Vector3(), objects[i], false, true);
+			objects.push_back(object);
+		}
+	}
 
 	// Finalmente el skybox, solo cargamos las texturas
+	// luego se dibujan sobre quads
 	SkyboxTexture[SKYFRONT] = getTexture("assets/skybox/xpos.png");
 	SkyboxTexture[SKYBACK] = getTexture("assets/skybox/xneg.png");
 	SkyboxTexture[SKYLEFT] = getTexture("assets/skybox/zpos.png");
@@ -460,7 +483,7 @@ void Scene::setCamera(int id)
 	scale = 1.0f;
 }
 
-void Scene::addLight( const char* name, GLenum numLight, int type, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] )
+void Scene::addLight( const char* name, GLenum numLight, int enabled, float position[3], float intensity, float ambient[4], float diffuse[4], float specular[4] )
 {
     Light* light = new Light();
 
@@ -479,16 +502,7 @@ void Scene::addLight( const char* name, GLenum numLight, int type, int enabled, 
     glLightfv(numLight, GL_DIFFUSE,  light->diffuse);
     glLightfv(numLight, GL_SPECULAR, light->specular);
 
-
-    if(type == 0) {// Luz normal, todas direcciones
-		glLightfv(numLight, GL_POSITION, light->position);
-
-    }
-    else {// Spot light
-		glLightf(numLight, GL_SPOT_CUTOFF, 45.0);
-		GLfloat spot_direction[] = { 0.0, -1.0, 0.0 };
-		glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-    }
+    glLightfv(numLight, GL_POSITION, light->position);
 
     lights.push_back(light);
 
@@ -501,7 +515,7 @@ void Scene::setPerspective()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-    gluPerspective(45, aspectRatio, 1.0, projFar*scale);
+    gluPerspective(45, aspectRatio, 0.1, projFar*scale);
 }
 
 void Scene::setParallel()
@@ -509,7 +523,7 @@ void Scene::setParallel()
 	perspective = false;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-8, 8, -5, 5, 1, projFar*scale);
+	glOrtho(-8, 8, -5, 5, 0.1, projFar*scale);
 }
 
 void Scene::reshape(int x, int y)
@@ -530,110 +544,6 @@ void Scene::reshape(int x, int y)
     }
 
     glutPostRedisplay();
-}
-
-void Scene::renderCamera()
-{
-	 // Camara
-    if ( activeCamera != 0 )
-    {
-    	// Camara normal
-    	if ( !activeCamera->tracing )
-		{
-			glRotatef(view_rotation.x, 1.0, 0.0, 0.0);
-			glRotatef(view_rotation.y, 0.0, 1.0, 0.0);
-			glRotatef(view_rotation.z, 0.0, 0.0, 1.0);
-
-			glMultMatrixf(view_rotate);
-
-			glTranslatef(view_position[0], view_position[1], view_position[2]);
-
-			glScalef(scale, scale, scale);
-		}
-		// Camara de seguimiento
-		else
-		{
-			float angulo = ((objSeleccion->rotation.y)*PI) / 180.0;
-
-			gluLookAt(  objSeleccion->position.x + activeCamera->position.x * sin(angulo),
-						objSeleccion->position.y + activeCamera->position.y,
-						objSeleccion->position.z + activeCamera->position.z * cos(angulo),
-						objSeleccion->position.x + activeCamera->rotation.x,
-						objSeleccion->position.y + activeCamera->rotation.y,
-						objSeleccion->position.z + activeCamera->rotation.z,
-						0.0, 1.0, 0.0 );
-		}
-    }
-}
-
-
-void Scene::render()
-{
-	frame++;
-	actualTime = glutGet(GLUT_ELAPSED_TIME);
-	if (actualTime - timebase > 1000) {
-		char s[10];
-		sprintf(s,"CarGL (2013-14) FPS:%4.2f", frame * 1000.0 / (actualTime - timebase));
-		glutSetWindowTitle(s);
-		timebase = actualTime;
-		frame = 0;
-	}
-
-	// La actualizamos en cada render por si el escalado de la escena
-	// ha cambiado, entonces el far se debe actualizar con el escalado
-    if(perspective) {
-		setPerspective();
-    }
-    else {
-		setParallel();
-    }
-
-	// Actualizamos las posiciones de los objetos antes del render
-	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
-	updateObjects();
-
-    glClearColor(0.2, 0.2, 0.2, 1.0);
-    //Para los REFLEJOS limpiamos tambien el stencil buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-	initRender();
-
-	renderCamera();
-
-	if (show_carretera)
-	{
-		if (show_reflections) {
-			// Dibujamos la escena invertida en modo de reflejo
-			renderReflection();
-		}
-		else { // Como renderReflection la puede haber puesto a true...
-			road->setTransparent(false);
-		}
-		// Las luces las colocamos aqui para que la carretera tambien se vea afectada
-		renderLights();
-		// En cualquier caso se dibuja la carretera
-		road->draw();
-	}
-	else { // Parece redundante pero esto solo lo hace cuando no se dibuja carretera
-		renderLights();
-	}
-
-	renderSkybox();
-	renderObjects();
-
-	// Comprueba si ha habido algun error de OpenGL
-	GLenum errCode;
-	const GLubyte *errString;
-
-	if ((errCode = glGetError()) != GL_NO_ERROR) {
-		errString = gluErrorString(errCode);
-	   fprintf (stderr, "OpenGL Error: %s\n", errString);
-	}
-
-    glutSwapBuffers();
 }
 
 void Scene::initRender()
@@ -694,6 +604,40 @@ void Scene::initRender()
     else
 	{
         glFrontFace( GL_CCW ); // Antihorario
+    }
+}
+
+void Scene::renderCamera()
+{
+	 // Camara
+    if ( activeCamera != 0 )
+    {
+    	// Camara normal
+    	if ( !activeCamera->tracing )
+		{
+			glRotatef(view_rotation.x, 1.0, 0.0, 0.0);
+			glRotatef(view_rotation.y, 0.0, 1.0, 0.0);
+			glRotatef(view_rotation.z, 0.0, 0.0, 1.0);
+
+			glMultMatrixf(view_rotate);
+
+			glTranslatef(view_position[0], view_position[1], view_position[2]);
+
+			glScalef(scale, scale, scale);
+		}
+		// Camara de seguimiento
+		else
+		{
+			float angulo = ((objSeleccion->rotation.y)*PI) / 180.0;
+
+			gluLookAt(  objSeleccion->position.x + activeCamera->position.x * sin(angulo),
+						objSeleccion->position.y + activeCamera->position.y,
+						objSeleccion->position.z + activeCamera->position.z * cos(angulo),
+						objSeleccion->position.x + activeCamera->rotation.x,
+						objSeleccion->position.y + activeCamera->rotation.y,
+						objSeleccion->position.z + activeCamera->rotation.z,
+						0.0, 1.0, 0.0 );
+		}
     }
 }
 
@@ -807,7 +751,6 @@ void Scene::renderReflection()
 		glScalef(1.0f, -1.0f, 1.0f);
 		renderLights();
 		//DIBUJO LOS OBJETOS
-		renderSkybox();
 		renderObjects();
 		glFrontFace( GL_CCW );
 	glPopMatrix();
@@ -970,6 +913,10 @@ void Scene::updateObjects()
 
 void Scene::renderObjects()
 {
+	if(show_skybox)
+	{
+		renderSkybox();
+	}
 	for(size_t i = 0; i < objects.size(); i++)
 	{
 		switch ( objects[i]->id )
@@ -1017,6 +964,74 @@ void Scene::renderObjects()
 	}
 }
 
+void Scene::render()
+{
+	frame++;
+	actualTime = glutGet(GLUT_ELAPSED_TIME);
+	if (actualTime - timebase > 1000) {
+		char s[32];
+		sprintf(s,"CarGL (2013-14) FPS:%4.2f", frame * 1000.0 / (actualTime - timebase));
+		glutSetWindowTitle(s);
+		timebase = actualTime;
+		frame = 0;
+	}
+
+	// La actualizamos en cada render por si el escalado de la escena
+	// ha cambiado, entonces el far se debe actualizar con el escalado
+    if(perspective) {
+		setPerspective();
+    }
+    else {
+		setParallel();
+    }
+
+	// Actualizamos las posiciones de los objetos antes del render
+	// de esta manera el renderObjects no las aplica dos veces debido a los reflejos
+	updateObjects();
+
+	// Color del fondo por defecto, parecido al del skybox
+    glClearColor(0.4, 0.52, 0.6, 1.0);
+    //Para los REFLEJOS limpiamos tambien el stencil buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+	initRender();
+
+	renderCamera();
+
+	if (show_carretera)
+	{
+		if (show_reflections) {
+			// Dibujamos la escena invertida en modo de reflejo
+			renderReflection();
+		}
+		else { // Como renderReflection la puede haber puesto a true...
+			road->setTransparent(false);
+		}
+		// Las luces las colocamos aqui para que la carretera tambien se vea afectada
+		renderLights();
+		// En cualquier caso se dibuja la carretera
+		road->draw();
+	}
+	else { // Parece redundante pero esto solo lo hace cuando no se dibuja carretera
+		renderLights();
+	}
+
+	renderObjects();
+
+	// Comprueba si ha habido algun error de OpenGL
+	GLenum errCode;
+	const GLubyte *errString;
+
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+		errString = gluErrorString(errCode);
+	   fprintf (stderr, "OpenGL Error: %s\n", errString);
+	}
+
+    glutSwapBuffers();
+}
 
 // Selecciona un objeto a través del ratón
 void Scene::pick3D(int mouse_x, int mouse_y) {
@@ -1055,10 +1070,10 @@ void Scene::pick3D(int mouse_x, int mouse_y) {
     gluPickMatrix((GLdouble) mouse_x, (GLdouble) (viewport[3]+viewport[1]-mouse_y), 1.0f, 1.0f, viewport);
 
     if (this->perspective) {
-		gluPerspective(45, aspectRatio, 1.0, projFar*scale);
+		gluPerspective(45, aspectRatio, 0.1, projFar*scale);
     }
     else {
-		glOrtho(-8, 8, -5, 5, 1, projFar*scale);
+		glOrtho(-8, 8, -5, 5, 0.1, projFar*scale);
     }
 	glMatrixMode(GL_MODELVIEW);	   	// Selecciona la matriz de ModelView
 	glLoadIdentity();

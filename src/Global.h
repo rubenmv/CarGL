@@ -72,6 +72,7 @@ typedef struct
 	float emission[3];
 	float shininess;
 	float ior; // indice de refraccion
+	float opacity; // indice de opacidad/transparencia
 
 	std::string ambient_texname;
 	std::string diffuse_texname;

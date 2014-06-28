@@ -7,6 +7,7 @@ Ka 1 1 1
 Kd 0.5 0.5 0.5
 Ks 0.000000 0.000000 0.000000
 Ni 1.000000
+Op 0.8
 d 1.000000
 illum 1
 map_Kd carretera.jpg

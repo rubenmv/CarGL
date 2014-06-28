@@ -1,11 +1,12 @@
-# Blender MTL File: 'cart_low.blend'
+# Blender MTL File: 'cart_unidos.blend'
 # Material Count: 1
 
 newmtl Cristal
 Ns 96.078431
-Ka 0.000000 0.000000 0.000000
-Kd 0.085227 0.085227 0.085227
-Ks 0.909836 0.909836 0.909836
+Ka 1 1 1
+Kd 0.2 0.2 0.2
+Ks 1.000000 1.000000 1.000000
 Ni 1.000000
+Op 0.3
 d 1.000000
 illum 2

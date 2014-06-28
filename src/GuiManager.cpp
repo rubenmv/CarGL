@@ -139,6 +139,7 @@ void __fastcall GuiManager::init(int main_window) {
 
     /***  Rollout de Opciones ***/
     GLUI_Rollout *options = new GLUI_Rollout(glui, "Objetos", false );
+    new GLUI_Checkbox( options, "Dibujar Skybox", &scene->show_skybox );
     new GLUI_Checkbox( options, "Dibujar Coche", &scene->show_car );
     new GLUI_Checkbox( options, "Dibujar Ruedas", &scene->show_ruedas );
     new GLUI_Checkbox( options, "Dibujar Carretera", &scene->show_carretera );
