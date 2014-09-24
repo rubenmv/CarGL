@@ -8,9 +8,9 @@ CarGL es una ciudad virtual por la que usted puede desplazarse utilizando alguno
 
 Screenshots
 -----------
-[![CarGL screenshot 1](https://github.com/rubenmv/CarGL/raw/master/doc/cargl-1.PNG)]
-[![CarGL screenshot 2](https://github.com/rubenmv/CarGL/raw/master/doc/cargl-2.PNG)]
-[![CarGL screenshot 3](https://github.com/rubenmv/CarGL/raw/master/doc/cargl-3.PNG)]
+[![CarGL screenshot 1](https://github.com/rubenmv/CarGL/raw/master/doc/cargl-1.PNG)
+[![CarGL screenshot 2](https://github.com/rubenmv/CarGL/raw/master/doc/cargl-2.PNG)
+[![CarGL screenshot 3](https://github.com/rubenmv/CarGL/raw/master/doc/cargl-3.PNG)
 
 Plataformas
 -----------
